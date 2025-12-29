@@ -63,8 +63,9 @@ st.sidebar.header("Nawigacja")
 opcja = st.sidebar.radio("Wybierz moduł:", [
     "Aktualny Sezon (25/26)",
     "Wyszukiwarka Piłkarzy", 
-    "Historia Meczów", 
-    "Klub 100 (Strzelcy)",
+    "Historia Meczów",
+    "⚽ Klasyfikacja Strzelców",
+    "Klub 100",
     "Frekwencja",
     "Rywale (H2H)",
     "Trenerzy",
@@ -454,5 +455,6 @@ elif opcja == "Młoda Ekstraklasa":
         show_table(df, use_container_width=True, column_config=get_flag_config(df))
     else:
         st.error("Brak pliku: me.csv")
+
 
 
