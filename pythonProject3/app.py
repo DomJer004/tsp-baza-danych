@@ -28,7 +28,7 @@ def load_data(filename):
     # 2. Usuwanie spacji z nazw kolumn
     df.columns = df.columns.str.strip()
     
-    # 3. Usuwanie kolumny "lp." lub "Lp." z pliku (bo będziemy generować własną, ładną od 1)
+    # 3. Usuwanie kolumny "lp." lub "Lp." z pliku (bo generujemy własną od 1)
     cols_to_drop = [c for c in df.columns if c.lower().replace('.', '') == 'lp']
     if cols_to_drop:
         df = df.drop(columns=cols_to_drop)
@@ -50,7 +50,7 @@ def get_flag_config(df):
 def show_table(dataframe, **kwargs):
     """Wyświetla tabelę z indeksem zaczynającym się od 1."""
     if dataframe is not None and not dataframe.empty:
-        # Tworzymy kopię, żeby nie psuć oryginału
+        # Tworzymy kopię do wyświetlania
         df_show = dataframe.copy()
         # Resetujemy indeks i ustawiamy start od 1
         df_show.index = range(1, len(df_show) + 1)
@@ -145,8 +145,6 @@ elif opcja == "Historia Meczów":
         if rywal_filter:
             matches = matches[matches['rywal'].astype(str).str.contains(rywal_filter, case=False, na=False)]
             
-        # Tutaj specjalnie zostawiamy hide_index=True, jeśli wolisz czystą tabelę bez numeracji 1,2,3
-        # Ale jeśli chcesz widzieć liczbę meczów, usuń hide_index=True i użyj show_table(matches)
         show_table(matches, use_container_width=True) 
     else:
         st.error("Brak pliku: mecze.csv")
@@ -217,5 +215,61 @@ elif opcja == "Rywale (H2H)":
         
         if not statystyki.empty:
             st.subheader(f"Bilans przeciwko: {wybrany_rywal}")
-            st.table(stat
+            # Tu był błąd, teraz jest poprawnie:
+            st.table(statystyki)
+            
+        st.divider()
+        st.subheader("Wszyscy rywale")
+        show_table(df, use_container_width=True)
+    else:
+        st.error("Brak pliku: rywale.csv")
 
+# =========================================================
+# MODUŁ 7: TRENERZY (trenerzy.csv)
+# =========================================================
+elif opcja == "Trenerzy":
+    st.header("👔 Trenerzy TSP")
+    df = load_data("trenerzy.csv")
+    
+    if df is not None:
+        show_table(df, use_container_width=True, column_config=get_flag_config(df))
+    else:
+        st.error("Brak pliku: trenerzy.csv")
+
+# =========================================================
+# MODUŁ 8: TRANSFERY (transfery.csv)
+# =========================================================
+elif opcja == "Transfery":
+    st.header("💸 Historia Transferów")
+    df = load_data("transfery.csv")
+    
+    if df is not None:
+        show_table(df, use_container_width=True, column_config=get_flag_config(df))
+    else:
+        st.error("Brak pliku: transfery.csv")
+
+# =========================================================
+# MODUŁ 9: WYNIKI (wyniki.csv)
+# =========================================================
+elif opcja == "Statystyki Wyników":
+    st.header("🎲 Najczęstsze wyniki meczów")
+    df = load_data("wyniki.csv")
+    
+    if df is not None:
+        if 'wynik' in df.columns and 'częstotliwość' in df.columns:
+            st.bar_chart(df.set_index('wynik')['częstotliwość'])
+        show_table(df, use_container_width=True)
+    else:
+        st.error("Brak pliku: wyniki.csv")
+
+# =========================================================
+# MODUŁ 10: MŁODA EKSTRAKLASA (me.csv)
+# =========================================================
+elif opcja == "Młoda Ekstraklasa":
+    st.header("🎓 Młoda Ekstraklasa (Archiwum)")
+    df = load_data("me.csv")
+    
+    if df is not None:
+        show_table(df, use_container_width=True, column_config=get_flag_config(df))
+    else:
+        st.error("Brak pliku: me.csv")
