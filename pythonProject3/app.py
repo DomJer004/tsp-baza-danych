@@ -124,91 +124,58 @@ elif opcja == "Wyszukiwarka Piłkarzy":
     else:
         st.error("Brak pliku: pilkarze.csv")
 # =========================================================
-# MODUŁ: STRZELCY (Z AGREGACJĄ GOLI I FLAGAMI)
+# MODUŁ: STRZELCY (Z SUMOWANIEM GOLI I FILTRAMI)
 # =========================================================
-elif opcja == "Strzelcy":
+elif opcja == "⚽ Klasyfikacja Strzelców":
     st.header("⚽ Klasyfikacja Strzelców")
     df = load_data("strzelcy.csv")
     
     if df is not None:
-        # 1. Funkcja dodająca flagi (rozbudowana o kraje z Twojego pliku)
-        def add_flag(kraj_raw):
-            # Mapa krajów i flag
-            flags = {
-                'Polska': '🇵🇱', 'Hiszpania': '🇪🇸', 'Słowacja': '🇸🇰', 
-                'Łotwa': '🇱🇻', 'Chorwacja': '🇭🇷', 'Kamerun': '🇨🇲', 
-                'Zimbabwe': '🇿🇼', 'Finlandia': '🇫🇮', 'Gruzja': '🇬🇪', 
-                'Słowenia': '🇸🇮', 'Ukraina': '🇺🇦', 'Holandia': '🇳🇱', 
-                'Czechy': '🇨🇿', 'Białoruś': '🇧🇾', 'Serbia': '🇷🇸', 
-                'Litwa': '🇱🇹', 'Turcja': '🇹🇷', 'Bośnia i Hercegowina': '🇧🇦',
-                'Japonia': '🇯🇵', 'Senegal': '🇸🇳', 'Bułgaria': '🇧🇬',
-                'Izrael': '🇮🇱', 'Nigieria': '🇳🇬', 'Grecja': '🇬🇷',
-                'Francja': '🇫🇷', 'Niemcy': '🇩🇪', 'Argentyna': '🇦🇷'
-            }
-            
-            # Obsługa podwójnych obywatelstw (np. "Haiti /Dania")
-            # Szukamy czy jakikolwiek klucz ze słownika występuje w nazwie kraju
-            found_flag = ''
-            kraj_clean = str(kraj_raw).strip()
-            
-            # Najpierw szukamy dokładnego dopasowania
-            if kraj_clean in flags:
-                return f"{flags[kraj_clean]} {kraj_clean}"
-            
-            # Jeśli nie, szukamy częściowego (dla podwójnych obywatelstw)
-            for k, f in flags.items():
-                if k in kraj_clean:
-                    found_flag = f
-                    break
-            
-            return f"{found_flag} {kraj_clean}" if found_flag else kraj_clean
+        # 1. Przygotowanie listy sezonów
+        if 'sezon' in df.columns:
+            dostepne_sezony = sorted(df['sezon'].unique(), reverse=True)
+            opcje_sezonu = ["Wszystkie sezony"] + list(dostepne_sezony)
+        else:
+            opcje_sezonu = ["Brak danych o sezonach"]
 
-        # 2. Interfejs sterowania (Filtry)
-        dostepne_sezony = sorted(df['sezon'].unique(), reverse=True)
-        # Dodajemy opcję "Wszystkie sezony" na początek listy
-        opcje_sezonu = ["Wszystkie sezony"] + list(dostepne_sezony)
-
+        # 2. Panel filtrów
         col1, col2 = st.columns([2, 1])
-        
         with col1:
             wybrany_sezon = st.selectbox("Wybierz okres:", opcje_sezonu)
         with col2:
-            st.write("") # Odstęp dla wyrównania
+            st.write("") # Pusty odstęp dla wyrównania
             st.write("") 
             pokaz_obcokrajowcow = st.checkbox("🌍 Tylko obcokrajowcy")
 
-        # 3. Logika filtrowania i agregacji danych
+        # 3. Logika filtrowania
         df_filtered = df.copy()
 
-        # A. Filtr obcokrajowców
-        # Uwaga: Niektórzy mają "Polska /Niemcy", więc sprawdzamy czy "Polska" jest w nazwie
-        if pokaz_obcokrajowcow:
-            # Wykluczamy każdego, kto ma w polu kraj słowo "Polska"
+        # A. Filtr obcokrajowców (usuwa Polaków)
+        if pokaz_obcokrajowcow and 'kraj' in df_filtered.columns:
             df_filtered = df_filtered[~df_filtered['kraj'].astype(str).str.contains("Polska", case=False)]
 
-        # B. Filtr Sezonu / Agregacja
+        # B. Filtr Sezonu i Agregacja
         if wybrany_sezon == "Wszystkie sezony":
-            # SUMUJEMY gole dla każdego zawodnika (grupowanie po nazwisku i kraju)
+            # Jeśli wybrano wszystkie, grupujemy po nazwisku i kraju, sumując gole
+            # Używamy as_index=False, żeby imię i kraj zostały jako kolumny
             df_display = df_filtered.groupby(['imię i nazwisko', 'kraj'], as_index=False)['gole'].sum()
-        else:
-            # Wybieramy tylko konkretny sezon
+        elif wybrany_sezon != "Brak danych o sezonach":
+            # Jeśli wybrano konkretny sezon, filtrujemy wiersze
             df_display = df_filtered[df_filtered['sezon'] == wybrany_sezon].copy()
-            # Wybieramy tylko potrzebne kolumny (bez sezonu, bo jest wybrany w nagłówku)
-            df_display = df_display[['imię i nazwisko', 'kraj', 'gole']]
+            # Wybieramy tylko potrzebne kolumny
+            cols_to_keep = ['imię i nazwisko', 'kraj', 'gole']
+            df_display = df_display[cols_to_keep]
 
-        # 4. Finalne przygotowanie tabeli
+        # 4. Wyświetlanie tabeli
         if df_display.empty:
             st.warning("Brak zawodników spełniających kryteria.")
         else:
             # Sortowanie malejąco po golach
             df_display = df_display.sort_values(by='gole', ascending=False)
             
-            # Dodanie flag do wyświetlania
-            df_display['kraj'] = df_display['kraj'].apply(add_flag)
-            
-            # Reset indeksu, aby stworzyć ranking 1, 2, 3...
-            df_display = df_display.reset_index(drop=True)
-            df_display.index += 1  # Zaczynamy od 1 zamiast 0
+            # Dodanie flag (korzysta z funkcji globalnej add_flag)
+            if 'kraj' in df_display.columns:
+                df_display['kraj'] = df_display['kraj'].apply(add_flag)
             
             # Zmiana nazw kolumn na ładniejsze
             df_display = df_display.rename(columns={
@@ -217,16 +184,16 @@ elif opcja == "Strzelcy":
                 'gole': 'Bramki'
             })
 
-            # Wyświetlenie tabeli
-            st.dataframe(
-                df_display,
-                use_container_width=True
-            )
+            # Reset indeksu (numeracja od 1)
+            df_display = df_display.reset_index(drop=True)
+            df_display.index += 1
             
-            # Podsumowanie liczbowe
+            # Wyświetlenie
+            st.dataframe(df_display, use_container_width=True)
+            
+            # Podsumowanie
             total_goals = df_display['Bramki'].sum()
             st.caption(f"Łącznie: {len(df_display)} strzelców, {total_goals} goli w wybranym zakresie.")
-
     else:
         st.error("Brak pliku: strzelcy.csv")
 
@@ -332,29 +299,51 @@ elif opcja == "Historia Meczów":
         st.error("Brak pliku: mecze.csv")
 
 # =========================================================
-# MODUŁ 4: KLUB 100 (klub_100.csv)
+# MODUŁ: KLUB 100 (NAJWIĘCEJ WYSTĘPÓW)
 # =========================================================
-elif opcja == "Klub 100 (Strzelcy)":
-    st.header("🔫 Najskuteczniejsi (Klub 100)")
+elif opcja == "Klub 100":
+    st.header("💯 Klub 100 (Najwięcej Meczów)")
     df = load_data("klub_100.csv")
     
     if df is not None:
-        col_suma = [c for c in df.columns if "SUMA" in c.upper()]
+        # 1. Automatyczne wykrywanie kolumny z liczbą meczów
+        # Szukamy kolumny zawierającej "mecze", "występy" lub "suma"
+        target_col = None
+        keywords = ['mecze', 'występy', 'spotkania', 'suma']
         
-        if col_suma:
-            target_col = col_suma[0]
+        for key in keywords:
+            # Szukamy pasującej kolumny (case insensitive)
+            found = [c for c in df.columns if key in c.lower()]
+            if found:
+                target_col = found[0]
+                break
+        
+        # 2. Rysowanie wykresu (tylko jeśli znaleziono kolumnę)
+        if target_col:
+            st.subheader("Top 30 – Rekordziści pod względem występów")
+            
             df_chart = df.copy()
-            df_chart[target_col] = pd.to_numeric(df_chart[target_col].replace("-", 0), errors='coerce').fillna(0)
             
+            # Czyszczenie danych liczbowych (usuwanie spacji np. "1 000" -> 1000)
+            df_chart[target_col] = pd.to_numeric(
+                df_chart[target_col].astype(str).str.replace(" ", ""), 
+                errors='coerce'
+            ).fillna(0)
+            
+            # Sortowanie i wybór Top 30
             top = df_chart.sort_values(by=target_col, ascending=False).head(30)
-            st.bar_chart(top.set_index('imię i nazwisko')[target_col])
             
-            show_table(df, use_container_width=True, column_config=get_flag_config(df))
+            # Wykres słupkowy
+            st.bar_chart(top.set_index('imię i nazwisko')[target_col])
         else:
-            show_table(df, use_container_width=True, column_config=get_flag_config(df))
+            st.info("Nie znaleziono kolumny z liczbą meczów do wygenerowania wykresu.")
+
+        # 3. Wyświetlenie tabeli
+        # Konfiguracja flag, jeśli są kraje
+        show_table(df, use_container_width=True, column_config=get_flag_config(df))
+            
     else:
         st.error("Brak pliku: klub_100.csv")
-
 # =========================================================
 # MODUŁ 5: FREKWENCJA (frekwencja.csv)
 # =========================================================
@@ -455,6 +444,5 @@ elif opcja == "Młoda Ekstraklasa":
         show_table(df, use_container_width=True, column_config=get_flag_config(df))
     else:
         st.error("Brak pliku: me.csv")
-
 
 
