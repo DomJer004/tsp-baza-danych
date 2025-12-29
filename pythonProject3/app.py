@@ -13,7 +13,7 @@ try:
 except ImportError:
     HAS_PLOTLY = False
 
-# --- 2. MAPOWANIE KRAJÓW NA KODY ISO (DLA FLAGPEDII) ---
+# --- 2. MAPOWANIE KRAJÓW (BEZ ANGLII) ---
 COUNTRY_TO_ISO = {
     'polska': 'pl', 'hiszpania': 'es', 'słowacja': 'sk', 'łotwa': 'lv', 
     'chorwacja': 'hr', 'kamerun': 'cm', 'zimbabwe': 'zw', 'finlandia': 'fi', 
@@ -24,7 +24,7 @@ COUNTRY_TO_ISO = {
     'grecja': 'gr', 'francja': 'fr', 'niemcy': 'de', 'argentyna': 'ar', 
     'usa': 'us', 'stany zjednoczone': 'us', 'kolumbia': 'co', 'włochy': 'it', 
     'belgia': 'be', 'szwecja': 'se', 'portugalia': 'pt', 'węgry': 'hu', 
-    'austria': 'at', 'brazylia': 'br', 'anglia': 'gb-eng', 'szkocja': 'gb-sct',
+    'austria': 'at', 'brazylia': 'br', 'szkocja': 'gb-sct',
     'walia': 'gb-wls', 'irlandia': 'ie', 'irlandia północna': 'gb-nir',
     'rosja': 'ru', 'dania': 'dk', 'norwegia': 'no', 'szwajcaria': 'ch',
     'rumunia': 'ro', 'cypr': 'cy', 'macedonia': 'mk', 'czarnogóra': 'me'
@@ -33,28 +33,18 @@ COUNTRY_TO_ISO = {
 # --- 3. FUNKCJE POMOCNICZE ---
 
 def get_flag_url(country_name):
-    """
-    Zamienia nazwę kraju na URL do flagi z Flagpedii.
-    Obsługuje podwójne nazwy, np. 'Słowacja /Niemcy' -> bierze 'Słowacja'.
-    """
+    """Generuje URL do flagi z Flagpedii."""
     if not isinstance(country_name, str):
         return None
-    
-    # Bierzemy pierwszy kraj przed ukośnikiem (dla podwójnych obywatelstw)
     first_country = country_name.split('/')[0].strip().lower()
-    
-    # Szukamy kodu ISO
     iso_code = COUNTRY_TO_ISO.get(first_country)
-    
     if iso_code:
         return f"https://flagcdn.com/w40/{iso_code}.png"
     return None
 
 @st.cache_data
 def load_data(filename):
-    """
-    Ładuje dane, czyści kolumny i formatuje typy danych.
-    """
+    """Pancerna funkcja ładowania danych."""
     try:
         df = pd.read_csv(filename, encoding='utf-8')
     except UnicodeDecodeError:
@@ -64,25 +54,36 @@ def load_data(filename):
             try:
                 df = pd.read_csv(filename, encoding='latin-1')
             except:
-                st.error(f"❌ Nie udało się otworzyć pliku: {filename}. Sprawdź kodowanie.")
+                st.error(f"❌ Nie udało się otworzyć pliku: {filename}.")
                 return None
     except FileNotFoundError:
         st.error(f"❌ Nie znaleziono pliku: {filename}")
         return None
     
-    # Normalizacja
     df = df.fillna("-")
     df.columns = [c.strip().lower() for c in df.columns]
     
-    # Usuwanie LP
     cols_to_drop = [c for c in df.columns if c.replace('.', '') == 'lp']
     if cols_to_drop:
         df = df.drop(columns=cols_to_drop)
     
     return df
 
+def prepare_dataframe_with_flags(df, country_col='narodowość'):
+    """Dodaje kolumnę z flagą."""
+    if country_col in df.columns:
+        df['flaga'] = df[country_col].apply(get_flag_url)
+        df = df.rename(columns={country_col: 'Narodowość', 'flaga': 'Flaga'})
+        cols = list(df.columns)
+        if 'Narodowość' in cols and 'Flaga' in cols:
+            cols.remove('Flaga')
+            idx = cols.index('Narodowość')
+            cols.insert(idx + 1, 'Flaga')
+            df = df[cols]
+    return df
+
 def parse_result(val):
-    """Analizuje wynik (np. '1-0') -> (gole_tsp, gole_rywal)."""
+    """Analizuje wynik meczu."""
     if not isinstance(val, str): return None
     val = val.replace('-', ':').replace(' ', '')
     if ':' in val:
@@ -93,7 +94,7 @@ def parse_result(val):
     return None
 
 def color_results_logic(val):
-    """Kolory wyników: Zielony (W), Czerwony (P), Pomarańczowy (R)."""
+    """Koloruje wynik meczu."""
     res = parse_result(val)
     if res:
         t, o = res
@@ -101,24 +102,6 @@ def color_results_logic(val):
         elif t < o: return 'color: #dc3545; font-weight: bold'
         else: return 'color: #fd7e14; font-weight: bold'
     return ''
-
-def prepare_dataframe_with_flags(df, country_col='narodowość'):
-    """Dodaje kolumnę z URL flagi i przesuwa ją obok kraju."""
-    if country_col in df.columns:
-        # Generujemy URL flagi
-        df['flaga'] = df[country_col].apply(get_flag_url)
-        
-        # Zmieniamy nazwy na ładniejsze
-        df = df.rename(columns={country_col: 'Narodowość', 'flaga': 'Flaga'})
-        
-        # Reorganizacja kolumn: wstaw Flagę zaraz po Narodowości
-        cols = list(df.columns)
-        if 'Narodowość' in cols and 'Flaga' in cols:
-            cols.remove('Flaga')
-            idx = cols.index('Narodowość')
-            cols.insert(idx + 1, 'Flaga')
-            df = df[cols]
-    return df
 
 # --- 4. MENU ---
 st.sidebar.header("Nawigacja")
@@ -148,10 +131,8 @@ if opcja == "Aktualny Sezon (25/26)":
         if filter_text:
             df = df[df.astype(str).apply(lambda x: x.str.contains(filter_text, case=False)).any(axis=1)]
 
-        # Dodanie flag
         df = prepare_dataframe_with_flags(df, 'narodowość' if 'narodowość' in df.columns else 'kraj')
 
-        # Konfiguracja wyświetlania (bez miejsc po przecinku)
         col_config = {
             "Flaga": st.column_config.ImageColumn("Flaga", width="small"),
             "gole": st.column_config.NumberColumn("Gole", format="%d ⚽"),
@@ -207,12 +188,10 @@ elif opcja == "Historia Meczów":
             st.error("Brak kolumny 'wynik'.")
             st.stop()
 
+        sezony = []
         if 'sezon' in df.columns:
             sezony = sorted(df['sezon'].astype(str).unique(), reverse=True)
-            # Filtrujemy tylko te wyglądające na lata (np. zawierające /)
             sezony = [s for s in sezony if len(s) > 4]
-        else:
-            sezony = []
 
         c1, c2 = st.columns(2)
         wybrany_sezon = c1.selectbox("Wybierz sezon:", sezony) if sezony else None
@@ -224,7 +203,6 @@ elif opcja == "Historia Meczów":
         if rywal_filter:
             matches = matches[matches.astype(str).apply(lambda x: x.str.contains(rywal_filter, case=False)).any(axis=1)]
 
-        # Wykrywanie rozgrywek
         col_roz = next((c for c in matches.columns if c in ['rozgrywki', 'liga', 'rodzaj']), None)
 
         if matches.empty:
@@ -237,18 +215,13 @@ elif opcja == "Historia Meczów":
             else:
                 datasets.append(("Wszystkie", matches))
 
-            if col_roz:
-                tabs = st.tabs([d[0] for d in datasets])
-            else:
-                tabs = [st]
+            tabs = st.tabs([d[0] for d in datasets]) if col_roz else [st]
 
             for container, (name, subset) in zip(tabs, datasets):
                 with container:
-                    # Sortowanie
                     if 'data sortowania' in subset.columns:
                         subset = subset.sort_values('data sortowania', ascending=False)
                     
-                    # Bilans
                     w, r, p = 0, 0, 0
                     for res in subset['wynik']:
                         parsed = parse_result(res)
@@ -260,11 +233,7 @@ elif opcja == "Historia Meczów":
                     st.caption(f"📊 Bilans: ✅ {w} W | ➖ {r} R | ❌ {p} P")
                     
                     view = subset.drop(columns=['mecz', 'data sortowania'], errors='ignore')
-                    st.dataframe(
-                        view.style.map(color_results_logic, subset=['wynik']),
-                        use_container_width=True,
-                        hide_index=True
-                    )
+                    st.dataframe(view.style.map(color_results_logic, subset=['wynik']), use_container_width=True, hide_index=True)
 
 # =========================================================
 # MODUŁ 4: STRZELCY
@@ -299,11 +268,7 @@ elif opcja == "⚽ Klasyfikacja Strzelców":
             df_show = df_show.sort_values('gole', ascending=False)
             df_show = prepare_dataframe_with_flags(df_show, kraj_col)
             
-            # Zmiana nazw i formatowania
-            renames = {'imię i nazwisko': 'Zawodnik', 'gole': 'Bramki'}
-            df_show = df_show.rename(columns=renames)
-            
-            # Dodanie numeracji (Rankingu)
+            df_show = df_show.rename(columns={'imię i nazwisko': 'Zawodnik', 'gole': 'Bramki'})
             df_show.index = range(1, len(df_show) + 1)
             
             st.dataframe(
@@ -319,34 +284,60 @@ elif opcja == "⚽ Klasyfikacja Strzelców":
             st.warning("Brak danych.")
 
 # =========================================================
-# MODUŁ 5: KLUB 100
+# MODUŁ 5: KLUB 100 (NOWY - Z BAZY PIŁKARZY)
 # =========================================================
 elif opcja == "Klub 100":
     st.header("💯 Klub 100 (Najwięcej Meczów)")
-    df = load_data("klub_100.csv")
+    # Zmiana źródła danych na pilkarze.csv
+    df = load_data("pilkarze.csv")
     
     if df is not None:
-        target = next((c for c in df.columns if any(x in c for x in ['mecze', 'występy'])), None)
+        # Szukamy kolumny z meczami
+        target_col = next((c for c in df.columns if any(k in c for k in ['mecze', 'występy', 'spotkania'])), None)
+        # Szukamy kolumny z krajem
+        nat_col = next((c for c in df.columns if c in ['narodowość', 'kraj']), None)
         
-        if target:
-            # Czyszczenie danych do wykresu (int)
-            df[target] = pd.to_numeric(df[target].astype(str).str.replace(" ", ""), errors='coerce').fillna(0).astype(int)
+        if target_col:
+            # Czyszczenie i konwersja na liczby
+            df[target_col] = pd.to_numeric(
+                df[target_col].astype(str).str.replace(" ", ""), 
+                errors='coerce'
+            ).fillna(0).astype(int)
             
-            st.subheader("Top 30 – Rekordziści")
-            top = df.sort_values(target, ascending=False).head(30)
-            st.bar_chart(top.set_index('imię i nazwisko')[target])
+            # FILTRACJA: Tylko >= 100 meczów
+            df_100 = df[df[target_col] >= 100].copy()
             
-            # Tabela
-            df = prepare_dataframe_with_flags(df, 'narodowość' if 'narodowość' in df.columns else 'kraj')
-            st.dataframe(
-                df.sort_values(target, ascending=False),
-                use_container_width=True, 
-                hide_index=True,
-                column_config={
-                    "Flaga": st.column_config.ImageColumn("Flaga", width="small"),
-                    target: st.column_config.NumberColumn("Mecze", format="%d")
-                }
-            )
+            if not df_100.empty:
+                # Sortowanie
+                df_100 = df_100.sort_values(by=target_col, ascending=False)
+
+                # Wykres (Top 30 z Klubu 100)
+                st.subheader(f"Członkowie Klubu 100 (Razem: {len(df_100)})")
+                top_chart = df_100.head(30)
+                st.bar_chart(top_chart.set_index('imię i nazwisko')[target_col])
+                
+                # Tabela
+                if nat_col:
+                    df_100 = prepare_dataframe_with_flags(df_100, nat_col)
+                
+                # Zmiana nazw i indeksu
+                df_100 = df_100.rename(columns={'imię i nazwisko': 'Zawodnik', target_col: 'Mecze'})
+                df_100.index = range(1, len(df_100) + 1)
+                
+                st.dataframe(
+                    df_100,
+                    use_container_width=True,
+                    column_config={
+                        "Flaga": st.column_config.ImageColumn("Flaga", width="small"),
+                        "Mecze": st.column_config.NumberColumn("Mecze", format="%d")
+                    }
+                )
+            else:
+                st.info("Brak zawodników z 100+ meczami w bazie.")
+        else:
+            st.error("W pliku 'pilkarze.csv' nie znaleziono kolumny z liczbą meczów.")
+    else:
+        st.error("Brak pliku: pilkarze.csv")
 
 # =========================================================
 # MODUŁ 6: FREKWENCJA
@@ -400,7 +391,7 @@ elif opcja == "Trenerzy":
     df = load_data("trenerzy.csv")
     
     if df is not None:
-        # Konwersja liczb na inty (tam gdzie to możliwe)
+        # Konwersja liczb na int
         int_cols = ['wiek', 'suma dni', 'mecze', 'wygrane', 'remisy', 'przegrane', 'punkty']
         for c in int_cols:
             if c in df.columns:
@@ -412,7 +403,6 @@ elif opcja == "Trenerzy":
             df['koniec_dt'] = pd.to_datetime(df['koniec'], format='%d.%m.%Y', errors='coerce')
             df['koniec_dt'] = df['koniec_dt'].fillna(pd.Timestamp.today())
 
-        # Dodanie flag
         df = prepare_dataframe_with_flags(df, 'narodowość')
 
         tab1, tab2, tab3 = st.tabs(["📋 Lista Chronologiczna", "📊 Rankingi", "📈 Wykres Efektywności"])
@@ -437,7 +427,6 @@ elif opcja == "Trenerzy":
 
         with tab2:
             st.subheader("🏆 Podsumowanie Trenerów")
-            # Agregacja
             grp_cols = ['imię i nazwisko', 'Narodowość', 'Flaga']
             grp_cols = [c for c in grp_cols if c in df.columns]
             
@@ -475,7 +464,7 @@ elif opcja == "Trenerzy":
                 st.info("Zainstaluj 'plotly' w requirements.txt")
 
 # =========================================================
-# MODUŁ 9 & 10 & 11 (POZOSTAŁE)
+# POZOSTAŁE MODUŁY
 # =========================================================
 elif opcja == "Transfery":
     st.header("💸 Historia Transferów")
