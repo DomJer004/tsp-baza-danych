@@ -21,19 +21,50 @@ def load_data(filename):
     except FileNotFoundError:
         return None
     
-    # GLOBALNE CZYSZCZENIE PUSTYCH PÓL
-    # Zamienia puste wartości (NaN, None) na myślnik "-"
-    # Dzięki temu tabela nie ma dziur
-    return df.fillna("-")
+    # GLOBALNE CZYSZCZENIE:
+    # 1. Zamiana pustych pól na "-"
+    df = df.fillna("-")
+    
+    # 2. Usuwanie spacji z nazw kolumn
+    df.columns = df.columns.str.strip()
+    
+    # 3. Usuwanie kolumny "lp." lub "Lp." z pliku (bo będziemy generować własną, ładną od 1)
+    cols_to_drop = [c for c in df.columns if c.lower().replace('.', '') == 'lp']
+    if cols_to_drop:
+        df = df.drop(columns=cols_to_drop)
+    
+    return df
+
+# --- POMOCNICZA FUNKCJA DO KONFIGURACJI FLAG ---
+def get_flag_config(df):
+    """Tworzy konfigurację, która zamienia linki w kolumnie 'flaga' na obrazki."""
+    cfg = {}
+    potential_cols = ['flaga', 'flaga_url', 'kraj_url', 'flag']
+    
+    for col in potential_cols:
+        if col in df.columns:
+            cfg[col] = st.column_config.ImageColumn("Narodowość", width="small")
+    return cfg
+
+# --- POMOCNICZA FUNKCJA DO WYŚWIETLANIA (NUMERACJA OD 1) ---
+def show_table(dataframe, **kwargs):
+    """Wyświetla tabelę z indeksem zaczynającym się od 1."""
+    if dataframe is not None and not dataframe.empty:
+        # Tworzymy kopię, żeby nie psuć oryginału
+        df_show = dataframe.copy()
+        # Resetujemy indeks i ustawiamy start od 1
+        df_show.index = range(1, len(df_show) + 1)
+        st.dataframe(df_show, **kwargs)
+    else:
+        st.dataframe(dataframe, **kwargs)
 
 # --- SIDEBAR (MENU) ---
-# Usunąłem "Obcokrajowcy" z listy
 st.sidebar.header("Nawigacja")
 opcja = st.sidebar.radio("Wybierz moduł:", [
     "Aktualny Sezon (25/26)",
     "Wyszukiwarka Piłkarzy", 
     "Historia Meczów", 
-    "Klub 100",
+    "Klub 100 (Strzelcy)",
     "Frekwencja",
     "Rywale (H2H)",
     "Trenerzy",
@@ -50,22 +81,17 @@ if opcja == "Aktualny Sezon (25/26)":
     df = load_data("25_26.csv")
     
     if df is not None:
-        df.columns = df.columns.str.strip()
-        
         filter_text = st.text_input("Szukaj w obecnej kadrze:")
         if filter_text:
             df = df[df.astype(str).apply(lambda x: x.str.contains(filter_text, case=False)).any(axis=1)]
 
         column_config = {
-            "flaga": st.column_config.ImageColumn("Kraj"),
             "gole": st.column_config.NumberColumn("Gole", format="%d ⚽"),
             "asysty": st.column_config.NumberColumn("Asysty", format="%d 🅰️"),
         }
-        
-        if 'flaga_url' in df.columns:
-            column_config['flaga_url'] = st.column_config.ImageColumn("Kraj")
+        column_config.update(get_flag_config(df))
             
-        st.dataframe(df, use_container_width=True, column_config=column_config, hide_index=True)
+        show_table(df, use_container_width=True, column_config=column_config)
     else:
         st.error("Brak pliku: 25_26.csv")
 
@@ -77,39 +103,23 @@ elif opcja == "Wyszukiwarka Piłkarzy":
     df = load_data("pilkarze.csv")
     
     if df is not None:
-        df.columns = df.columns.str.strip()
-        
-        # --- PANEL FILTRÓW ---
         col1, col2 = st.columns([3, 1])
-        
         with col1:
             search = st.text_input("🔍 Wpisz nazwisko piłkarza:")
-        
         with col2:
-            st.write("") # Odstęp
-            st.write("") # Odstęp żeby wyrównać do dołu
-            # Checkbox do filtrowania obcokrajowców
+            st.write("") 
+            st.write("") 
             only_foreigners = st.checkbox("🌍 Pokaż tylko obcokrajowców")
         
-        # --- LOGIKA FILTROWANIA ---
-        
-        # 1. Filtr obcokrajowców
         if only_foreigners:
             if 'narodowość' in df.columns:
-                # Szukamy tych, którzy NIE mają w nazwie "Polska"
-                # (używamy ~ do odwrócenia warunku)
                 df = df[~df['narodowość'].astype(str).str.contains("Polska", case=False, na=False)]
-                st.info(f"Wyświetlam tylko obcokrajowców. Znaleziono: {len(df)}")
-            else:
-                st.warning("Brak kolumny 'narodowość' w pliku, nie można filtrować.")
+                st.info(f"Wyświetlam tylko obcokrajowców ({len(df)} zawodników).")
 
-        # 2. Filtr wyszukiwania po nazwisku
         if search:
             df = df[df['imię i nazwisko'].astype(str).str.contains(search, case=False, na=False)]
             
-        # Wyświetlanie
-        st.dataframe(df, use_container_width=True)
-        
+        show_table(df, use_container_width=True, column_config=get_flag_config(df))
     else:
         st.error("Brak pliku: pilkarze.csv")
 
@@ -121,12 +131,7 @@ elif opcja == "Historia Meczów":
     df = load_data("mecze.csv")
     
     if df is not None:
-        df.columns = df.columns.str.strip()
-        # Musimy usunąć myślniki z sezonów, żeby sortowanie działało, 
-        # ale myślniki dodaliśmy przy ładowaniu. 
-        # Filtrujemy tylko tam, gdzie sezon ma sensowną długość.
         df_clean = df[df['sezon'].astype(str).str.len() > 4]
-        
         sezony = df_clean['sezon'].unique()
         
         col1, col2 = st.columns(2)
@@ -140,34 +145,33 @@ elif opcja == "Historia Meczów":
         if rywal_filter:
             matches = matches[matches['rywal'].astype(str).str.contains(rywal_filter, case=False, na=False)]
             
-        st.dataframe(matches, use_container_width=True, hide_index=True)
+        # Tutaj specjalnie zostawiamy hide_index=True, jeśli wolisz czystą tabelę bez numeracji 1,2,3
+        # Ale jeśli chcesz widzieć liczbę meczów, usuń hide_index=True i użyj show_table(matches)
+        show_table(matches, use_container_width=True) 
     else:
         st.error("Brak pliku: mecze.csv")
 
 # =========================================================
 # MODUŁ 4: KLUB 100 (klub_100.csv)
 # =========================================================
-elif opcja == "Klub 100":
-    st.header("Klub 100")
+elif opcja == "Klub 100 (Strzelcy)":
+    st.header("🔫 Najskuteczniejsi (Klub 100)")
     df = load_data("klub_100.csv")
     
     if df is not None:
-        df.columns = df.columns.str.strip()
         col_suma = [c for c in df.columns if "SUMA" in c.upper()]
         
         if col_suma:
             target_col = col_suma[0]
-            # Przywracamy liczby tam gdzie były myślniki, żeby zrobić wykres
             df_chart = df.copy()
-            df_chart[target_col] = pd.to_numeric(df_chart[target_col], errors='coerce').fillna(0)
+            df_chart[target_col] = pd.to_numeric(df_chart[target_col].replace("-", 0), errors='coerce').fillna(0)
             
             top = df_chart.sort_values(by=target_col, ascending=False).head(30)
             st.bar_chart(top.set_index('imię i nazwisko')[target_col])
             
-            # Wyświetlamy tabelę z myślnikami (oryginał)
-            st.dataframe(df, use_container_width=True)
+            show_table(df, use_container_width=True, column_config=get_flag_config(df))
         else:
-            st.dataframe(df)
+            show_table(df, use_container_width=True, column_config=get_flag_config(df))
     else:
         st.error("Brak pliku: klub_100.csv")
 
@@ -179,12 +183,8 @@ elif opcja == "Frekwencja":
     df = load_data("frekwencja.csv")
     
     if df is not None:
-        df.columns = df.columns.str.strip()
-        
-        # Logika czyszczenia liczb do wykresu
         def clean_number(x):
             if isinstance(x, str):
-                # Usuwamy myślniki i spacje
                 clean_str = x.replace('-', '0').replace('\xa0', '').replace(' ', '').replace(',', '.')
                 try:
                     return float(clean_str)
@@ -193,12 +193,11 @@ elif opcja == "Frekwencja":
             return x
 
         if 'średnia domowa' in df.columns:
-            # Kopia do wykresu
             df_chart = df.copy()
             df_chart['średnia_num'] = df_chart['średnia domowa'].apply(clean_number)
             st.line_chart(df_chart.set_index('sezon')['średnia_num'])
             
-        st.dataframe(df, use_container_width=True)
+        show_table(df, use_container_width=True)
     else:
         st.error("Brak pliku: frekwencja.csv")
 
@@ -210,9 +209,7 @@ elif opcja == "Rywale (H2H)":
     df = load_data("rywale.csv")
     
     if df is not None:
-        df.columns = df.columns.str.strip()
         rival_col = df.columns[0] 
-        
         lista_rywali = sorted(df[rival_col].astype(str).unique())
         wybrany_rywal = st.selectbox("Wybierz przeciwnika:", lista_rywali)
         
@@ -220,64 +217,5 @@ elif opcja == "Rywale (H2H)":
         
         if not statystyki.empty:
             st.subheader(f"Bilans przeciwko: {wybrany_rywal}")
-            st.table(statystyki)
-            
-        st.divider()
-        st.subheader("Wszyscy rywale")
-        st.dataframe(df, use_container_width=True)
-    else:
-        st.error("Brak pliku: rywale.csv")
+            st.table(stat
 
-# =========================================================
-# MODUŁ 7: TRENERZY (trenerzy.csv)
-# =========================================================
-elif opcja == "Trenerzy":
-    st.header("👔 Trenerzy TSP")
-    df = load_data("trenerzy.csv")
-    
-    if df is not None:
-        df.columns = df.columns.str.strip()
-        st.dataframe(df, use_container_width=True)
-    else:
-        st.error("Brak pliku: trenerzy.csv")
-
-# =========================================================
-# MODUŁ 8: TRANSFERY (transfery.csv)
-# =========================================================
-elif opcja == "Transfery":
-    st.header("💸 Historia Transferów")
-    df = load_data("transfery.csv")
-    
-    if df is not None:
-        df.columns = df.columns.str.strip()
-        st.dataframe(df, use_container_width=True)
-    else:
-        st.error("Brak pliku: transfery.csv")
-
-# =========================================================
-# MODUŁ 9: WYNIKI (wyniki.csv)
-# =========================================================
-elif opcja == "Statystyki Wyników":
-    st.header("🎲 Najczęstsze wyniki meczów")
-    df = load_data("wyniki.csv")
-    
-    if df is not None:
-        df.columns = df.columns.str.strip()
-        if 'wynik' in df.columns and 'częstotliwość' in df.columns:
-            st.bar_chart(df.set_index('wynik')['częstotliwość'])
-        st.dataframe(df, use_container_width=True)
-    else:
-        st.error("Brak pliku: wyniki.csv")
-
-# =========================================================
-# MODUŁ 10: MŁODA EKSTRAKLASA (me.csv)
-# =========================================================
-elif opcja == "Młoda Ekstraklasa":
-    st.header("🎓 Młoda Ekstraklasa (Archiwum)")
-    df = load_data("me.csv")
-    
-    if df is not None:
-        df.columns = df.columns.str.strip()
-        st.dataframe(df, use_container_width=True)
-    else:
-        st.error("Brak pliku: me.csv")
