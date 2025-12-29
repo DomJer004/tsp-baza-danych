@@ -215,7 +215,7 @@ elif opcja == "Rywale (H2H)":
         
         if not statystyki.empty:
             st.subheader(f"Bilans przeciwko: {wybrany_rywal}")
-            # Tu był błąd, teraz jest poprawnie:
+            # POPRAWKA BŁĘDU (zamknięty nawias):
             st.table(statystyki)
             
         st.divider()
