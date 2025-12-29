@@ -1,5 +1,3 @@
-Python
-
 import streamlit as st
 import pandas as pd
 import datetime
@@ -482,6 +480,7 @@ elif opcja == "Młoda Ekstraklasa":
     df = load_data("me.csv")
     df = prepare_dataframe_with_flags(df, 'narodowość')
     st.dataframe(df, use_container_width=True, hide_index=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
+
 
 
 
