@@ -32,6 +32,40 @@ if not st.session_state['logged_in']:
     login()
     st.stop()
 
+import streamlit as st
+import pandas as pd
+import datetime
+import re
+
+# --- 1. KONFIGURACJA STRONY ---
+st.set_page_config(page_title="TSP Baza Danych", layout="wide", page_icon="⚽")
+
+# --- 2. LOGOWANIE ---
+USERS = {"Djero": "TSP1995", "KKowalski": "Tsp2025", "PPorebski": "TSP2025", "MCzerniak": "TSP2025", "SJaszczurowski": "TSP2025", "guest": "123456789"}
+
+if 'logged_in' not in st.session_state:
+    st.session_state['logged_in'] = False
+
+def login():
+    st.title("🔒 Panel Logowania TSP")
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        u = st.text_input("Użytkownik")
+        p = st.text_input("Hasło", type="password")
+        if st.button("Zaloguj", use_container_width=True):
+            if u in USERS and USERS[u] == p:
+                st.session_state['logged_in'] = True
+                st.rerun()
+            else: st.error("Błąd logowania")
+
+def logout():
+    st.session_state['logged_in'] = False
+    st.rerun()
+
+if not st.session_state['logged_in']:
+    login()
+    st.stop()
+
 # --- GŁÓWNA APLIKACJA ---
 st.title("⚽ Baza Danych TSP - Centrum Wiedzy")
 
@@ -166,32 +200,50 @@ elif opcja == "Wyszukiwarka Piłkarzy":
     st.header("🏃 Baza Zawodników")
     df = load_data("pilkarze.csv")
     df_strz = load_data("strzelcy.csv")
+    df_trans = load_data("transfery.csv")
     
     if df is not None:
         c1, c2, c3 = st.columns([2, 1, 1])
         with c1: search = st.text_input("Szukaj:")
         with c2:
-            # Filtr sezonów z pliku strzelcy.csv
-            sezony = ["Wszystkie"]
+            # Lista sezonów z Strzelców i Transferów
+            sezony = set()
             if df_strz is not None:
-                # Szukamy kolumn z '/' (np. 1999/20)
-                cols_sez = sorted([c for c in df_strz.columns if '/' in c], reverse=True)
-                sezony += cols_sez
-            wyb_sezon = st.selectbox("Wybierz sezon (aktywność):", sezony)
+                sezony.update([c for c in df_strz.columns if '/' in c])
+            if df_trans is not None and 'sezon' in df_trans.columns:
+                sezony.update(df_trans['sezon'].dropna().unique())
+            
+            sorted_sezony = sorted(list(sezony), reverse=True)
+            wyb_sezony = st.multiselect("Wybierz sezony (aktywność):", sorted_sezony)
+            
         with c3:
             obcy = st.checkbox("Tylko obcokrajowcy")
             
         # Filtracja
-        if wyb_sezon != "Wszystkie" and df_strz is not None:
-            # Pobieramy graczy, którzy mają wpis w kolumnie danego sezonu
-            aktywni = df_strz[df_strz[wyb_sezon].notna()]['imię i nazwisko'].unique()
-            df = df[df['imię i nazwisko'].isin(aktywni)]
+        if wyb_sezony:
+            active_players = set()
+            # 1. Z tabeli strzelców
+            if df_strz is not None:
+                for s in wyb_sezony:
+                    if s in df_strz.columns:
+                        p = df_strz[df_strz[s].notna()]['imię i nazwisko'].unique()
+                        active_players.update(p)
             
+            # 2. Z tabeli transferów
+            if df_trans is not None and 'sezon' in df_trans.columns:
+                p_trans = df_trans[df_trans['sezon'].isin(wyb_sezony)]['imię i nazwisko'].unique()
+                active_players.update(p_trans)
+            
+            if active_players:
+                df = df[df['imię i nazwisko'].isin(active_players)]
+                st.info(f"Znaleziono {len(df)} zawodników aktywnych w wybranych sezonach.")
+            else:
+                st.warning("Brak danych o zawodnikach w wybranych sezonach (w plikach strzelcy/transfery).")
+                df = df.iloc[0:0] # Pusta tabela
+
         df = prepare_flags(df)
-        
         if obcy and 'Narodowość' in df.columns:
             df = df[~df['Narodowość'].str.contains("Polska", na=False)]
-        
         if search:
             df = df[df.astype(str).apply(lambda x: x.str.contains(search, case=False)).any(axis=1)]
             
@@ -269,9 +321,13 @@ elif opcja == "Frekwencja":
     if df is not None:
         col = next((c for c in df.columns if 'średnia' in c), None)
         if col and 'sezon' in df.columns:
-            # TOTALNA CZYSTKA DANYCH: Usuwamy wszystko co nie jest cyfrą
-            df['n'] = df[col].astype(str).str.replace(r'\D', '', regex=True)
+            # PANCERNE CZYSZCZENIE: usuwamy twarde spacje \xa0, spacje, zamieniamy , na .
+            # Zostawiamy tylko cyfry
+            df['n'] = df[col].astype(str).str.replace('\xa0', '').str.replace(' ', '').str.replace(',', '.')
             df['n'] = pd.to_numeric(df['n'], errors='coerce').fillna(0).astype(int)
+            
+            # Sortowanie chronologiczne
+            df = df.sort_values('sezon')
             
             c1, c2, c3 = st.columns(3)
             c1.metric("Najwyższa średnia", f"{df['n'].max():,} widzów")
@@ -286,7 +342,6 @@ elif opcja == "Frekwencja":
             else:
                 st.line_chart(df.set_index('sezon')['n'])
             
-            # Tabela
             df.index = range(1, len(df)+1)
             st.dataframe(df.drop(columns=['n'], errors='ignore'), use_container_width=True)
 
