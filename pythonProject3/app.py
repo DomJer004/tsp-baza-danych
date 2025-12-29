@@ -565,3 +565,4 @@ elif opcja == "Młoda Ekstraklasa":
     df = load_data("me.csv")
     df = prepare_dataframe_with_flags(df, 'kraj' if df is not None and 'kraj' in df.columns else 'narodowość')
     st.dataframe(df, use_container_width=True, hide_index=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
+
