@@ -124,13 +124,32 @@ elif opcja == "Wyszukiwarka Piłkarzy":
         st.error("Brak pliku: pilkarze.csv")
 
 # =========================================================
-# MODUŁ 3: HISTORIA MECZÓW (mecze.csv)
+# MODUŁ 3: HISTORIA MECZÓW (BEZ KOLUMN TECHNICZNYCH)
 # =========================================================
 elif opcja == "Historia Meczów":
     st.header("🏟️ Archiwum Meczów")
     df = load_data("mecze.csv")
     
     if df is not None:
+        # Funkcja kolorująca (bez zmian)
+        def color_results(val):
+            if isinstance(val, str) and ':' in val:
+                try:
+                    parts = val.split(':')
+                    gole_nasze = int(parts[0])
+                    gole_rywala = int(parts[1])
+                    
+                    if gole_nasze > gole_rywala:
+                        return 'color: #28a745; font-weight: bold' # Zielony
+                    elif gole_nasze < gole_rywala:
+                        return 'color: #dc3545; font-weight: bold' # Czerwony
+                    else:
+                        return 'color: #fd7e14; font-weight: bold' # Pomarańczowy
+                except ValueError:
+                    return ''
+            return ''
+
+        # Filtrowanie sezonu
         df_clean = df[df['sezon'].astype(str).str.len() > 4]
         sezony = df_clean['sezon'].unique()
         
@@ -140,12 +159,68 @@ elif opcja == "Historia Meczów":
         with col2:
             rywal_filter = st.text_input("Filtruj po rywalu:")
             
-        matches = df[df['sezon'] == wybrany_sezon]
+        matches = df[df['sezon'] == wybrany_sezon].copy()
         
         if rywal_filter:
             matches = matches[matches['rywal'].astype(str).str.contains(rywal_filter, case=False, na=False)]
-            
-        show_table(matches, use_container_width=True) 
+
+        # Wykrywanie kolumny rozgrywki
+        col_rozgrywki = None
+        for c in matches.columns:
+            if c.lower() in ['rozgrywki', 'liga', 'rodzaj', 'typ']:
+                col_rozgrywki = c
+                break
+        
+        if matches.empty:
+            st.warning("Brak meczów spełniających kryteria.")
+        else:
+            if not col_rozgrywki:
+                # Wersja bez podziału na ligi
+                # Sortowanie przed usunięciem kolumny
+                if 'data sortowania' in matches.columns:
+                    matches = matches.sort_values(by='data sortowania', ascending=False)
+                
+                # Usuwanie kolumn z widoku
+                matches_view = matches.drop(columns=['mecz', 'data sortowania'], errors='ignore')
+                
+                st.dataframe(matches_view.style.map(color_results, subset=['wynik']), use_container_width=True, hide_index=True)
+            else:
+                # Wersja z zakładkami (Ekstraklasa, Puchar itp.)
+                rozgrywki_list = matches[col_rozgrywki].unique()
+                tabs = st.tabs([str(r) for r in rozgrywki_list])
+                
+                for tab, rozgrywka in zip(tabs, rozgrywki_list):
+                    with tab:
+                        subset = matches[matches[col_rozgrywki] == rozgrywka].copy()
+                        
+                        # 1. Najpierw sortujemy (jeśli jest kolumna sortująca)
+                        if 'data sortowania' in subset.columns:
+                            subset = subset.sort_values(by='data sortowania', ascending=False)
+                        elif 'data meczu' in subset.columns:
+                            subset = subset.sort_values(by='data meczu', ascending=False)
+
+                        # Statystyki bilansu
+                        wygrane = 0
+                        remisy = 0
+                        porazki = 0
+                        for wynik in subset['wynik']:
+                            if isinstance(wynik, str) and ':' in wynik:
+                                try:
+                                    parts = wynik.split(':')
+                                    g_nasze, g_rywala = int(parts[0]), int(parts[1])
+                                    if g_nasze > g_rywala: wygrane += 1
+                                    elif g_nasze < g_rywala: porazki += 1
+                                    else: remisy += 1
+                                except: pass
+                        
+                        st.caption(f"Bilans w {rozgrywka}: ✅ {wygrane} W | ➖ {remisy} R | ❌ {porazki} P")
+
+                        # 2. Teraz usuwamy niechciane kolumny
+                        subset_view = subset.drop(columns=['mecz', 'data sortowania'], errors='ignore')
+
+                        # 3. Wyświetlamy
+                        st.dataframe(subset_view.style.map(color_results, subset=['wynik']), use_container_width=True, hide_index=True)
+
     else:
         st.error("Brak pliku: mecze.csv")
 
