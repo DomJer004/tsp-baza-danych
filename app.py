@@ -1,3 +1,5 @@
+Python
+
 import streamlit as st
 import pandas as pd
 import datetime
@@ -7,8 +9,8 @@ st.set_page_config(page_title="TSP Baza Danych", layout="wide", page_icon="⚽")
 
 # --- 2. KONFIGURACJA UŻYTKOWNIKÓW (LOGIN : HASŁO) ---
 USERS = {
-    "admin": "admin1995",
-    "DJeo": "TSPtsp2025",
+    "admin": "admin123",
+    "trener": "tsp2025",
     "zarzad": "bielsko"
 }
 
