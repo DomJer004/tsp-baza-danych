@@ -7,7 +7,7 @@ import re
 st.set_page_config(page_title="TSP Baza Danych", layout="wide", page_icon="⚽")
 
 # --- 2. LOGOWANIE ---
-USERS = {"Djero": "TSP1995", "KKowalski": "Tsp2025", "PPorebski": "TSP2025", "guest": "123456789"}
+USERS = {"Djero": "TSP1995", "KKowalski": "Tsp2025", "PPorebski": "TSP2025", "MCzerniak": "TSP2025", "SJaszczurowski": "TSP2025", "guest": "123456789"}
 
 if 'logged_in' not in st.session_state:
     st.session_state['logged_in'] = False
@@ -430,3 +430,4 @@ elif opcja == "Młoda Ekstraklasa":
     df = load_data("me.csv")
     df = prepare_flags(df, 'narodowość')
     st.dataframe(df, use_container_width=True, hide_index=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
+
