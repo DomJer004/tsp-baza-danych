@@ -352,59 +352,174 @@ elif opcja == "Frekwencja":
         st.dataframe(df.drop(columns=['num'], errors='ignore'), use_container_width=True, hide_index=True)
 
 # =========================================================
-# MODUŁ 7: RYWALE
+# MODUŁ 7: RYWALE (H2H - DYNAMICZNY Z MECZÓW)
 # =========================================================
 elif opcja == "Rywale (H2H)":
     st.header("⚔️ Bilans z Rywalami")
-    df = load_data("rywale.csv")
-    if df is not None and not df.empty:
-        rywal_col = df.columns[0]
-        rywale = sorted(df[rywal_col].astype(str).unique())
-        wybrany = st.selectbox("Wybierz rywala:", rywale)
+    # Ładujemy mecze, bo to z nich wyliczymy statystyki
+    df = load_data("mecze.csv")
+    
+    if df is not None:
+        # Szukamy kolumny z nazwą rywala
+        # Szukamy: 'rywal', 'przeciwnik', 'klub', 'gość' (zakładając że TSP to gospodarz lub odwrotnie, ale tu szukamy nazwy)
+        col_rywal = next((c for c in df.columns if c in ['rywal', 'przeciwnik', 'klub']), None)
         
-        stat = df[df[rywal_col] == wybrany]
-        st.dataframe(stat, use_container_width=True, hide_index=True)
-        
-        st.divider()
-        st.subheader("Wszyscy rywale")
-        st.dataframe(
-            df, 
-            use_container_width=True, 
-            hide_index=True,
-            column_config={
-                "Mecze": st.column_config.NumberColumn(format="%d"),
-                "Wygrane": st.column_config.NumberColumn(format="%d"),
-                "Remisy": st.column_config.NumberColumn(format="%d"),
-                "Porażki": st.column_config.NumberColumn(format="%d"),
-                "Punkty": st.column_config.NumberColumn(format="%d"),
-                "Punkty na mecz": st.column_config.NumberColumn(format="%.2f")
-            }
-        )
+        if not col_rywal:
+            # Jeśli nie znaleziono standardowej nazwy, szukamy tekstowych kolumn
+            # i bierzemy pierwszą, która nie jest sezonem ani wynikiem
+            candidates = [c for c in df.columns if df[c].dtype == 'object' and c not in ['sezon', 'wynik', 'data', 'godzina']]
+            if candidates:
+                col_rywal = candidates[0]
 
+        if col_rywal and 'wynik' in df.columns:
+            
+            # --- FUNKCJA AGREGUJĄCA STATYSTYKI ---
+            def calculate_stats(subset):
+                mecze = len(subset)
+                w, r, p = 0, 0, 0
+                gole_strzelone = 0
+                gole_stracone = 0
+                
+                for res in subset['wynik']:
+                    parsed = parse_result(res)
+                    if parsed:
+                        tsp, opp = parsed
+                        gole_strzelone += tsp
+                        gole_stracone += opp
+                        if tsp > opp: w += 1
+                        elif tsp < opp: p += 1
+                        else: r += 1
+                
+                punkty = (w * 3) + (r * 1)
+                sr_pkt = punkty / mecze if mecze > 0 else 0
+                
+                return pd.Series({
+                    'Mecze': mecze,
+                    'Zwycięstwa': w,
+                    'Remisy': r,
+                    'Porażki': p,
+                    'Bramki': f"{gole_strzelone}:{gole_stracone}",
+                    'Bilans bramkowy': gole_strzelone - gole_stracone,
+                    'Punkty': punkty,
+                    'Śr. pkt': sr_pkt
+                })
+
+            # --- TABS ---
+            tab1, tab2 = st.tabs(["🔎 Analiza konkretnego rywala", "📊 Tabela wszech czasów"])
+
+            # ZAKŁADKA 1: SZCZEGÓŁY RYWALA
+            with tab1:
+                # Lista unikalnych rywali posortowana alfabetycznie
+                lista_rywali = sorted(df[col_rywal].astype(str).unique())
+                wybrany_rywal = st.selectbox("Wybierz przeciwnika:", lista_rywali)
+                
+                if wybrany_rywal:
+                    # Filtrujemy mecze z tym rywalem
+                    mecze_rywala = df[df[col_rywal] == wybrany_rywal].copy()
+                    
+                    # Obliczamy statystyki
+                    stats = calculate_stats(mecze_rywala)
+                    
+                    # Wyświetlamy karty (Metrics)
+                    c1, c2, c3, c4 = st.columns(4)
+                    c1.metric("Mecze", f"{int(stats['Mecze'])}")
+                    c2.metric("Bilans (Z-R-P)", f"{int(stats['Zwycięstwa'])}-{int(stats['Remisy'])}-{int(stats['Porażki'])}")
+                    c3.metric("Bramki", stats['Bramki'])
+                    c4.metric("Średnia pkt", f"{stats['Śr. pkt']:.2f}")
+                    
+                    st.divider()
+                    st.subheader(f"Historia spotkań: {wybrany_rywal}")
+                    
+                    # Sortowanie chronologiczne meczów
+                    col_data = next((c for c in mecze_rywala.columns if 'data' in c and 'sort' not in c), None)
+                    if not col_data: col_data = next((c for c in mecze_rywala.columns if 'data' in c), None)
+                    
+                    if col_data:
+                        # Próba konwersji daty do sortowania
+                        mecze_rywala['_dt'] = pd.to_datetime(mecze_rywala[col_data], dayfirst=True, errors='coerce')
+                        mecze_rywala = mecze_rywala.sort_values('_dt', ascending=False)
+                        mecze_rywala = mecze_rywala.drop(columns=['_dt'])
+
+                    # Ukrywamy kolumny techniczne
+                    view_cols = [c for c in mecze_rywala.columns if c not in ['data sortowania', 'mecz_id']]
+                    
+                    st.dataframe(
+                        mecze_rywala[view_cols].style.map(color_results_logic, subset=['wynik']),
+                        use_container_width=True,
+                        hide_index=True
+                    )
+
+            # ZAKŁADKA 2: TABELA ZBIORCZA
+            with tab2:
+                st.caption("Poniższa tabela jest generowana dynamicznie na podstawie wszystkich wprowadzonych meczów.")
+                
+                # Grupujemy i aplikujemy funkcję liczącą
+                # To może chwilę potrwać przy tysiącach meczów, ale st.cache_data przy load_data pomaga
+                df_all = df.groupby(col_rywal).apply(calculate_stats).reset_index()
+                
+                # Sortowanie: Najpierw punkty, potem bilans bramkowy
+                df_all = df_all.sort_values(by=['Punkty', 'Bilans bramkowy'], ascending=False)
+                df_all.index = range(1, len(df_all) + 1)
+                
+                # Formatowanie kolumn
+                st.dataframe(
+                    df_all,
+                    use_container_width=True,
+                    column_config={
+                        col_rywal: "Przeciwnik",
+                        "Mecze": st.column_config.NumberColumn("M", format="%d"),
+                        "Zwycięstwa": st.column_config.NumberColumn("Z", format="%d"),
+                        "Remisy": st.column_config.NumberColumn("R", format="%d"),
+                        "Porażki": st.column_config.NumberColumn("P", format="%d"),
+                        "Punkty": st.column_config.NumberColumn("Pkt", format="%d"),
+                        "Śr. pkt": st.column_config.NumberColumn("Śr. Pkt", format="%.2f"),
+                        "Bilans bramkowy": st.column_config.NumberColumn("Bilans", format="%d")
+                    }
+                )
+
+        else:
+            st.error("Nie udało się zidentyfikować kolumny z nazwą rywala lub wyniku w pliku mecze.csv.")
+            st.write("Dostępne kolumny:", df.columns.tolist())
+    else:
+        st.error("Brak pliku mecze.csv")
 # =========================================================
-# MODUŁ 8: TRENERZY (ZBIORCZY I SZCZEGÓŁOWY)
+# MODUŁ 8: TRENERZY (Z ULEPSZONYM ROZPOZNAWANIEM DAT)
 # =========================================================
 elif opcja == "Trenerzy":
     st.header("👔 Trenerzy TSP - Historia i Statystyki")
     df = load_data("trenerzy.csv")
     
     if df is not None:
-        # Konwersja liczb na int
+        # --- 1. PRZETWARZANIE DAT TRENERÓW ---
+        # Funkcja pomocnicza do bezpiecznej konwersji daty
+        def smart_date_parse(series):
+            # Próba 1: dd.mm.yyyy (najczęstszy w Polsce)
+            dates = pd.to_datetime(series, format='%d.%m.%Y', errors='coerce')
+            # Próba 2: jeśli się nie udało (dużo NaT), spróbuj automatu
+            if dates.isna().mean() > 0.3: # Jeśli ponad 30% błędów
+                dates = pd.to_datetime(series, dayfirst=True, errors='coerce')
+            return dates
+
+        if 'początek' in df.columns: 
+            df['początek_dt'] = smart_date_parse(df['początek'])
+        if 'koniec' in df.columns: 
+            df['koniec_dt'] = smart_date_parse(df['koniec'])
+            # Uzupełniamy brakujące daty końca dzisiejszą datą (dla obecnego trenera)
+            df['koniec_dt'] = df['koniec_dt'].fillna(pd.Timestamp.today())
+
+        # --- 2. DODANIE FLAG ---
+        df = prepare_dataframe_with_flags(df, 'narodowość')
+
+        # --- 3. KONWERSJA LICZB ---
         int_cols = ['wiek', 'suma dni', 'mecze', 'wygrane', 'remisy', 'przegrane', 'punkty']
         for c in int_cols:
             if c in df.columns:
                 df[c] = pd.to_numeric(df[c], errors='coerce').fillna(0).astype(int)
 
-        # Daty
-        if 'początek' in df.columns: df['początek_dt'] = pd.to_datetime(df['początek'], format='%d.%m.%Y', errors='coerce')
-        if 'koniec' in df.columns: 
-            df['koniec_dt'] = pd.to_datetime(df['koniec'], format='%d.%m.%Y', errors='coerce')
-            df['koniec_dt'] = df['koniec_dt'].fillna(pd.Timestamp.today())
-
-        df = prepare_dataframe_with_flags(df, 'narodowość')
-
+        # --- TABS ---
         tab1, tab2, tab3 = st.tabs(["📋 Lista Chronologiczna", "📊 Rankingi", "📈 Oś Czasu / Analiza"])
 
+        # TAB 1: LISTA
         with tab1:
             df_view = df.sort_values('początek_dt', ascending=False)
             cols = ['funkcja', 'imię i nazwisko', 'Narodowość', 'Flaga', 'wiek', 'początek', 'koniec', 'mecze', 'punkty', 'śr. pkt /mecz']
@@ -423,12 +538,15 @@ elif opcja == "Trenerzy":
                 }
             )
 
+        # TAB 2: RANKINGI
         with tab2:
             st.subheader("🏆 Podsumowanie Trenerów")
             grp_cols = ['imię i nazwisko', 'Narodowość', 'Flaga']
             grp_cols = [c for c in grp_cols if c in df.columns]
             
+            # Grupowanie
             df_agg = df.groupby(grp_cols, as_index=False)[['mecze', 'wygrane', 'remisy', 'przegrane', 'punkty']].sum()
+            # Obliczenie średniej na nowo
             df_agg['śr. pkt /mecz'] = df_agg.apply(lambda x: x['punkty']/x['mecze'] if x['mecze']>0 else 0, axis=1)
             
             df_agg = df_agg.sort_values('punkty', ascending=False).reset_index(drop=True)
@@ -445,10 +563,10 @@ elif opcja == "Trenerzy":
                 }
             )
 
+        # TAB 3: OŚ CZASU I ANALIZA MECZÓW
         with tab3:
             st.subheader("📈 Analiza Szczegółowa Kadencji")
             
-            # Główny wykres efektywności
             if HAS_PLOTLY:
                 fig = px.scatter(
                     df.sort_values('początek_dt'),
@@ -464,51 +582,57 @@ elif opcja == "Trenerzy":
                 st.info("Zainstaluj 'plotly' w requirements.txt")
 
             st.divider()
-            
-            # --- SEKCJA SZCZEGÓŁÓW TRENERA ---
             st.subheader("🔎 Szczegóły Trenera i Lista Meczów")
             
-            # Lista trenerów do wyboru
             trenerzy_list = sorted(df['imię i nazwisko'].unique())
             wybrany_trener = st.selectbox("Wybierz trenera do analizy:", trenerzy_list)
             
             if wybrany_trener:
-                # Pobieramy dane trenera z tabeli trenerzy
                 coach_data = df[df['imię i nazwisko'] == wybrany_trener]
-                
-                # Pobieramy mecze z mecze.csv
                 mecze_df = load_data("mecze.csv")
                 
                 if mecze_df is not None:
-                    # Parsujemy daty w meczach
-                    # Zakładamy kolumnę 'data meczu' lub podobną
+                    # Szukamy kolumny z datą w mecze.csv
+                    # Szukamy kolumn zawierających 'data', ale nie 'sort' (bo często jest data sortowania)
                     date_col = next((c for c in mecze_df.columns if 'data' in c and 'sort' not in c), None)
-                    
+                    # Jeśli nie znaleziono, szukamy po prostu 'data'
+                    if not date_col:
+                        date_col = next((c for c in mecze_df.columns if 'data' in c), None)
+
                     if date_col:
-                        mecze_df['dt'] = pd.to_datetime(mecze_df[date_col], errors='coerce')
+                        # --- PANCERNE PARSOWANIE DATY MECZU ---
+                        # 1. Próbujemy standardowy format dzień-miesiąc-rok
+                        mecze_df['dt'] = pd.to_datetime(mecze_df[date_col], dayfirst=True, errors='coerce')
                         
-                        # Zbieramy wszystkie mecze z okresów pracy tego trenera
-                        # Trener może mieć kilka kadencji
+                        # 2. Jeśli ponad połowa dat jest pusta (błąd), próbujemy format rok-miesiąc-dzień
+                        if mecze_df['dt'].isna().mean() > 0.5:
+                             mecze_df['dt'] = pd.to_datetime(mecze_df[date_col], errors='coerce')
+                        
+                        # 3. Usuwamy mecze, gdzie data jest nadal nieznana
+                        mecze_df = mecze_df.dropna(subset=['dt'])
+                        
+                        # --- FILTROWANIE MECZÓW TRENERA ---
+                        # Tworzymy maskę (filtr) o długości tabeli meczów, początkowo same fałsze
                         mask = pd.Series([False] * len(mecze_df))
+                        mask.index = mecze_df.index # Ważne: synchronizacja indeksów
                         
                         for _, row in coach_data.iterrows():
                             start = row['początek_dt']
                             end = row['koniec_dt']
-                            if pd.notnull(start):
-                                # Filtrujemy mecze pomiędzy start a koniec
-                                mask |= (mecze_df['dt'] >= start) & (mecze_df['dt'] <= end)
+                            if pd.notnull(start) and pd.notnull(end):
+                                # Dodajemy do maski mecze z tego okresu
+                                current_period_mask = (mecze_df['dt'] >= start) & (mecze_df['dt'] <= end)
+                                mask = mask | current_period_mask
                         
                         coach_matches = mecze_df[mask].copy()
                         
                         if not coach_matches.empty:
                             coach_matches = coach_matches.sort_values('dt')
                             
-                            # Obliczamy punkty dla wykresu liniowego
+                            # Wykres liniowy punktów
                             pts_history = []
                             acc_pts = 0
-                            match_labels = []
-                            
-                            for idx, m in coach_matches.iterrows():
+                            for _, m in coach_matches.iterrows():
                                 res = parse_result(m['wynik'])
                                 pts = 0
                                 if res:
@@ -516,23 +640,17 @@ elif opcja == "Trenerzy":
                                     elif res[0] == res[1]: pts = 1
                                 acc_pts += pts
                                 pts_history.append(acc_pts)
-                                match_labels.append(f"{m.get('rywal', 'Rywal')} ({m.get('wynik', '')})")
                             
-                            # Wykres liniowy punktowania
                             if HAS_PLOTLY:
                                 fig_line = px.line(
-                                    x=coach_matches['dt'], 
-                                    y=pts_history,
-                                    markers=True,
+                                    x=coach_matches['dt'], y=pts_history, markers=True,
                                     title=f"Progres punktowy: {wybrany_trener}",
                                     labels={'x': 'Data', 'y': 'Suma punktów'}
                                 )
                                 st.plotly_chart(fig_line, use_container_width=True)
                             
-                            # Tabela meczów
-                            st.write(f"Lista meczów ({len(coach_matches)}):")
-                            
-                            # Kolorowanie wyników
+                            # Tabela
+                            st.write(f"Znaleziono {len(coach_matches)} meczów:")
                             cols_view = [c for c in coach_matches.columns if c not in ['dt', 'data sortowania']]
                             st.dataframe(
                                 coach_matches[cols_view].style.map(color_results_logic, subset=['wynik']),
@@ -540,10 +658,12 @@ elif opcja == "Trenerzy":
                                 hide_index=True
                             )
                         else:
-                            st.warning("Nie znaleziono meczów w tym zakresie dat (sprawdź poprawność dat w plikach).")
+                            st.warning(f"Brak meczów w bazie dla trenera {wybrany_trener} w zdefiniowanych datach.")
+                            st.write(f"Sprawdzane okresy: {coach_data[['początek', 'koniec']].values}")
                     else:
-                        st.error("W pliku mecze.csv brakuje kolumny z datą meczu.")
-
+                        st.error("W pliku mecze.csv nie znaleziono kolumny z datą (szukałem: 'data', 'data meczu').")
+    else:
+        st.error("Brak pliku: trenerzy.csv")
 # =========================================================
 # POZOSTAŁE MODUŁY
 # =========================================================
