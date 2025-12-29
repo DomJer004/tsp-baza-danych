@@ -1,0 +1,461 @@
+imię i nazwisko,narodowość,flaga,pozycja,data urodzenia,Wiek,1995/96,1996/97,1997/98,1998/99,1999/00,2000/01,2001/02,2002/03,2003/04,2004/05,2005/06,2006/07,2007/08,2008/09,2009/10,2010/11,2011/12,2012/13,2013/14,2014/15,2015/16,2016/17,2017/18,2018/19,2019/20,2020/21,2021/22,2022/23,2023/24,2024/25,2025/26,SUMA
+Bartosz Martosz,Polska,https://flagcdn.com/w40/pl.png,napastnik,11.11.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,11.0,20.0,31
+Dalibor Takáč,Słowacja,https://flagcdn.com/w40/sk.png,pomocnik,11.10.1997,28,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,20.0,20
+Marcin Biernat,Polska,https://flagcdn.com/w40/pl.png,obrońca,28.05.1992,33,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,30.0,19.0,49
+Mateusz Kizyma,Polska,https://flagcdn.com/w40/pl.png,pomocnik,08.07.2002,23,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,28.0,19.0,47
+Jan Majsterek,Polska,https://flagcdn.com/w40/pl.png,obrońca,09.06.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,28.0,19.0,47
+Maciej Górski,Polska,https://flagcdn.com/w40/pl.png,napastnik,01.03.1990,35,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,14.0,19.0,33
+Maksymilian Sitek,Polska,https://flagcdn.com/w40/pl.png,pomocnik,04.12.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,19.0,,29.0,29.0,,18.0,95
+Lucjan Klisiewicz,Polska,https://flagcdn.com/w40/pl.png,napastnik,20.04.2002,23,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,32.0,17.0,49
+Krzysztof Kolanko,Polska,https://flagcdn.com/w40/pl.png,pomocnik,03.08.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,17.0,17
+Marcin Urynowicz,Polska,https://flagcdn.com/w40/pl.png,napastnik,16.03.1996,29,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,14.0,16.0,30
+Wojciech Szumilas,Polska,https://flagcdn.com/w40/pl.png,pomocnik,07.11.1996,29,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,15.0,16.0,31
+Kacper Gach,Polska,https://flagcdn.com/w40/pl.png,obrońca,11.07.1998,27,,,,,,,,,,,,,,,,,,,,,,,1.0,8.0,19.0,13.0,18.0,,,27.0,15.0,101
+Daniel Dziwniel,Polska /Niemcy,https://flagcdn.com/w40/pl.png,obrońca,19.08.1992,33,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,21.0,13.0,34
+Oskar Zawada,Polska,https://flagcdn.com/w40/pl.png,pomocnik,17.11.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,13.0,13
+Kacper Piątek,Polska,https://flagcdn.com/w40/pl.png,pomocnik,22.10.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,11.0,11
+Konrad Forenc,Polska,https://flagcdn.com/w40/pl.png,bramkarz,17.07.1992,33,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,32.0,10.0,42
+Unai Buján,Hiszpania,https://flagcdn.com/w40/es.png,pomocnik,08.02.2001,24,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,10.0,10
+Bartosz Bieroński,Polska,https://flagcdn.com/w40/pl.png,pomocnik,10.05.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,1.0,,,6.0,9.0,16
+Richard Nagy,Słowacja,https://flagcdn.com/w40/sk.png,obrońca,10.08.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9.0,9
+Wojciech Słomka,Polska,https://flagcdn.com/w40/pl.png,pomocnik,04.11.1998,27,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9.0,9
+Krystian Wieczorek,Polska,https://flagcdn.com/w40/pl.png,bramkarz,22.07.2002,23,,,,,,,,,,,,,,,,,,,,,,,,,,,,1.0,,4.0,8.0,13
+Dawid Ściuk,Polska,https://flagcdn.com/w40/pl.png,obrońca,30.06.2005,20,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9.0,7.0,16
+Michał Bednarski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,31.01.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,27.0,4.0,31
+Szymon Brańczyk,Polska,https://flagcdn.com/w40/pl.png,bramkarz,13.08.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,4.0,4
+Kornel Osyra,Polska,https://flagcdn.com/w40/pl.png,obrońca,07.02.1993,32,,,,,,,,,,,,,,,,,,,,,,,,,32.0,2.0,,,,17.0,3.0,54
+Bartosz Florek,Polska,https://flagcdn.com/w40/pl.png,napastnik,06.08.2004,21,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,30.0,3.0,33
+Łukasz Kabaj,Polska,https://flagcdn.com/w40/pl.png,obrońca,13.02.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,3.0,3
+Piotr Szumiński,Polska,https://flagcdn.com/w40/pl.png,pomocnik,13.07.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1.0,1
+Grzegorz Janusz,Polska,https://flagcdn.com/w40/pl.png,napastnik,08.05.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1.0,1
+Krzysztof Wiesner,Polska,https://flagcdn.com/w40/pl.png,pomocnik,13.10.2009,16,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1.0,1
+Krzysztof Zagórski,Polska,https://flagcdn.com/w40/pl.png,napastnik,04.02.1967,58,17.0,17.0,,22.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,56
+Mariusz Brańka,Polska,https://flagcdn.com/w40/pl.png,,,125,16.0,18.0,,,26.0,6.0,,,,,,,,,,,,,,,,,,,,,,,,,,66
+Mrózek,Polska,https://flagcdn.com/w40/pl.png,,,125,16.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,16
+Tomasz Duleba,Polska,https://flagcdn.com/w40/pl.png,,,125,16.0,24.0,23.0,12.0,,5.0,,,,,,,,,,,,,,,,,,,,,,,,,,80
+Tomasz Gębczyński,Polska,https://flagcdn.com/w40/pl.png,,,125,16.0,,28.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,44
+Krzysztof Nolka,Polska,https://flagcdn.com/w40/pl.png,bramkarz,,125,15.0,25.0,27.0,20.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,87
+Rafał Studencki,Polska,https://flagcdn.com/w40/pl.png,,,125,15.0,23.0,22.0,,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,61
+Wiesław Wawrzuta,Polska,https://flagcdn.com/w40/pl.png,,,125,14.0,,27.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,41
+Jurasz,Polska,https://flagcdn.com/w40/pl.png,,,125,14.0,16.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,30
+Paduch,Polska,https://flagcdn.com/w40/pl.png,,,125,13.0,15.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,28
+Czechowski,Polska,https://flagcdn.com/w40/pl.png,,,125,7.0,17.0,,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,25
+Dariusz Ziółkowski,Polska,https://flagcdn.com/w40/pl.png,,,125,6.0,23.0,27.0,,26.0,6.0,,,,,,,,,,,,,,,,,,,,,,,,,,88
+Krystian Gańcarczyk,Polska,https://flagcdn.com/w40/pl.png,,,125,6.0,24.0,26.0,18.0,5.0,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,80
+Mariusz Smagoń,Polska,https://flagcdn.com/w40/pl.png,,,125,4.0,24.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,28
+Marek Sokołowski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,11.03.1978,47,4.0,26.0,28.0,30.0,32.0,18.0,,7.0,,,,,,,,12.0,25.0,26.0,29.0,31.0,29.0,20.0,,,,,,,,,,287
+Grzegorz Bak,Polska,https://flagcdn.com/w40/pl.png,,,125,,10.0,25.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,35
+Bubula,Polska,https://flagcdn.com/w40/pl.png,,,125,3.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,3
+Włodarczak,Polska,https://flagcdn.com/w40/pl.png,,,125,3.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,3
+Kubinek,Polska,https://flagcdn.com/w40/pl.png,,,125,2.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2
+Kusiak,Polska,https://flagcdn.com/w40/pl.png,,,125,2.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2
+Bartosz Żelichowski,Polska,https://flagcdn.com/w40/pl.png,,,125,2.0,15.0,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,18
+Przemysław Bieniek,Polska,https://flagcdn.com/w40/pl.png,,,125,,9.0,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,10
+Michał Klimczak,Polska,https://flagcdn.com/w40/pl.png,bramkarz,,125,2.0,6.0,3.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,11
+Filimowski,Polska,https://flagcdn.com/w40/pl.png,,,125,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1
+Krzysztof Szczygieł,Polska,https://flagcdn.com/w40/pl.png,,,125,1.0,28.0,11.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,40
+Jerzy Pilarz,Polska,https://flagcdn.com/w40/pl.png,,,125,,18.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,18
+Kaletka,Polska,https://flagcdn.com/w40/pl.png,,,125,,9.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9
+Jerzy Gruszfeld,Polska,https://flagcdn.com/w40/pl.png,,,125,,8.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,8
+Szal,Polska,https://flagcdn.com/w40/pl.png,,,125,,4.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,4
+Marcin Ślęzak,Polska,https://flagcdn.com/w40/pl.png,bramkarz,,125,,3.0,1.0,16.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,20
+Janicki,Polska,https://flagcdn.com/w40/pl.png,,,125,,3.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,3
+Zygmunt,Polska,https://flagcdn.com/w40/pl.png,,,125,,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1
+Paweł Senecki,Polska,https://flagcdn.com/w40/pl.png,,,125,,,25.0,4.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,29
+Marek Móll,Polska,https://flagcdn.com/w40/pl.png,,26.06.1968,57,,,25.0,15.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,40
+Krzysztof Skrzyp,Polska,https://flagcdn.com/w40/pl.png,,,125,,,9.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9
+Andrzej Fluder,Polska,https://flagcdn.com/w40/pl.png,,,125,,,7.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,7
+Jacek Czernek,Polska,https://flagcdn.com/w40/pl.png,,,125,,,15.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,15
+Jarosław Gawłowski,Polska,https://flagcdn.com/w40/pl.png,,,125,,,13.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,13
+Mirosław Marasik,Polska,https://flagcdn.com/w40/pl.png,,,125,,,2.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2
+Bogusław Zioło,Polska,https://flagcdn.com/w40/pl.png,,,125,,,10.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,10
+Tomasz Moskała,Polska,https://flagcdn.com/w40/pl.png,napastnik,05.02.1977,48,,,20.0,32.0,27.0,20.0,,,,,,,,,,,,,,,,,,,,,,,,,,99
+Maciej Matejko,Polska,https://flagcdn.com/w40/pl.png,,,125,,,13.0,10.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,23
+Piotr Kuś,Polska,https://flagcdn.com/w40/pl.png,,,125,,,12.0,24.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,36
+Foltyn,Polska,https://flagcdn.com/w40/pl.png,,,125,,,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1
+Damian Połącarz,Polska,https://flagcdn.com/w40/pl.png,,,125,,,2.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2
+Wrzaszcz,Polska,https://flagcdn.com/w40/pl.png,,,125,,3.0,,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,4
+Mirosław Majdak,Polska,https://flagcdn.com/w40/pl.png,pomocnik,,125,,,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1
+Adam Majdak,Polska,https://flagcdn.com/w40/pl.png,napastnik,,125,,,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1
+Brycz,Polska,https://flagcdn.com/w40/pl.png,,,125,,,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1
+Piotr Kalinowski,Polska,https://flagcdn.com/w40/pl.png,,,125,,,,28.0,4.0,,,,,,,,,,,,,,,,,,,,,,,,,,,32
+Robert Wszołek,Polska,https://flagcdn.com/w40/pl.png,,,125,,,,31.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,31
+Sławomir Frączek,Polska,https://flagcdn.com/w40/pl.png,,,125,,,,33.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,33
+Mariusz Sibik,Polska,https://flagcdn.com/w40/pl.png,,,125,,,,25.0,10.0,,,,,,,,,,,,,,,,,,,,,,,,,,,35
+Łukasz Nolka,Polska,https://flagcdn.com/w40/pl.png,bramkarz,,125,,,,1.0,3.0,,,,,,,,,,,,,,,,,,,,,,,,,,,4
+Dariusz Drewniak,Polska,https://flagcdn.com/w40/pl.png,,,125,,,,8.0,22.0,,12.0,,,,,,,,,,,,,,,,,,,,,,,,,42
+Distel,Polska,https://flagcdn.com/w40/pl.png,,,125,,,,8.0,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,9
+Kania,Polska,https://flagcdn.com/w40/pl.png,,,125,,,,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,1
+Arkadiusz Rucki,Polska,https://flagcdn.com/w40/pl.png,,,125,,,,1.0,5.0,4.0,9.0,,,,,,,,,,,,,,,,,,,,,,,,,19
+Włodarczyk,Polska,https://flagcdn.com/w40/pl.png,,,125,,,,2.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,2
+Waliczek,Polska,https://flagcdn.com/w40/pl.png,,,125,,,,2.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,2
+Jarosław Matusiak,Polska,https://flagcdn.com/w40/pl.png,bramkarz,15.02.1965,60,,,,1.0,34.0,38.0,29.0,,,,,,,,,,,,,,,,,,,,,,,,,102
+Arkadiusz Lazar,Polska,https://flagcdn.com/w40/pl.png,napastnik,05.01.1971,54,,,,,32.0,8.0,,,,,,,,,,,,,,,,,,,,,,,,,,40
+Janusz Pancer,Polska,https://flagcdn.com/w40/pl.png,,,125,,,,,10.0,,,,,,,,,,,,,,,,,,,,,,,,,,,10
+Nalepa,Polska,https://flagcdn.com/w40/pl.png,,,125,,,,,5.0,,,,,,,,,,,,,,,,,,,,,,,,,,,5
+Roman Skorupa,Polska,https://flagcdn.com/w40/pl.png,pomocnik,28.04.1967,58,,,,,13.0,,,,,,,,,,,,,,,,,,,,,,,,,,,13
+Młynarczyk,Polska,https://flagcdn.com/w40/pl.png,,,125,,,,,15.0,,,,,,,,,,,,,,,,,,,,,,,,,,,15
+Koźmiński,Polska,https://flagcdn.com/w40/pl.png,,,125,,,,,1.0,,2.0,,,,,,,,,,,,,,,,,,,,,,,,,3
+Arkadiusz Kłoda,Polska,https://flagcdn.com/w40/pl.png,obrońca,24.11.1980,45,,,,,,36.0,,,,,,,,,,,,,,,,,,,,,,,,,,36
+Daniel Dziarmaga,Polska,https://flagcdn.com/w40/pl.png,pomocnik,30.09.1974,51,,,,,33.0,31.0,15.0,,,,,,,,,,,,,,,,,,,,,,,,,79
+Sebastian Olszar,Polska /Niemcy,https://flagcdn.com/w40/pl.png,napastnik,16.12.1981,44,,,,,,20.0,,,,,,,,,,,,,,,,,,,,,,,,,,20
+Marcin Radzewicz,Polska,https://flagcdn.com/w40/pl.png,pomocnik,30.06.1980,45,,,,,,20.0,,,,,,,,,,,,,,,,,,,,,,,,,,20
+Marcin Domagała,Polska,https://flagcdn.com/w40/pl.png,,,125,,,,,,24.0,,,,,,,,,,,,,,,,,,,,,,,,,,24
+Samson Godwin,Nigeria,https://flagcdn.com/w40/ng.png,pomocnik,11.11.1983,42,,,,,,23.0,,,,,,,,,,,,,,,,,,,,,,,,,,23
+Grzegorz Jurczyk,Polska,https://flagcdn.com/w40/pl.png,obrońca,06.08.1975,50,,,,,,9.0,,,,,,,,,,,,,,,,,,,,,,,,,,9
+Robert Sołtysek,Polska,https://flagcdn.com/w40/pl.png,pomocnik,26.11.1974,51,,,,,,14.0,,,,,,,,,,,,,,,,,,,,,,,,,,14
+Roman Cegiełka,Polska,https://flagcdn.com/w40/pl.png,pomocnik,20.02.1972,53,,,,,,,5.0,,,,,,,,,,,,,,,,,,,,,,,,,5
+Kolber,Polska,https://flagcdn.com/w40/pl.png,,,125,,,,,,,4.0,,,,,,,,,,,,,,,,,,,,,,,,,4
+Karol Stawecki,Polska,https://flagcdn.com/w40/pl.png,napastnik,18.06.1978,47,,,,,,,31.0,,,,,,,,,,,,,,,,,,,,,,,,,31
+Tomasz Matloch,Polska,https://flagcdn.com/w40/pl.png,obrońca,24.05.1973,52,,,,,,,28.0,,,,,,,,,,,,,,,,,,,,,,,,,28
+Damian Galeja,Polska,https://flagcdn.com/w40/pl.png,pomocnik,05.02.1976,49,,,,,,,9.0,,,,,,,,,,,,,,,,,,,,,,,,,9
+Artur Pajkos,Polska,https://flagcdn.com/w40/pl.png,obrońca,19.12.1972,53,,,,,,,21.0,,,,,,,,,,,,,,,,,,,,,,,,,21
+Łysoń,Polska,https://flagcdn.com/w40/pl.png,,,125,,,,,,,1.0,,,,,,,,,,,,,,,,,,,,,,,,,1
+Marcin Folga,Polska,https://flagcdn.com/w40/pl.png,napastnik,31.03.1977,48,,,,,,,6.0,,,,,,,,,,,,,,,,,,,,,,,,,6
+Patryk Krupa,Polska,https://flagcdn.com/w40/pl.png,,,125,,,,,,,12.0,,,,,,,,,,,,,,,,,,,,,,,,,12
+Piotr Bielak,Polska,https://flagcdn.com/w40/pl.png,pomocnik,04.09.1976,49,,,,,,,,13.0,,,,,,,,,,,,,,,,,,,,,,,,13
+Grzegorz Bogdan,Polska,https://flagcdn.com/w40/pl.png,pomocnik,27.08.1980,45,,,,,,,31.0,26.0,9.0,,,2.0,,,,,,,,,,,,,,,,,,,,68
+Jarosław Bujok,Polska,https://flagcdn.com/w40/pl.png,obrońca,04.09.1974,51,,,,,34.0,32.0,31.0,31.0,31.0,37.0,,,,,,,,,,,,,,,,,,,,,,196
+Dawid Bułka,Polska,https://flagcdn.com/w40/pl.png,bramkarz,01.06.1976,49,,,,,,1.0,7.0,32.0,13.0,,,,,,,,,,,,,,,,,,,,,,,53
+Piotr Cetnarowicz,Polska,https://flagcdn.com/w40/pl.png,napastnik,19.05.1973,52,,,,,,,,12.0,,,,,,,,,,,,,,,,,,,,,,,,12
+Piotr Czak,Polska,https://flagcdn.com/w40/pl.png,napastnik,18.05.1971,54,,,,,,,,32.0,29.0,,,,,,,,,,,,,,,,,,,,,,,61
+Zdeněk Dembinný,Czechy,https://flagcdn.com/w40/cz.png,pomocnik,03.03.1980,45,,,,,,,,4.0,,,,,,,,,,,,,,,,,,,,,,,,4
+Mariusz Gałgan,Polska,https://flagcdn.com/w40/pl.png,napastnik,15.06.1976,49,,,,,,16.0,,27.0,,,,,,,,,,,,,,,,,,,,,,,,43
+Paweł Hajduczek,Polska,https://flagcdn.com/w40/pl.png,pomocnik,17.05.1982,43,,,,,,,,13.0,,,,,,,,,,,,,,,,,,,,,,,,13
+Lukáš Hojdys,Czechy,https://flagcdn.com/w40/cz.png,napastnik,28.11.1984,41,,,,,,,,3.0,,,,,,,,,,,,,,,,,,,,,,,,3
+Mariusz Jendryczko,Polska,https://flagcdn.com/w40/pl.png,obrońca,26.06.1973,52,,,,31.0,26.0,33.0,29.0,28.0,15.0,,,,,,,,,,,,,,,,,,,,,,,162
+Marcin Klaczka,Polska,https://flagcdn.com/w40/pl.png,obrońca,13.08.1973,52,,,,,,,,31.0,28.0,,,,,,,,,,,,,,,,,,,,,,,59
+Michał Kurzeja,Polska,https://flagcdn.com/w40/pl.png,obrońca,01.02.1971,54,,,,26.0,28.0,30.0,26.0,9.0,,,,,,,,,,,,,,,,,,,,,,,,119
+Sebastian Łukiewicz,Polska,https://flagcdn.com/w40/pl.png,bramkarz,07.03.1971,54,,,,,,,,2.0,,,,,,,,,,,,,,,,,,,,,,,,2
+Robert Piekarski,Polska,https://flagcdn.com/w40/pl.png,obrońca,01.04.1970,55,,,,,30.0,38.0,33.0,33.0,27.0,14.0,,,,,,,,,,,,,,,,,,,,,,175
+Adrian Sikora,Polska,https://flagcdn.com/w40/pl.png,napastnik,19.03.1980,45,,,,,,13.0,24.0,15.0,,,,,,,,,,,,,,,,,,,,,,,,52
+Andrzej Szłapa,Polska,https://flagcdn.com/w40/pl.png,pomocnik,19.06.1975,50,,,,,,,33.0,33.0,16.0,,,,,,,,,,,,,,,,,,,,,,,82
+Dariusz Turkowski,Polska,https://flagcdn.com/w40/pl.png,obrońca,02.11.1975,50,,,,,,,,10.0,,,,,,,,,,,,,,,,,,,,,,,,10
+Grzegorz Więzik,Polska,https://flagcdn.com/w40/pl.png,pomocnik,21.07.1963,62,,,,30.0,34.0,26.0,24.0,19.0,,,,,,,,,,,,,,,,,,,,,,,,133
+Grzegorz Wilczok,Polska,https://flagcdn.com/w40/pl.png,obrońca,19.03.1969,56,,,,,,,,11.0,,,,,,,,,,,,,,,,,,,,,,,,11
+Bartosz Woźniak,Polska,https://flagcdn.com/w40/pl.png,pomocnik,23.09.1977,48,,,,,31.0,34.0,33.0,27.0,23.0,,,,,,,,,,,,,,,,,,,,,,,148
+Sławomir Zachnik,Polska,https://flagcdn.com/w40/pl.png,pomocnik,05.06.1977,48,,,,,,,,9.0,,,,,,,,,,,,,,,,,,,,,,,,9
+Damian Zdolski,Polska,https://flagcdn.com/w40/pl.png,napastnik,09.07.1984,41,,,,,4.0,6.0,3.0,9.0,13.0,10.0,,15.0,,,,,,,,,,,,,,,,,,,,60
+Robert Zięba,Polska,https://flagcdn.com/w40/pl.png,obrońca,19.05.1981,44,,,,1.0,16.0,29.0,21.0,9.0,5.0,21.0,15.0,,,,,,,,,,,,,,,,,,,,,117
+Marcin Żukowski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,03.06.1981,44,,,,,,,,27.0,22.0,,,,,,,,,,,,,,,,,,,,,,,49
+Mieczysław Agafon,Polska,https://flagcdn.com/w40/pl.png,pomocnik,18.11.1971,54,,,,,,,,,29.0,,,,,,,,,,,,,,,,,,,,,,,29
+Łukasz Błasiak,Polska,https://flagcdn.com/w40/pl.png,napastnik,30.07.1978,47,,,,,,,,,14.0,36.0,,,,,,,,,,,,,,,,,,,,,,50
+Sławomir Cienciała,Polska,https://flagcdn.com/w40/pl.png,obrońca,19.03.1983,42,,,,,,,,,12.0,27.0,,30.0,21.0,32.0,17.0,29.0,9.0,7.0,,,,,,,,,,,,,,184
+Paweł Jermakowicz,Polska,https://flagcdn.com/w40/pl.png,obrońca,01.02.1975,50,,,,,,,,,18.0,,,,,,,,,,,,,,,,,,,,,,,18
+Tomasz Kazimierowicz,Polska,https://flagcdn.com/w40/pl.png,pomocnik,12.06.1979,46,,,,,,,,,8.0,,,,,,,,,,,,,,,,,,,,,,,8
+Piotr Koman,Polska,https://flagcdn.com/w40/pl.png,pomocnik,25.06.1985,40,,,,,,,,,4.0,38.0,38.0,29.0,16.0,1.0,,31.0,9.0,2.0,,,,,,,,,,,,,,168
+Uzoma Luke,Nigeria,https://flagcdn.com/w40/ng.png,napastnik,27.05.1982,43,,,,,,,,,13.0,,,,,,,,,,,,,,,,,,,,,,,13
+Marek Matuszek,Polska,https://flagcdn.com/w40/pl.png,bramkarz,13.11.1970,55,,,,,,,,,6.0,14.0,6.0,,,,,,,,,,,,,,,,,,,,,26
+Łukasz Merda,Polska,https://flagcdn.com/w40/pl.png,bramkarz,04.05.1980,45,,,,,,,,,15.0,29.0,31.0,23.0,33.0,28.0,6.0,,,,,,,,,,,,,,,,,165
+Bogdan Prusek,Polska,https://flagcdn.com/w40/pl.png,napastnik,11.04.1971,54,,,,,,,,,10.0,15.0,,,,,,,,,,,,,,,,,,,,,,25
+Wojciech Rączka,Polska,https://flagcdn.com/w40/pl.png,pomocnik,01.11.1976,49,,,,,,,,,25.0,32.0,14.0,,,,,,,,,,,,,,,,,,,,,71
+Abel Salami,Nigeria,https://flagcdn.com/w40/ng.png,napastnik,15.12.1979,46,,,,,,,,,18.0,,,,,,,,,,,,,,,,,,,,,,,18
+Mieczysław Sikora,Polska,https://flagcdn.com/w40/pl.png,napastnik,06.02.1982,43,,,,,,,,,16.0,,,,,9.0,,,,,,,,,,,,,,,,,,25
+Andriej Szyło,Białoruś,https://flagcdn.com/w40/by.png,pomocnik,11.07.1976,49,,,,,,,,,15.0,,,,,,,,,,,,,,,,,,,,,,,15
+Seweryn Wojciechowski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,25.05.1980,45,,,,,,,,,1.0,,,,,,,,,,,,,,,,,,,,,,,1
+Paweł Woźniak,Polska,https://flagcdn.com/w40/pl.png,pomocnik,11.10.1978,47,,,,,,,,,13.0,,,,,,,,,,,,,,,,,,,,,,,13
+Rafał Andraszak,Polska,https://flagcdn.com/w40/pl.png,pomocnik,05.02.1978,47,,,,,,,,,,19.0,,,,,,,,,,,,,,,,,,,,,,19
+Daniel Dubicki,Polska,https://flagcdn.com/w40/pl.png,pomocnik,25.05.1975,50,,,,,,,,,,20.0,,,,,,,,,,,,,,,,,,,,,,20
+François Endene,Kamerun /Meksyk,https://flagcdn.com/w40/cm.png,napastnik,20.10.1978,47,,,,,,,,,,16.0,,,,,,,,,,,,,,,,,,,,,,16
+Tomasz Fornalik,Polska,https://flagcdn.com/w40/pl.png,obrońca,03.06.1973,52,,,,,,,,,,2.0,,,,,,,,,,,,,,,,,,,,,,2
+Tomasz Górkiewicz,Polska,https://flagcdn.com/w40/pl.png,obrońca,28.01.1985,40,,,,,,,,,,3.0,24.0,31.0,20.0,1.0,9.0,12.0,11.0,12.0,30.0,34.0,,,,,,,,,,,,187
+Hubert Jaromin,Polska,https://flagcdn.com/w40/pl.png,pomocnik,04.03.1979,46,,,,,,,,,,13.0,,,,,,,,,,,,,,,,,,,,,,13
+Adam Kompała,Polska,https://flagcdn.com/w40/pl.png,pomocnik,16.08.1973,52,,,,,,,,,,40.0,,,,,,,,,,,,,,,,,,,,,,40
+Tomasz Księżyc,Polska,https://flagcdn.com/w40/pl.png,obrońca,20.04.1974,51,,,,,,,,,,15.0,,,,,,,,,,,,,,,,,,,,,,15
+Marcin Makuch,Polska,https://flagcdn.com/w40/pl.png,obrońca,03.04.1980,45,,,,,,,,,,17.0,13.0,,,,,,,,,,,,,,,,,,,,,30
+Grzegorz Pater,Polska,https://flagcdn.com/w40/pl.png,pomocnik,05.05.1974,51,,,,,,,,,,38.0,36.0,29.0,26.0,12.0,,,,,,,,,,,,,,,,,,141
+Cristian Popescu,Rumunia,https://flagcdn.com/w40/ro.png,obrońca,10.10.1973,52,,,,,,,,,,1.0,,,,,,,,,,,,,,,,,,,,,,1
+Artur Prokop,Polska,https://flagcdn.com/w40/pl.png,pomocnik,18.12.1972,53,,,,,,,,,,40.0,,,,,,,,,,,,,,,,,,,,,,40
+Błażej Radler,Polska,https://flagcdn.com/w40/pl.png,obrońca,02.08.1982,43,,,,,,,,,,33.0,,,,,,,,,,,,,,,,,,,,,,33
+Artur Rozmus,Polska,https://flagcdn.com/w40/pl.png,napastnik,01.11.1977,48,,,,,,19.0,,,,26.0,,,,,,,,,,,,,,,,,,,,,,45
+Dariusz Rucki,Polska,https://flagcdn.com/w40/pl.png,obrońca,03.02.1985,40,,,,,,,,,,1.0,3.0,10.0,,,,,,,,,,,,,,,,,,,,14
+Mariusz Sacha,Polska,https://flagcdn.com/w40/pl.png,pomocnik,19.07.1987,38,,,,,,,,,,8.0,32.0,29.0,25.0,19.0,,,15.0,5.0,,,,,,,,,,,,,,133
+Paweł Sibik,Polska,https://flagcdn.com/w40/pl.png,pomocnik,15.02.1971,54,,,,,,,,,,17.0,,,,,,,,,,,,,,,,,,,,,,17
+Paweł Stalmach,Polska,https://flagcdn.com/w40/pl.png,pomocnik,18.11.1983,42,,,,,,,,,,15.0,6.0,,,,,,,,,,,,,,,,,,,,,21
+Grzegorz Sztorc,Polska,https://flagcdn.com/w40/pl.png,napastnik,11.12.1981,44,,,,,,,,,,2.0,,,,,,,,,,,,,,,,,,,,,,2
+Adam Bała,Polska,https://flagcdn.com/w40/pl.png,pomocnik,17.01.1973,52,,,,,,,,,,,11.0,,,,,,,,,,,,,,,,,,,,,11
+Nikołaj Branfiłow,Białoruś,https://flagcdn.com/w40/by.png,obrońca,16.12.1977,48,,,,,,,,,,,16.0,,,,,,,,,,,,,,,,,,,,,16
+Krzysztof Chrapek,Polska,https://flagcdn.com/w40/pl.png,napastnik,07.10.1985,40,,,,,,,,,,,14.0,30.0,29.0,32.0,,,,,19.0,16.0,,,,,,,,,,,,140
+Piotr Gierczak,Polska,https://flagcdn.com/w40/pl.png,pomocnik,02.05.1976,49,,,,,,,,,,,18.0,,,,,,,,,,,,,,,,,,,,,18
+Łukasz Gorszkow,Polska,https://flagcdn.com/w40/pl.png,pomocnik,06.10.1974,51,,,,,,,,,,,36.0,29.0,29.0,5.0,,,,,,,,,,,,,,,,,,99
+Marcin Hirsz,Polska,https://flagcdn.com/w40/pl.png,obrońca,04.01.1980,45,,,,,,,,,,,8.0,15.0,23.0,9.0,,,,,,,,,,,,,,,,,,55
+Jacek Imianowski,Polska,https://flagcdn.com/w40/pl.png,obrońca,09.02.1981,44,,,,,,,,,,,5.0,,,,,,,,,,,,,,,,,,,,,5
+Błażej Jankowski,Polska,https://flagcdn.com/w40/pl.png,obrońca,26.10.1980,45,,,,,,,,,,,15.0,,,,,,,,,,,,,,,,,,,,,15
+Sławomir Jarczyk,Polska,https://flagcdn.com/w40/pl.png,obrońca,18.08.1980,45,,,,,,,,,,,17.0,,,,,,,,,,,,,,,,,,,,,17
+Tomasz Jodłowiec,Polska,https://flagcdn.com/w40/pl.png,pomocnik,08.09.1985,40,,,,,,,,,,,13.0,,,,,,,,,,,,,,,,,18.0,22.0,,,53
+Daniel Kasprzycki,Polska,https://flagcdn.com/w40/pl.png,pomocnik,31.01.1985,40,,,,,,,,,,,1.0,,,,,,,,,,,,,,,,,,,,,1
+Dariusz Kołodziej,Polska,https://flagcdn.com/w40/pl.png,pomocnik,17.04.1982,43,,,,,,,,,,,31.0,32.0,32.0,,30.0,18.0,7.0,3.0,16.0,18.0,14.0,14.0,,,,,,,,,,215
+Kamil Konieczny,Polska,https://flagcdn.com/w40/pl.png,pomocnik,17.04.1982,43,,,,,,,,,,,3.0,2.0,3.0,,,,,,,,,,,,,,,,,,,8
+Krzysztof Kowalczyk,Polska,https://flagcdn.com/w40/pl.png,pomocnik,11.03.1979,46,,,,,,,,,,,27.0,,,,,,,,,,,,,,,,,,,,,27
+Krzysztof Michałowski,Polska,https://flagcdn.com/w40/pl.png,bramkarz,04.01.1984,41,,,,,,,,,,,5.0,13.0,,,,,,,,,,,,,,,,,,,,18
+Przemysław Pluta,Polska,https://flagcdn.com/w40/pl.png,pomocnik,13.11.1978,47,,,,,,,,,,,11.0,,,,,,,,,,,,,,,,,,,,,11
+Grzegorz Podstawek,Polska,https://flagcdn.com/w40/pl.png,napastnik,25.06.1979,46,,,,,,,,,,,35.0,,,,,,,,,,,,,,,,,,,,,35
+Paweł Sobczak,Polska,https://flagcdn.com/w40/pl.png,napastnik,29.06.1978,47,,,,,,,,,,,27.0,,,,,,,,,,,,,,,,,,,,,27
+Bartłomiej Socha,Polska,https://flagcdn.com/w40/pl.png,napastnik,28.08.1981,44,,,,,,,,,,,9.0,,,,,,,,,,,,,,,,,,,,,9
+Stanley Udenkwor,Nigeria /Polska,https://flagcdn.com/w40/ng.png,napastnik,01.05.1981,44,,,,,,,,,,,12.0,,,,,,,,,,,,,,,,,,,,,12
+Krzysztof Butryn,Polska,https://flagcdn.com/w40/pl.png,pomocnik,17.11.1981,44,,,,,,,,,,,,24.0,3.0,,,,,,,,,,,,,,,,,,,27
+Aleksandr Gierasimowicz,Białoruś,https://flagcdn.com/w40/by.png,bramkarz,02.01.1979,46,,,,,,,,,,,,1.0,,,,,,,,,,,,,,,,,,,,1
+Marcin Józefowicz,Polska,https://flagcdn.com/w40/pl.png,napastnik,31.01.1977,48,,,,,,,,,,,,24.0,,,,,,,,,,,,,,,,,,,,24
+Marcin Kocur,Polska,https://flagcdn.com/w40/pl.png,napastnik,29.01.1984,41,,,,,,,,,,,,30.0,5.0,,,,,,,,,,,,,,,,,,,35
+Artur Łazar,Polska,https://flagcdn.com/w40/pl.png,pomocnik,11.01.1980,45,,,,,,,,,,,,3.0,,,,,,,,,,,,,,,,,,,,3
+Artur Monasterski,Polska,https://flagcdn.com/w40/pl.png,obrońca,06.02.1983,42,,,,,,,,,,,,22.0,,,,,,,,,,,,,,,,,,,,22
+Mike Mozie,Nigeria,https://flagcdn.com/w40/ng.png,obrońca,20.03.1978,47,,,,,,,,,,,,29.0,16.0,,,,,,,,,,,,,,,,,,,45
+Paweł Odrzywolski,Polska,https://flagcdn.com/w40/pl.png,obrońca,06.03.1983,42,,,,,,,,,,,,17.0,7.0,,,,,,,,,,,,,,,,,,,24
+Marcin Wielgus,Polska,https://flagcdn.com/w40/pl.png,napastnik,22.09.1980,45,,,,,,,,,,,,11.0,,,,,,,,,,,,,,,,,,,,11
+Marcin Wróbel,Polska,https://flagcdn.com/w40/pl.png,napastnik,28.11.1984,41,,,,,,,,,,,,3.0,,,,,,,,,,,,,,,,,,,,3
+Krzysztof Zaremba,Polska,https://flagcdn.com/w40/pl.png,pomocnik,08.12.1987,38,,,,,,,,,,,,7.0,12.0,26.0,,9.0,,,,,,,,,,,,,,,,54
+Juraj Dančík,Słowacja,https://flagcdn.com/w40/sk.png,obrońca,21.02.1982,43,,,,,,,,,,,,,24.0,20.0,27.0,25.0,22.0,6.0,,,,,,,,,,,,,,124
+Rafał Jarosz,Polska,https://flagcdn.com/w40/pl.png,pomocnik,12.03.1976,49,,,,,,,,,,,,,32.0,28.0,17.0,,,,,,,,,,,,,,,,,77
+Andrzej Maślorz,Polska,https://flagcdn.com/w40/pl.png,pomocnik,31.10.1985,40,,,,,,,,,,,,,4.0,,,,,,,,,,,,,,,,,,,4
+Martin Matúš,Słowacja,https://flagcdn.com/w40/sk.png,napastnik,09.03.1982,43,,,,,,,,,,,,,33.0,23.0,13.0,,,,,,,,,,,,,,,,,69
+Rafał Nalepa,Polska,https://flagcdn.com/w40/pl.png,obrońca,13.05.1988,37,,,,,,,,,,,,,1.0,,,,,,,,,,,,,,,,,,,1
+Jacek Paczkowski,Polska,https://flagcdn.com/w40/pl.png,obrońca,02.09.1981,44,,,,,,,,,,,,,1.0,,,,,,,,,,,,,,,,,,,1
+Adrian Pajączkowski,Polska,https://flagcdn.com/w40/pl.png,obrońca,18.06.1979,46,,,,,,,,,,,,,8.0,,,,,,,,,,,,,,,,,,,8
+Marcin Pęszor,Polska,https://flagcdn.com/w40/pl.png,napastnik,05.07.1989,36,,,,,,,,,,,,,1.0,,,,,,,,,,,,,,,,,,,1
+Janusz Surdykowski,Polska,https://flagcdn.com/w40/pl.png,napastnik,04.05.1986,39,,,,,,,,,,,,,9.0,,,,,,,,,,,,,,,,,,,9
+Maciej Szmatiuk,Polska,https://flagcdn.com/w40/pl.png,obrońca,09.05.1980,45,,,,,,,,,,,,,33.0,33.0,,,,,,,,,,,,,,,,,,66
+Sebastian Szymański,Polska,https://flagcdn.com/w40/pl.png,bramkarz,04.10.1979,46,,,,,,,,,,,,,2.0,7.0,,,,,,,,,,,,,,,,,,9
+Damian Świerblewski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,17.01.1984,41,,,,,,,,,,,,,13.0,22.0,18.0,,,,,,,,,,,,,,,,,53
+Piotr Urbańczyk,Polska,https://flagcdn.com/w40/pl.png,pomocnik,28.05.1989,36,,,,,,,,,,,,,1.0,,,,,,,,,,,,,,,,,,,1
+Mateusz Żemła,Polska,https://flagcdn.com/w40/pl.png,pomocnik,02.03.1985,40,,,,,,,,,,,,,1.0,,,,,,,,,,,,,,,,,,,1
+Paweł Żmudziński,Polska,https://flagcdn.com/w40/pl.png,pomocnik,16.01.1978,47,,,,,,,,,,,,,25.0,21.0,,,,,,,,,,,,,,,,,,46
+Paweł Baranowski,Polska,https://flagcdn.com/w40/pl.png,obrońca,11.10.1990,35,,,,,,,,,,,,,,2.0,6.0,,,,,,14.0,,,,,,,,,,,22
+Jarosław Białek,Polska,https://flagcdn.com/w40/pl.png,pomocnik,22.02.1981,44,,,,,,,,,,,,,,3.0,4.0,,,,,,,,,,,,,,,,,7
+Adam Brzezina,Czechy,https://flagcdn.com/w40/cz.png,napastnik,30.10.1978,47,,,,,,,,,,,,,,16.0,,,,,,,,,,,,,,,,,,16
+Damian Chmiel,Polska,https://flagcdn.com/w40/pl.png,pomocnik,06.05.1987,38,,,,,,,,,,,,,,10.0,7.0,22.0,1.0,27.0,22.0,37.0,24.0,21.0,12.0,,,,,,,,,183
+Arkadiusz Gołąb,Polska,https://flagcdn.com/w40/pl.png,obrońca,21.04.1989,36,,,,,,,,,,,,,,1.0,,1.0,,,,,,,,,,,,,,,,2
+Bartłomiej Konieczny,Polska,https://flagcdn.com/w40/pl.png,obrońca,09.06.1981,44,,,,,,,,,,,,,,24.0,18.0,29.0,27.0,14.0,25.0,31.0,,,,,,,,,,,,168
+Piotr Malinowski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,24.03.1984,41,,,,,,,,,,,,,,7.0,31.0,35.0,25.0,27.0,33.0,28.0,,,,,,,,,,,,186
+Clemence Matawu,Zimbabwe,https://flagcdn.com/w40/zw.png,pomocnik,29.11.1982,43,,,,,,,,,,,,,,8.0,32.0,,,,,,,,,,,,,,,,,40
+Łukasz Matusiak,Polska,https://flagcdn.com/w40/pl.png,pomocnik,07.05.1985,40,,,,,,,,,,,,,,29.0,27.0,11.0,,,,,,,,,,,,,,,,67
+Bernanrd Ocholeche,Nigeria,https://flagcdn.com/w40/ng.png,pomocnik,24.05.1987,38,,,,,,,,,,,,,,7.0,1.0,,,,,,,,,,,,,,,,,8
+Michał Osiński,Polska,https://flagcdn.com/w40/pl.png,obrońca,05.09.1978,47,,,,,,,,,,,,,,28.0,31.0,34.0,5.0,,,,,,,,,,,,,,,98
+Patmore Shereni,Zimbabwe,https://flagcdn.com/w40/zw.png,obrońca,14.09.1984,41,,,,,,,,,,,,,,1.0,,,,,,,,,,,,,,,,,,1
+Sebastian Ziajka,Polska,https://flagcdn.com/w40/pl.png,obrońca,15.12.1982,43,,,,,,,,,,,,,,11.0,,33.0,25.0,13.0,,,,,,,,,,,,,,82
+Piotr Bagnicki,Polska,https://flagcdn.com/w40/pl.png,napastnik,10.12.1980,45,,,,,,,,,,,,,,,31.0,,,,,,,,,,,,,,,,,31
+Jacek Broniewicz,Polska,https://flagcdn.com/w40/pl.png,obrońca,18.09.1981,44,,,,,,,,,,,,,,,9.0,23.0,1.0,,,,,,,,,,,,,,,33
+Mateusz Cieluch,Polska,https://flagcdn.com/w40/pl.png,napastnik,21.10.1987,38,,,,,,,,,,,,,,,3.0,,,,,,,,,,,,,,,,,3
+Łukasz Ganowicz,Polska,https://flagcdn.com/w40/pl.png,obrońca,23.05.1981,44,,,,,,,,,,,,,,,24.0,,,,,,,,,,,,,,,,,24
+Łukasz Kanik,Polska,https://flagcdn.com/w40/pl.png,pomocnik,26.02.1988,37,,,,,,,,,,,,,,,19.0,,,,,,,,,,,,,,,,,19
+Paweł Linka,Polska,https://flagcdn.com/w40/pl.png,bramkarz,26.06.1986,39,,,,,,,,,,,,,,,2.0,1.0,,,,,,,,,,,,,,,,3
+Joachim Mikler,Polska,https://flagcdn.com/w40/pl.png,bramkarz,15.11.1988,37,,,,,,,,,,,,,,,12.0,,,,,,,,,,,,,,,,,12
+Ndabenkulu Ncube,Zimbabwe,https://flagcdn.com/w40/zw.png,pomocnik,02.08.1988,37,,,,,,,,,,,,,,,13.0,,,,,,,,,,,,,,,,,13
+Sylwester Patejuk,Polska,https://flagcdn.com/w40/pl.png,pomocnik,30.11.1982,43,,,,,,,,,,,,,,,31.0,30.0,29.0,,,19.0,,,,,,,,,,,,109
+Piotr Rocki,Polska,https://flagcdn.com/w40/pl.png,pomocnik,11.01.1974,51,,,,,,,,,,,,,,,23.0,,,,,,,,,,,,,,,,,23
+Krzysztof Świątek,Polska,https://flagcdn.com/w40/pl.png,pomocnik,13.01.1987,38,,,,,,,,,,,,,,,5.0,,,,,,,,,,,,,,,,,5
+Richard Zajac,Słowacja,https://flagcdn.com/w40/sk.png,bramkarz,16.08.1976,49,,,,,,,,,,,,,,,15.0,40.0,21.0,27.0,25.0,21.0,,,,,,,,,,,,149
+Mateusz Żyła,Polska,https://flagcdn.com/w40/pl.png,pomocnik,16.09.1989,36,,,,,,,,,,,,,,,3.0,7.0,,,,,,,,,,,,,,,,10
+Damian Byrtek,Polska,https://flagcdn.com/w40/pl.png,obrońca,07.03.1991,34,,,,,,,,,,,,,,,,5.0,5.0,9.0,,,,,,,,,,,,,,19
+Adam Cieśliński,Polska,https://flagcdn.com/w40/pl.png,napastnik,11.05.1982,43,,,,,,,,,,,,,,,,33.0,13.0,,,,,,,,,,,,,,,46
+Dariusz Łatka,Polska,https://flagcdn.com/w40/pl.png,pomocnik,14.09.1978,47,,,,,,,,,,,,,,,,31.0,25.0,26.0,31.0,,,,,,,,,,,,,113
+František Metelka,Czechy,https://flagcdn.com/w40/cz.png,pomocnik,08.04.1980,45,,,,,,,,,,,,,,,,15.0,9.0,,,,,,,,,,,,,,,24
+Mariusz Mikoda,Polska,https://flagcdn.com/w40/pl.png,obrońca,13.09.1992,33,,,,,,,,,,,,,,,,3.0,,,,,,,,,,,,,,,,3
+Maciej Rogalski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,21.05.1980,45,,,,,,,,,,,,,,,,34.0,19.0,,,,,,,,,,,,,,,53
+Mateusz Bąk,Polska,https://flagcdn.com/w40/pl.png,bramkarz,24.02.1983,42,,,,,,,,,,,,,,,,,12.0,4.0,,,,,,,,,,,,,,16
+Liran Cohen,Izrael,https://flagcdn.com/w40/il.png,pomocnik,14.02.1983,42,,,,,,,,,,,,,,,,,20.0,16.0,,,,,,,,,,,,,,36
+Ivan Ćurić,Chorwacja,https://flagcdn.com/w40/hr.png,napastnik,18.05.1987,38,,,,,,,,,,,,,,,,,6.0,,,,,,,,,,,,,,,6
+Róbert Demjan,Słowacja,https://flagcdn.com/w40/sk.png,napastnik,26.10.1982,43,,,,,,,,,,,,,,,,35.0,31.0,30.0,,37.0,35.0,25.0,,,,,,,,,,193
+Liad Elmalich,Izrael,https://flagcdn.com/w40/il.png,pomocnik,21.02.1989,36,,,,,,,,,,,,,,,,,5.0,,,,,,,,,,,,,,,5
+Mateusz Janeczko,Polska,https://flagcdn.com/w40/pl.png,pomocnik,30.11.1994,31,,,,,,,,,,,,,,,,,1.0,6.0,,,1.0,,,,,,,,,,,8
+Krzysztof Król,Polska,https://flagcdn.com/w40/pl.png,obrońca,06.02.1987,38,,,,,,,,,,,,,,,,,20.0,15.0,,,,,,,,,,,,,,35
+Łukasz Mierzejewski,Polska,https://flagcdn.com/w40/pl.png,obrońca,31.08.1982,43,,,,,,,,,,,,,,,,,5.0,,,,,,,,,,,,,,,5
+Artur Moroń,Polska,https://flagcdn.com/w40/pl.png,obrońca,10.07.1993,32,,,,,,,,,,,,,,,,,1.0,,,,,,,,,,,,,,,1
+Matej Náther,Słowacja,https://flagcdn.com/w40/sk.png,pomocnik,23.07.1985,40,,,,,,,,,,,,,,,,,21.0,9.0,,,,,,,,,,,,,,30
+Damian Nowak,Polska,https://flagcdn.com/w40/pl.png,napastnik,14.05.1992,33,,,,,,,,,,,,,,,,,2.0,,,,,,,,,,,,,,,2
+Wojciech Reiman,Polska,https://flagcdn.com/w40/pl.png,pomocnik,05.08.1988,37,,,,,,,,,,,,,,,,,4.0,3.0,,,,,,,,,,,,,,7
+Serginho,Brazylia,https://flagcdn.com/w40/br.png,pomocnik,09.06.1990,35,,,,,,,,,,,,,,,,,2.0,,,,,,,,,,,,,,,2
+Ondřej Šourek,Czechy,https://flagcdn.com/w40/cz.png,obrońca,26.04.1983,42,,,,,,,,,,,,,,,,,13.0,,,,,,,,,,,,,,,13
+Kamil Adamek,Polska,https://flagcdn.com/w40/pl.png,napastnik,09.02.1989,36,,,,,,,,,,,,,,,,,,11.0,,,,,,,,,,,,,,11
+Marko Ćetković,Czarnogóra,https://flagcdn.com/w40/me.png,pomocnik,10.07.1986,39,,,,,,,,,,,,,,,,,,9.0,,,,,,,,,,,,,,9
+Adam Deja,Polska,https://flagcdn.com/w40/pl.png,pomocnik,26.06.1993,32,,,,,,,,,,,,,,,,,,10.0,18.0,25.0,26.0,27.0,,,,,,,,,,106
+Ireneusz Jeleń,Polska,https://flagcdn.com/w40/pl.png,napastnik,09.04.1981,44,,,,,,,,,,,,,,,,,,7.0,,,,,,,,,,,,,,7
+Fabian Pawela,Polska,https://flagcdn.com/w40/pl.png,napastnik,30.11.1985,40,,,,,,,,,,,,,,,,,,25.0,30.0,,,,,,,,,,,,,55
+Dariusz Pietrasiak,Polska,https://flagcdn.com/w40/pl.png,obrońca,12.02.1980,45,,,,,,,,,,,,,,,,,,22.0,31.0,16.0,,,,,,,,,,,,69
+Michal Piter-Bučko,Słowacja,https://flagcdn.com/w40/sk.png,obrońca,28.10.1985,40,,,,,,,,,,,,,,,,,,24.0,,,,,,,,,,,,,,24
+Anton Sloboda,Słowacja,https://flagcdn.com/w40/sk.png,pomocnik,10.07.1987,38,,,,,,,,,,,,,,,,,,13.0,26.0,23.0,11.0,,,,,,,,,,,73
+Damian Szczęsny,Polska,https://flagcdn.com/w40/pl.png,napastnik,26.12.1986,39,,,,,,,,,,,,,,,,,,7.0,,,,,,,,,,,,,,7
+Błażej Telichowski,Polska,https://flagcdn.com/w40/pl.png,obrońca,06.06.1984,41,,,,,,,,,,,,,,,,,,7.0,34.0,,,,,,,,,,,,,41
+Marcin Wodecki,Polska,https://flagcdn.com/w40/pl.png,pomocnik,14.01.1988,37,,,,,,,,,,,,,,,,,,10.0,17.0,,,,,,,,,,,,,27
+Frank Adu Kwame,Ghana,https://flagcdn.com/w40/gh.png,obrońca,16.05.1985,40,,,,,,,,,,,,,,,,,,,20.0,20.0,15.0,,,,,,,,,,,55
+Sebastian Bartlewski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,13.06.1994,31,,,,,,,,,,,,,,,,,,,11.0,3.0,1.0,,,,,,,,,,,15
+Jan Blažek,Czechy,https://flagcdn.com/w40/cz.png,napastnik,20.03.1988,37,,,,,,,,,,,,,,,,,,,5.0,,,,,,,,,,,,,5
+Daniel Bujok,Polska,https://flagcdn.com/w40/pl.png,pomocnik,24.11.1994,31,,,,,,,,,,,,,,,,,,,3.0,,,,,,,,,,,,,3
+Maciej Iwański,Polska,https://flagcdn.com/w40/pl.png,pomocnik,07.05.1981,44,,,,,,,,,,,,,,,,,,,16.0,33.0,,,,,,,,,,,,49
+Aleksander Jagiełło,Polska,https://flagcdn.com/w40/pl.png,pomocnik,02.02.1995,30,,,,,,,,,,,,,,,,,,,18.0,,,,,,,,,,,,,18
+Mateusz Kupczak,Polska,https://flagcdn.com/w40/pl.png,pomocnik,20.02.1992,33,,,,,,,,,,,,,,,,,,,11.0,,,,,,,,,,,,,11
+Kamil Kurowski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,04.09.1994,31,,,,,,,,,,,,,,,,,,,3.0,,,,,,,,,,,,,3
+Mikołaj Lebedyński,Polska,https://flagcdn.com/w40/pl.png,napastnik,14.10.1990,35,,,,,,,,,,,,,,,,,,,5.0,,,,,,,,,,,,,5
+Charles Nwaogu,Nigeria,https://flagcdn.com/w40/ng.png,napastnik,22.07.1990,35,,,,,,,,,,,,,,,,,,,3.0,,,,,,,,,,,,,3
+Przemysław Pietruszka,Polska,https://flagcdn.com/w40/pl.png,obrońca,18.04.1984,41,,,,,,,,,,,,,,,,,,,9.0,,,,,,,,,,,,,9
+Ladislav Rybánsky,Słowacja,https://flagcdn.com/w40/sk.png,bramkarz,19.12.1984,41,,,,,,,,,,,,,,,,,,,13.0,,,,,,,,,,,,,13
+Mateusz Stąporski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,28.01.1988,37,,,,,,,,,,,,,,,,,,,7.0,,,,,,,,,,,,,7
+Wojciech Szymanek,Polska,https://flagcdn.com/w40/pl.png,obrońca,01.03.1982,43,,,,,,,,,,,,,,,,,,,3.0,,,,,,,,,,,,,3
+Rudolf Urban,Słowacja,https://flagcdn.com/w40/sk.png,obrońca,01.03.1980,45,,,,,,,,,,,,,,,,,,,12.0,,,,,,,,,,,,,12
+Łukasz Żegleń,Polska,https://flagcdn.com/w40/pl.png,napastnik,09.06.1995,30,,,,,,,,,,,,,,,,,,,6.0,,,,,,,,,,,,,6
+Idrissa Cissé,Senegal,https://flagcdn.com/w40/sn.png,napastnik,01.01.1990,35,,,,,,,,,,,,,,,,,,,,12.0,,,,,,,,,,,,12
+Maciej Felsch,Polska,https://flagcdn.com/w40/pl.png,obrońca,31.05.1998,27,,,,,,,,,,,,,,,,,,,,1.0,,,,,,,,,,,,1
+Gracjan Horoszkiewicz,Polska,https://flagcdn.com/w40/pl.png,obrońca,18.03.1995,30,,,,,,,,,,,,,,,,,,,,7.0,4.0,,,,,,,,,,,11
+Kristián Kolčák,Słowacja,https://flagcdn.com/w40/sk.png,obrońca,30.01.1990,35,,,,,,,,,,,,,,,,,,,,17.0,23.0,,,,,,,,,,,40
+Maciej Korzym,Polska,https://flagcdn.com/w40/pl.png,napastnik,02.05.1988,37,,,,,,,,,,,,,,,,,,,,23.0,2.0,,,,,,,,,,,25
+Artur Lenartowski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,17.03.1988,37,,,,,,,,,,,,,,,,,,,,14.0,,,,,,,,,,,,14
+Róbert Mazáň,Słowacja,https://flagcdn.com/w40/sk.png,obrońca,09.02.1994,31,,,,,,,,,,,,,,,,,,,,5.0,,,,,,,,,,,,5
+Wojciech Okińczyc,Polska,https://flagcdn.com/w40/pl.png,napastnik,15.02.1986,39,,,,,,,,,,,,,,,,,,,,1.0,,,,,,,,,,,,1
+Adam Pazio,Polska,https://flagcdn.com/w40/pl.png,obrońca,27.09.1992,33,,,,,,,,,,,,,,,,,,,,25.0,16.0,,,,,,,,,,,41
+Michal Peškovič,Słowacja,https://flagcdn.com/w40/sk.png,bramkarz,08.02.1982,43,,,,,,,,,,,,,,,,,,,,22.0,,,,,,23.0,4.0,,,,,49
+Pavol Staňo,Słowacja,https://flagcdn.com/w40/sk.png,obrońca,29.09.1977,48,,,,,,,,,,,,,,,,,,,,30.0,,,,,,,,,,,,30
+Bartosz Śpiączka,Polska,https://flagcdn.com/w40/pl.png,napastnik,19.08.1991,34,,,,,,,,,,,,,,,,,,,,25.0,,,,,,,,,,,,25
+Piotr Tomasik,Polska,https://flagcdn.com/w40/pl.png,obrońca,31.10.1987,38,,,,,,,,,,,,,,,,,,,,22.0,,,,,,,,,29.0,,,51
+Wojciech Trochim,Polska,https://flagcdn.com/w40/pl.png,pomocnik,31.03.1989,36,,,,,,,,,,,,,,,,,,,,4.0,,,,,,,,,,,,4
+Fabian Hiszpański,Polska,https://flagcdn.com/w40/pl.png,pomocnik,26.10.1993,32,,,,,,,,,,,,,,,,,,,,,6.0,,,,,,,,,,,6
+Lukáš Janič,Słowacja,https://flagcdn.com/w40/sk.png,pomocnik,30.12.1986,38,,,,,,,,,,,,,,,,,,,,,8.0,,,,,,,,,,,8
+Bartosz Jaroch,Polska,https://flagcdn.com/w40/pl.png,obrońca,25.01.1995,30,,,,,,,,,,,,,,,,,,,,,7.0,12.0,14.0,24.0,32.0,5.0,,,,,,94
+Wojciech Kaczmarek,Polska,https://flagcdn.com/w40/pl.png,bramkarz,29.03.1983,42,,,,,,,,,,,,,,,,,,,,,4.0,,,,,,,,,,,4
+Kōhei Katō,Japonia,https://flagcdn.com/w40/jp.png,pomocnik,14.06.1989,36,,,,,,,,,,,,,,,,,,,,,37.0,,,,,,,,,,,37
+Jakub Kowalski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,09.10.1987,38,,,,,,,,,,,,,,,,,,,,,34.0,,,,,,,,,,,34
+Celestine Lazarus,Nigeria,https://flagcdn.com/w40/ng.png,obrońca,13.11.1992,33,,,,,,,,,,,,,,,,,,,,,5.0,,,,,,,,,,,5
+Mateusz Możdżeń,Polska,https://flagcdn.com/w40/pl.png,pomocnik,14.03.1991,34,,,,,,,,,,,,,,,,,,,,,35.0,,,,,,,,,,,35
+Adam Mójta,Polska,https://flagcdn.com/w40/pl.png,obrońca,30.06.1986,39,,,,,,,,,,,,,,,,,,,,,32.0,,,,,,,,,,,32
+Krystian Nowak,Polska,https://flagcdn.com/w40/pl.png,obrońca,01.04.1994,31,,,,,,,,,,,,,,,,,,,,,21.0,,,,,,,,,,,21
+Jozef Piaček,Słowacja,https://flagcdn.com/w40/sk.png,obrońca,20.06.1983,42,,,,,,,,,,,,,,,,,,,,,14.0,28.0,,,,,,,,,,42
+Samuel Štefánik ,Słowacja,https://flagcdn.com/w40/sk.png,pomocnik,16.11.1991,34,,,,,,,,,,,,,,,,,,,,,14.0,,,,,,,,,,,14
+Mateusz Szczepaniak,Polska,https://flagcdn.com/w40/pl.png,pomocnik,23.01.1991,34,,,,,,,,,,,,,,,,,,,,,35.0,,,,,,,,,,,35
+Paweł Tarnowski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,28.06.1990,35,,,,,,,,,,,,,,,,,,,,,12.0,14.0,,,,,,,,,,26
+Oleg Wierietiło,Białoruś,https://flagcdn.com/w40/by.png,obrońca,10.07.1988,37,,,,,,,,,,,,,,,,,,,,,10.0,,,,,,,,,,,10
+Emilijus Zubas,Litwa,https://flagcdn.com/w40/lt.png,bramkarz,10.07.1990,35,,,,,,,,,,,,,,,,,,,,,36.0,,,,,,,,,,,36
+Martin Baran,Słowacja,https://flagcdn.com/w40/sk.png,obrońca,03.01.1988,37,,,,,,,,,,,,,,,,,,,,,,5.0,,,,,,,,,,5
+Jozef Dolný,Słowacja,https://flagcdn.com/w40/sk.png,pomocnik,13.05.1992,33,,,,,,,,,,,,,,,,,,,,,,11.0,,,,,,,,,,11
+Daniel Feruga,Polska,https://flagcdn.com/w40/pl.png,pomocnik,01.05.1988,37,,,,,,,,,,,,,,,,,,,,,,15.0,,,,,,,,,,15
+Robert Gumny,Polska,https://flagcdn.com/w40/pl.png,obrońca,04.06.1998,27,,,,,,,,,,,,,,,,,,,,,,14.0,,,,,,,,,,14
+Łukasz Hanzel,Polska,https://flagcdn.com/w40/pl.png,pomocnik,16.09.1986,39,,,,,,,,,,,,,,,,,,,,,,13.0,32.0,,,,,,,,,45
+Nermin Haskić,Bośnia i Hercegowina,https://flagcdn.com/w40/ba.png,napastnik,27.06.1989,36,,,,,,,,,,,,,,,,,,,,,,12.0,,,,,,,,,,12
+Damian Jakubik,Polska,https://flagcdn.com/w40/pl.png,obrońca,25.03.1990,35,,,,,,,,,,,,,,,,,,,,,,4.0,,,,,,,,,,4
+Michał Janota,Polska,https://flagcdn.com/w40/pl.png,pomocnik,29.07.1990,35,,,,,,,,,,,,,,,,,,,,,,23.0,,,,,18.0,25.0,11.0,,,77
+Kamil Jonkisz,Polska,https://flagcdn.com/w40/pl.png,napastnik,29.08.1995,30,,,,,,,,,,,,,,,,,,,,,,3.0,,,,,,,,,,3
+Kacper Kostorz,Polska,https://flagcdn.com/w40/pl.png,napastnik,21.08.1999,26,,,,,,,,,,,,,,,,,,,,,,2.0,22.0,35.0,,,,,,,,59
+Rafał Leszczyński,Polska,https://flagcdn.com/w40/pl.png,bramkarz,26.04.1992,33,,,,,,,,,,,,,,,,,,,,,,31.0,22.0,17.0,10.0,3.0,,,,,,83
+Szymon Lewicki,Polska,https://flagcdn.com/w40/pl.png,napastnik,05.04.1988,37,,,,,,,,,,,,,,,,,,,,,,24.0,,,,,,,,,,24
+Mateusz Lis,Polska,https://flagcdn.com/w40/pl.png,bramkarz,27.02.1997,28,,,,,,,,,,,,,,,,,,,,,,4.0,,,,,,,,,,4
+Mariusz Magiera,Polska,https://flagcdn.com/w40/pl.png,obrońca,25.08.1984,41,,,,,,,,,,,,,,,,,,,,,,34.0,8.0,,,,,,,,,42
+Mariusz Malec,Polska,https://flagcdn.com/w40/pl.png,obrońca,04.04.1995,30,,,,,,,,,,,,,,,,,,,,,,4.0,32.0,,,,,,,,,36
+Robert Menzel,Polska,https://flagcdn.com/w40/pl.png,obrońca,14.02.1991,34,,,,,,,,,,,,,,,,,,,,,,9.0,,,,,,,,,,9
+Daniel Mikołajewski,Polska,https://flagcdn.com/w40/pl.png,obrońca,25.08.1999,26,,,,,,,,,,,,,,,,,,,,,,11.0,,,,,27.0,23.0,31.0,,,92
+Paweł Moskwik,Polska,https://flagcdn.com/w40/pl.png,obrońca,08.06.1992,33,,,,,,,,,,,,,,,,,,,,,,11.0,25.0,8.0,,,,,,,,44
+Ilir Pali,Australia /Albania /Czarnogóra,https://flagcdn.com/w40/au.png,pomocnik,10.08.1995,30,,,,,,,,,,,,,,,,,,,,,,1.0,,,,,,,,,,1
+Tomasz Podgórski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,30.12.1985,39,,,,,,,,,,,,,,,,,,,,,,30.0,18.0,,,,,,,,,48
+Łukasz Sierpina,Polska,https://flagcdn.com/w40/pl.png,pomocnik,27.03.1988,37,,,,,,,,,,,,,,,,,,,,,,35.0,36.0,28.0,31.0,24.0,,,,,,154
+Peter Sládek,Słowacja,https://flagcdn.com/w40/sk.png,pomocnik,07.07.1989,36,,,,,,,,,,,,,,,,,,,,,,8.0,,,,,,,,,,8
+Szymon Szymański,Polska,https://flagcdn.com/w40/pl.png,pomocnik,13.04.1996,29,,,,,,,,,,,,,,,,,,,,,,4.0,,,,,,,,,,4
+Ariel Wawszczyk,Polska,https://flagcdn.com/w40/pl.png,obrońca,19.11.1991,34,,,,,,,,,,,,,,,,,,,,,,5.0,,,,,,,,,,5
+Łukasz Zakrzewski,Polska,https://flagcdn.com/w40/pl.png,obrońca,07.03.1996,29,,,,,,,,,,,,,,,,,,,,,,8.0,,,,,,,,,,8
+Mavroudís Bougaḯdis ,Grecja,https://flagcdn.com/w40/gr.png,obrońca,01.06.1993,32,,,,,,,,,,,,,,,,,,,,,,,14.0,15.0,,,,,,,,29
+Wojciech Fabisiak,Polska,https://flagcdn.com/w40/pl.png,bramkarz,31.01.1995,30,,,,,,,,,,,,,,,,,,,,,,,15.0,19.0,,,,,,,,34
+Dimityr Iljew,Bułgaria,https://flagcdn.com/w40/bg.png,pomocnik,25.09.1988,37,,,,,,,,,,,,,,,,,,,,,,,26.0,,,,,,,,,26
+Ľuboš Kolár,Słowacja,https://flagcdn.com/w40/sk.png,pomocnik,01.09.1989,36,,,,,,,,,,,,,,,,,,,,,,,4.0,,,,,,,,,4
+Miłosz Kozak,Polska,https://flagcdn.com/w40/pl.png,pomocnik,23.05.1997,28,,,,,,,,,,,,,,,,,,,,,,,32.0,17.0,,,,,,,,49
+Filip Matuszczyk,Polska,https://flagcdn.com/w40/pl.png,pomocnik,14.02.1998,27,,,,,,,,,,,,,,,,,,,,,,,2.0,,,,,,,,,2
+Filip Modelski,Polska,https://flagcdn.com/w40/pl.png,obrońca,28.09.1992,33,,,,,,,,,,,,,,,,,,,,,,,13.0,15.0,21.0,23.0,,,,,,72
+Paweł Oleksy,Polska,https://flagcdn.com/w40/pl.png,obrońca,01.04.1991,34,,,,,,,,,,,,,,,,,,,,,,,21.0,21.0,,,,,,,,42
+Guga Palawandiszwili,Gruzja,https://flagcdn.com/w40/ge.png,pomocnik,14.08.1993,32,,,,,,,,,,,,,,,,,,,,,,,13.0,28.0,,,,,,,,41
+Adrian Pindera,Polska,https://flagcdn.com/w40/pl.png,napastnik,21.06.1998,27,,,,,,,,,,,,,,,,,,,,,,,3.0,,,,,,,,,3
+Adrian Rakowski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,07.10.1990,35,,,,,,,,,,,,,,,,,,,,,,,30.0,29.0,19.0,1.0,,,,,,79
+Valērijs Šabala ,Łotwa,https://flagcdn.com/w40/lv.png,napastnik,12.10.1994,31,,,,,,,,,,,,,,,,,,,,,,,30.0,33.0,,,,,,,,63
+Marcin Sierczyński,Polska,https://flagcdn.com/w40/pl.png,obrońca,12.04.1991,34,,,,,,,,,,,,,,,,,,,,,,,6.0,,,,,,,,,6
+Szymon Sobczak,Polska,https://flagcdn.com/w40/pl.png,napastnik,07.12.1992,33,,,,,,,,,,,,,,,,,,,,,,,17.0,,,,,,,,,17
+Paweł Tomczyk,Polska,https://flagcdn.com/w40/pl.png,napastnik,04.05.1998,27,,,,,,,,,,,,,,,,,,,,,,,34.0,,,,,,,8.0,,42
+Kamil Wiktorski,Polska,https://flagcdn.com/w40/pl.png,obrońca,12.03.1993,32,,,,,,,,,,,,,,,,,,,,,,,28.0,26.0,1.0,,,,,,,55
+Jakub Bąk,Polska,https://flagcdn.com/w40/pl.png,pomocnik,28.05.1993,32,,,,,,,,,,,,,,,,,,,,,,,,10.0,,,,,,,,10
+Jakub Bieroński,Polska,https://flagcdn.com/w40/pl.png,pomocnik,18.04.2003,22,,,,,,,,,,,,,,,,,,,,,,,,3.0,5.0,17.0,24.0,17.0,,,,66
+Chopi,Hiszpania,https://flagcdn.com/w40/es.png,pomocnik,16.04.1990,35,,,,,,,,,,,,,,,,,,,,,,,,21.0,,,,,,,,21
+Grzegorz Goncerz,Polska,https://flagcdn.com/w40/pl.png,napastnik,27.04.1988,37,,,,,,,,,,,,,,,,,,,,,,,,16.0,,,,,,,,16
+Adrián Gómez,Hiszpania,https://flagcdn.com/w40/es.png,pomocnik,17.01.1994,31,,,,,,,,,,,,,,,,,,,,,,,,8.0,,,,,,,,8
+Damian Hilbrycht,Polska,https://flagcdn.com/w40/pl.png,napastnik,19.05.1998,27,,,,,,,,,,,,,,,,,,,,,,,,6.0,10.0,,,,,,,16
+Dominik Jończy,Polska,https://flagcdn.com/w40/pl.png,obrońca,17.05.1997,28,,,,,,,,,,,,,,,,,,,,,,,,24.0,,,,,,,,24
+Aleksander Komor,Polska,https://flagcdn.com/w40/pl.png,obrońca,24.06.1994,31,,,,,,,,,,,,,,,,,,,,,,,,12.0,15.0,14.0,,,,,,41
+Przemysław Mystkowski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,25.04.1998,27,,,,,,,,,,,,,,,,,,,,,,,,22.0,,,,,,,,22
+Przemysław Płacheta,Polska,https://flagcdn.com/w40/pl.png,pomocnik,23.03.1998,27,,,,,,,,,,,,,,,,,,,,,,,,25.0,,,,,,,,25
+Marko Roginić,Chorwacja,https://flagcdn.com/w40/hr.png,napastnik,05.09.1995,30,,,,,,,,,,,,,,,,,,,,,,,,10.0,32.0,23.0,14.0,,,,,79
+Michał Rzuchowski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,27.12.1993,32,,,,,,,,,,,,,,,,,,,,,,,,22.0,19.0,28.0,,,,,,69
+Dmytro Baszłaj,Ukraina,https://flagcdn.com/w40/ua.png,obrońca,25.04.1990,35,,,,,,,,,,,,,,,,,,,,,,,,,23.0,17.0,,,,,,40
+Michał Batelt,Polska,https://flagcdn.com/w40/pl.png,obrońca,23.01.2001,24,,,,,,,,,,,,,,,,,,,,,,,,,1.0,,,,,,,1
+Karol Danielak,Polska,https://flagcdn.com/w40/pl.png,pomocnik,29.09.1991,34,,,,,,,,,,,,,,,,,,,,,,,,,33.0,27.0,,,,,,60
+Rafał Figiel,Polska,https://flagcdn.com/w40/pl.png,pomocnik,08.05.1991,34,,,,,,,,,,,,,,,,,,,,,,,,,33.0,8.0,,,,,,41
+Filip Laskowski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,04.05.2001,24,,,,,,,,,,,,,,,,,,,,,,,,,18.0,7.0,3.0,,,,,28
+Arkadiusz Maj,Polska,https://flagcdn.com/w40/pl.png,napastnik,24.08.1999,26,,,,,,,,,,,,,,,,,,,,,,,,,1.0,,,,,,,1
+Iván Martín ,Hiszpania,https://flagcdn.com/w40/es.png,napastnik,04.03.1995,30,,,,,,,,,,,,,,,,,,,,,,,,,11.0,6.0,,,,,,17
+Mateusz Marzec,Polska,https://flagcdn.com/w40/pl.png,pomocnik,13.08.1994,31,,,,,,,,,,,,,,,,,,,,,,,,,6.0,18.0,,,,,,24
+Szymon Mroczko,Polska,https://flagcdn.com/w40/pl.png,obrońca,18.01.2001,24,,,,,,,,,,,,,,,,,,,,,,,,,3.0,5.0,,,,,,8
+Tomasz Nowak,Polska,https://flagcdn.com/w40/pl.png,pomocnik,30.10.1985,40,,,,,,,,,,,,,,,,,,,,,,,,,19.0,13.0,,,,,,32
+Martin Polaček,Słowacja,https://flagcdn.com/w40/sk.png,bramkarz,02.04.1990,35,,,,,,,,,,,,,,,,,,,,,,,,,26.0,6.0,19.0,,,,,51
+Konrad Sieracki,Polska,https://flagcdn.com/w40/pl.png,pomocnik,08.07.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,19.0,,,,,,,19
+Mateusz Sopoćko,Polska,https://flagcdn.com/w40/pl.png,pomocnik,26.06.1999,26,,,,,,,,,,,,,,,,,,,,,,,,,20.0,,,,,,,20
+Desley Ubbink,Holandia,https://flagcdn.com/w40/nl.png,pomocnik,15.06.1993,32,,,,,,,,,,,,,,,,,,,,,,,,,6.0,17.0,,,,,,23
+Kamil Biliński,Polska,https://flagcdn.com/w40/pl.png,napastnik,23.01.1988,37,,,,,,,,,,,,,,,,,,,,,,,,,12.0,27.0,33.0,34.0,,,,106
+Dominik Frelek,Polska,https://flagcdn.com/w40/pl.png,pomocnik,11.10.2001,24,,,,,,,,,,,,,,,,,,,,,,,,,,9.0,31.0,,,,,40
+Konrad Gutowski,Polska,https://flagcdn.com/w40/pl.png,obrońca,22.02.1999,26,,,,,,,,,,,,,,,,,,,,,,,,,,5.0,30.0,,,,,35
+Jakub Hora,Czechy,https://flagcdn.com/w40/cz.png,pomocnik,23.02.1991,34,,,,,,,,,,,,,,,,,,,,,,,,,,16.0,,,,,,16
+Rafał Janicki,Polska,https://flagcdn.com/w40/pl.png,obrońca,05.07.1992,33,,,,,,,,,,,,,,,,,,,,,,,,,,13.0,,,,,,13
+Gergő Kocsis ,Węgry,https://flagcdn.com/w40/hu.png,obrońca,07.03.1994,31,,,,,,,,,,,,,,,,,,,,,,,,,,20.0,,,,,,20
+Bartłomiej Kręcichwost,Polska,https://flagcdn.com/w40/pl.png,napastnik,13.08.1999,26,,,,,,,,,,,,,,,,,,,,,,,,,,2.0,,,,,,2
+Petar Mamić,Chorwacja,https://flagcdn.com/w40/hr.png,obrońca,06.03.1996,29,,,,,,,,,,,,,,,,,,,,,,,,,,12.0,,,,,,12
+Marco Túlio ,Brazylia,https://flagcdn.com/w40/br.png,obrońca,31.05.1998,27,,,,,,,,,,,,,,,,,,,,,,,,,,10.0,,,,,,10
+Serhij Miakuszko,Ukraina,https://flagcdn.com/w40/ua.png,pomocnik,15.04.1993,32,,,,,,,,,,,,,,,,,,,,,,,,,,16.0,,,,,,16
+David Niepsuj,Polska /Niemcy,https://flagcdn.com/w40/pl.png,obrońca,16.08.1995,30,,,,,,,,,,,,,,,,,,,,,,,,,,9.0,,,,,,9
+Milan Rundić,Serbia,https://flagcdn.com/w40/rs.png,obrońca,29.03.1992,33,,,,,,,,,,,,,,,,,,,,,,,,,,22.0,,,,,,22
+Peter Wilson,Liberia /Szwecja,https://flagcdn.com/w40/lr.png,napastnik,09.10.1996,29,,,,,,,,,,,,,,,,,,,,,,,,,,13.0,,,,,,13
+Ezequiel Bonifacio,Argentyna /Włochy,https://flagcdn.com/w40/ar.png,obrońca,09.05.1994,31,,,,,,,,,,,,,,,,,,,,,,,,,,,26.0,29.0,,,,55
+Yiğit Emre Çeltik ,Turcja,https://flagcdn.com/w40/tr.png,pomocnik,07.04.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,13.0,23.0,,,,36
+Matvei Igonen,Estonia,https://flagcdn.com/w40/ee.png,bramkarz,02.10.1996,29,,,,,,,,,,,,,,,,,,,,,,,,,,,12.0,29.0,,,,41
+Maciej Kowalski-Haberek,Polska,https://flagcdn.com/w40/pl.png,obrońca,16.05.1994,31,,,,,,,,,,,,,,,,,,,,,,,,,,,31.0,,,,,31
+Giorgi Merebaszwili,Gruzja,https://flagcdn.com/w40/ge.png,pomocnik,15.08.1986,39,,,,,,,,,,,,,,,,,,,,,,,,,,,33.0,,2.0,,,35
+Titas Milašius ,Litwa,https://flagcdn.com/w40/lt.png,pomocnik,12.12.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,21.0,27.0,7.0,,,55
+Marcel Misztal,Polska,https://flagcdn.com/w40/pl.png,pomocnik,07.11.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,6.0,29.0,30.0,14.0,,79
+Costa Nhamoinesu,Zimbabwe,https://flagcdn.com/w40/zw.png,obrońca,06.01.1986,39,,,,,,,,,,,,,,,,,,,,,,,,,,,1.0,,,,,1
+Dawid Polkowski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,21.08.1998,27,,,,,,,,,,,,,,,,,,,,,,,,,,,26.0,7.0,,,,33
+Julio Rodríguez ,Hiszpania,https://flagcdn.com/w40/es.png,obrońca,07.12.1995,30,,,,,,,,,,,,,,,,,,,,,,,,,,,30.0,23.0,,,,53
+Goku Román,Hiszpania,https://flagcdn.com/w40/es.png,pomocnik,16.05.1993,32,,,,,,,,,,,,,,,,,,,,,,,,,,,32.0,32.0,,,,64
+Mathieu Scalet,Francja /Polska,https://flagcdn.com/w40/fr.png,pomocnik,01.04.1997,28,,,,,,,,,,,,,,,,,,,,,,,,,,,28.0,9.0,,,,37
+Jeppe Simonsen,Haiti /Dania,https://flagcdn.com/w40/ht.png,obrońca,21.11.1995,30,,,,,,,,,,,,,,,,,,,,,,,,,,,14.0,33.0,4.0,,,51
+Kacper Wełniak,Polska,https://flagcdn.com/w40/pl.png,napastnik,21.05.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,17.0,7.0,,,,24
+Mateusz Wypych,Polska,https://flagcdn.com/w40/pl.png,obrońca,10.01.1998,27,,,,,,,,,,,,,,,,,,,,,,,,,,,23.0,18.0,2.0,,,43
+Lionel Abate Etoundi,Kamerun ,https://flagcdn.com/w40/cm.png,napastnik,25.09.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,2.0,25.0,13.0,,40
+Bartosz Bernard,Polska,https://flagcdn.com/w40/pl.png,obrońca,08.02.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,,10.0,4.0,,,14
+Krzysztof Drzazga,Polska,https://flagcdn.com/w40/pl.png,napastnik,20.06.1995,30,,,,,,,,,,,,,,,,,,,,,,,,,,,,31.0,,,,31
+Florian Hartherz,Niemcy,https://flagcdn.com/w40/de.png,obrońca,29.05.1993,32,,,,,,,,,,,,,,,,,,,,,,,,,,,,15.0,,,,15
+Wiktor Kaczorowski,Polska,https://flagcdn.com/w40/pl.png,bramkarz,31.08.2001,24,,,,,,,,,,,,,,,,,,,,,,,,,,,,5.0,,,,5
+Iwajło Markow,Bułgaria,https://flagcdn.com/w40/bg.png,obrońca,05.06.1997,28,,,,,,,,,,,,,,,,,,,,,,,,,,,,22.0,,,,22
+Tomasz Neugebauer,Polska,https://flagcdn.com/w40/pl.png,pomocnik,08.05.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,,15.0,,,,15
+Maksymilian Nowak,Polska,https://flagcdn.com/w40/pl.png,pomocnik,03.08.2004,21,,,,,,,,,,,,,,,,,,,,,,,,,,,,1.0,,,,1
+Arthur Vitelli,Francja ,https://flagcdn.com/w40/fr.png,obrońca,04.06.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,14.0,,,,14
+Michał Willmann,Polska,https://flagcdn.com/w40/pl.png,pomocnik,22.07.2004,21,,,,,,,,,,,,,,,,,,,,,,,,,,,,4.0,16.0,35.0,,55
+Maksymilian Banaszewski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,22.03.1995,30,,,,,,,,,,,,,,,,,,,,,,,,,,,,,34.0,,,34
+Bartosz Bida,Polska,https://flagcdn.com/w40/pl.png,pomocnik,21.02.2001,24,,,,,,,,,,,,,,,,,,,,,,,,,,,,,31.0,,,31
+Martin Chlumecký ,Czechy,https://flagcdn.com/w40/cz.png,obrońca,11.01.1997,28,,,,,,,,,,,,,,,,,,,,,,,,,,,,,18.0,,,18
+Jan Hlavica,Czechy,https://flagcdn.com/w40/cz.png,obrońca,17.07.1994,31,,,,,,,,,,,,,,,,,,,,,,,,,,,,,23.0,,,23
+Miroslav Iličić ,Chorwacja,https://flagcdn.com/w40/hr.png,napastnik,17.04.1998,27,,,,,,,,,,,,,,,,,,,,,,,,,,,,,10.0,,,10
+Haris Kadrić,Słowenia,https://flagcdn.com/w40/si.png,napastnik,16.03.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,,13.0,,,13
+Jakub Kisiel,Polska,https://flagcdn.com/w40/pl.png,pomocnik,05.02.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,,,26.0,,,26
+Jaka Kolenc,Słowenia,https://flagcdn.com/w40/si.png,pomocnik,23.02.1994,31,,,,,,,,,,,,,,,,,,,,,,,,,,,,,23.0,,,23
+Kacper Krzepisz,Polska,https://flagcdn.com/w40/pl.png,bramkarz,16.12.1999,26,,,,,,,,,,,,,,,,,,,,,,,,,,,,,6.0,,,6
+Patrik Lukáč ,Słowacja,https://flagcdn.com/w40/sk.png,bramkarz,05.12.1994,31,,,,,,,,,,,,,,,,,,,,,,,,,,,,,7.0,,,7
+Sylwester Lusiusz,Polska,https://flagcdn.com/w40/pl.png,pomocnik,18.09.1999,26,,,,,,,,,,,,,,,,,,,,,,,,,,,,,8.0,,,8
+Adrian Małachowski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,10.03.1998,27,,,,,,,,,,,,,,,,,,,,,,,,,,,,,10.0,,,10
+Marko Martinaga,Chorwacja,https://flagcdn.com/w40/hr.png,obrońca,27.05.1998,27,,,,,,,,,,,,,,,,,,,,,,,,,,,,,15.0,,,15
+Samuel Nnoshiri,Nigeria,https://flagcdn.com/w40/ng.png,pomocnik,02.07.2001,24,,,,,,,,,,,,,,,,,,,,,,,,,,,,,8.0,,,8
+Antonio Perošević ,Chorwacja,https://flagcdn.com/w40/hr.png,napastnik,06.03.1992,33,,,,,,,,,,,,,,,,,,,,,,,,,,,,,4.0,,,4
+Patryk Procek,Polska,https://flagcdn.com/w40/pl.png,bramkarz,01.03.1995,30,,,,,,,,,,,,,,,,,,,,,,,,,,,,,23.0,,,23
+Matej Senić,Chorwacja,https://flagcdn.com/w40/hr.png,obrońca,21.02.1995,30,,,,,,,,,,,,,,,,,,,,,,,,,,,,,14.0,,,14
+Marco Siverio,Hiszpania,https://flagcdn.com/w40/es.png,napastnik,04.10.1994,31,,,,,,,,,,,,,,,,,,,,,,,,,,,,,5.0,,,5
+Michał Stempniewicz,Polska,https://flagcdn.com/w40/pl.png,napastnik,21.06.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,3.0,,,3
+Mateusz Stryjewski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,22.06.1997,28,,,,,,,,,,,,,,,,,,,,,,,,,,,,,3.0,,,3
+Michał Stryjewski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,18.09.1995,30,,,,,,,,,,,,,,,,,,,,,,,,,,,,,11.0,,,11
+Radosław Zając,Polska,https://flagcdn.com/w40/pl.png,pomocnik,28.07.2004,21,,,,,,,,,,,,,,,,,,,,,,,,,,,,,10.0,19.0,,29
+Mateusz Ziółkowski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,29.08.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,,,32.0,7.0,,39
+Franciszek Liszka,Polska,https://flagcdn.com/w40/pl.png,pomocnik,07.08.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,,,3.0,,,3
+Michał Studnicki,Polska,https://flagcdn.com/w40/pl.png,napastnik,28.02.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1.0,,,1
+Paweł Czajkowski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,27.02.1995,30,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,27.0,,27
+Szymon Gołuch,Polska,https://flagcdn.com/w40/pl.png,pomocnik,05.10.2002,23,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,12.0,,12
+Matej Mršić,Chorwacja,https://flagcdn.com/w40/hr.png,pomocnik,13.01.1994,31,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,30.0,,30
+Maksymilian Manikowski,Polska,https://flagcdn.com/w40/pl.png,bramkarz,07.01.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0
+Nikodem Gancarczyk,Polska,https://flagcdn.com/w40/pl.png,obrońca,06.03.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0
+Maksymilian Biskup,Polska,https://flagcdn.com/w40/pl.png,pomocnik,16.08.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,6.0,,6
+Linus Rönnberg,Finlandia,https://flagcdn.com/w40/fi.png,napastnik,13.01.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,35.0,,35
