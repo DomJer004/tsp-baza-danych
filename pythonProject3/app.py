@@ -40,7 +40,7 @@ try:
     HAS_PLOTLY = True
 except: HAS_PLOTLY = False
 
-# --- MAPOWANIE KRAJÓW (PEŁNE + LIBERIA) ---
+# --- MAPOWANIE KRAJÓW ---
 COUNTRY_TO_ISO = {
     'polska': 'pl', 'hiszpania': 'es', 'słowacja': 'sk', 'łotwa': 'lv', 
     'chorwacja': 'hr', 'kamerun': 'cm', 'zimbabwe': 'zw', 'finlandia': 'fi', 
@@ -99,22 +99,40 @@ def prepare_flags(df, col='narodowość'):
     return df
 
 def parse_result(val):
+    """
+    Parsuje wynik meczu używając Regex.
+    Ignoruje dopiski typu 'pd.', 'k.', '(wo)'.
+    Zwraca (gole_tsp, gole_rywal).
+    """
     if not isinstance(val, str): return None
-    val = val.replace('-', ':').replace(' ', '')
-    if ':' in val:
-        try:
-            p = val.split(':')
-            return int(p[0]), int(p[1])
-        except: return None
+    # Szukamy wzorca: liczba, separator (: lub -), liczba
+    match = re.search(r'(\d+)\s*[:\-]\s*(\d+)', val)
+    if match:
+        return int(match.group(1)), int(match.group(2))
     return None
 
-def color_res(val):
-    r = parse_result(val)
-    if r:
-        if r[0] > r[1]: return 'color: #28a745; font-weight: bold'
-        elif r[0] < r[1]: return 'color: #dc3545; font-weight: bold'
-        else: return 'color: #fd7e14; font-weight: bold'
-    return ''
+def color_results_logic(val):
+    """
+    Koloruje wynik w tabeli.
+    Dodatkowo dodaje stylizację dla dogrywek/karnych.
+    """
+    if not isinstance(val, str): return ''
+    
+    # Styl podstawowy (kolor tekstu)
+    res = parse_result(val)
+    style = ''
+    if res:
+        t, o = res
+        if t > o: style = 'color: #28a745; font-weight: bold;' # Zielony (W)
+        elif t < o: style = 'color: #dc3545; font-weight: bold;' # Czerwony (P)
+        else: style = 'color: #fd7e14; font-weight: bold;' # Pomarańczowy (R)
+    
+    # Styl dodatkowy dla notatek (pd., k., wo)
+    lower_val = val.lower()
+    if 'pd' in lower_val or 'k.' in lower_val or 'wo' in lower_val:
+        style += ' font-style: italic; background-color: #f0f0f040;' # Lekka kursywa i tło
+        
+    return style
 
 def parse_scorers(scorers_str):
     if not isinstance(scorers_str, str) or pd.isna(scorers_str) or scorers_str == '-':
@@ -195,7 +213,7 @@ elif opcja == "Historia Meczów":
                             elif res[0]<res[1]: p+=1
                             else: r+=1
                     st.caption(f"Bilans: ✅ {w} | ➖ {r} | ❌ {p}")
-                    st.dataframe(sub.style.map(color_res, subset=['wynik']), use_container_width=True, hide_index=True)
+                    st.dataframe(sub.style.map(color_results_logic, subset=['wynik']), use_container_width=True, hide_index=True)
 
 elif opcja == "⚽ Klasyfikacja Strzelców":
     st.header("⚽ Klasyfikacja Strzelców")
@@ -239,7 +257,6 @@ elif opcja == "Frekwencja":
         if col and 'sezon' in df.columns:
             df['n'] = pd.to_numeric(df[col].astype(str).str.replace(' ', '').str.replace(',', '.'), errors='coerce').fillna(0).astype(int)
             
-            # --- NOWY WYKRES I STATYSTYKI ---
             c1, c2, c3 = st.columns(3)
             c1.metric("Najwyższa średnia", f"{df['n'].max():,} widzów")
             c2.metric("Najniższa średnia", f"{df['n'].min():,} widzów")
@@ -284,22 +301,21 @@ elif opcja == "Rywale (H2H)":
                     c2.metric("Bilans", f"{int(stats['Z'])}-{int(stats['R'])}-{int(stats['P'])}")
                     c3.metric("Bramki", stats['Bramki'])
                     
-                    # FORMA
                     cd = next((c for c in sub.columns if 'data' in c and 'sort' not in c), None) or next((c for c in sub.columns if 'data' in c), None)
                     if cd:
                         sub['dt'] = pd.to_datetime(sub[cd], dayfirst=True, errors='coerce')
                         sub = sub.sort_values('dt', ascending=False)
                         last_5 = sub.head(5)['wynik']
-                        form_icons = []
+                        form = []
                         for res in last_5:
                             r = parse_result(res)
-                            if r: form_icons.append("✅" if r[0]>r[1] else ("❌" if r[0]<r[1] else "➖"))
-                        c4.metric("Forma (ost. 5)", " ".join(form_icons))
+                            if r: form.append("✅" if r[0]>r[1] else ("❌" if r[0]<r[1] else "➖"))
+                        c4.metric("Forma (ost. 5)", " ".join(form))
                         sub = sub.drop(columns=['dt'])
 
                     st.divider()
                     st.write("Lista meczów:")
-                    st.dataframe(sub.style.map(color_res, subset=['wynik']), use_container_width=True, hide_index=True)
+                    st.dataframe(sub.style.map(color_results_logic, subset=['wynik']), use_container_width=True, hide_index=True)
             with t2:
                 all_stats = df.groupby(col_r).apply(calc).reset_index().sort_values(['Pkt'], ascending=False)
                 all_stats.index = range(1, len(all_stats)+1)
@@ -368,7 +384,7 @@ elif opcja == "Trenerzy":
                             
                             st.write(f"Lista meczów ({len(coach_matches)}):")
                             view_c = [c for c in coach_matches.columns if c not in ['dt', 'data sortowania', 'mecz_id']]
-                            st.dataframe(coach_matches[view_c].style.map(color_res, subset=['wynik']), use_container_width=True, hide_index=True)
+                            st.dataframe(coach_matches[view_c].style.map(color_results_logic, subset=['wynik']), use_container_width=True, hide_index=True)
                         else: st.warning("Brak meczów.")
                     else: st.error("Brak kolumny z datą.")
 
@@ -376,7 +392,6 @@ elif opcja == "Transfery":
     st.header("💸 Transfery")
     df = load_data("transfery.csv")
     if df is not None:
-        # Czyszczenie i wykres
         if 'kwota PLN' in df.columns:
             df['val'] = df['kwota PLN'].astype(str).str.replace(' zł', '').str.replace(' ', '').str.replace(',', '.')
             df['val'] = pd.to_numeric(df['val'], errors='coerce').fillna(0).astype(int)
@@ -398,3 +413,4 @@ elif opcja == "Młoda Ekstraklasa":
     df = load_data("me.csv")
     df = prepare_flags(df, 'narodowość')
     st.dataframe(df, use_container_width=True, hide_index=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
+
