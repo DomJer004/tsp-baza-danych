@@ -99,39 +99,28 @@ def prepare_flags(df, col='narodowość'):
     return df
 
 def parse_result(val):
-    """
-    Parsuje wynik meczu używając Regex.
-    Ignoruje dopiski typu 'pd.', 'k.', '(wo)'.
-    Zwraca (gole_tsp, gole_rywal).
-    """
     if not isinstance(val, str): return None
-    # Szukamy wzorca: liczba, separator (: lub -), liczba
-    match = re.search(r'(\d+)\s*[:\-]\s*(\d+)', val)
-    if match:
-        return int(match.group(1)), int(match.group(2))
+    val = val.replace('-', ':').replace(' ', '')
+    if ':' in val:
+        try:
+            p = val.split(':')
+            return int(p[0]), int(p[1])
+        except: return None
     return None
 
 def color_results_logic(val):
-    """
-    Koloruje wynik w tabeli.
-    Dodatkowo dodaje stylizację dla dogrywek/karnych.
-    """
     if not isinstance(val, str): return ''
-    
-    # Styl podstawowy (kolor tekstu)
     res = parse_result(val)
     style = ''
     if res:
         t, o = res
-        if t > o: style = 'color: #28a745; font-weight: bold;' # Zielony (W)
-        elif t < o: style = 'color: #dc3545; font-weight: bold;' # Czerwony (P)
-        else: style = 'color: #fd7e14; font-weight: bold;' # Pomarańczowy (R)
+        if t > o: style = 'color: #28a745; font-weight: bold;'
+        elif t < o: style = 'color: #dc3545; font-weight: bold;'
+        else: style = 'color: #fd7e14; font-weight: bold;'
     
-    # Styl dodatkowy dla notatek (pd., k., wo)
     lower_val = val.lower()
     if 'pd' in lower_val or 'k.' in lower_val or 'wo' in lower_val:
-        style += ' font-style: italic; background-color: #f0f0f040;' # Lekka kursywa i tło
-        
+        style += ' font-style: italic; background-color: #f0f0f040;'
     return style
 
 def parse_scorers(scorers_str):
@@ -168,22 +157,50 @@ if opcja == "Aktualny Sezon (25/26)":
     st.header("📊 Statystyki 2025/2026")
     df = load_data("25_26.csv")
     if df is not None:
-        filt = st.text_input("Szukaj:")
+        filt = st.text_input("Szukaj w kadrze:")
         if filt: df = df[df.astype(str).apply(lambda x: x.str.contains(filt, case=False)).any(axis=1)]
         df = prepare_flags(df)
-        st.dataframe(df, use_container_width=True, hide_index=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
+        df.index = range(1, len(df)+1)
+        st.dataframe(df, use_container_width=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
 
 elif opcja == "Wyszukiwarka Piłkarzy":
     st.header("🏃 Baza Zawodników")
     df = load_data("pilkarze.csv")
+    df_strzelcy = load_data("strzelcy.csv") # Do filtrowania po sezonie
+    
     if df is not None:
-        c1, c2 = st.columns([3,1])
-        s = c1.text_input("Szukaj:")
-        obcy = c2.checkbox("Tylko obcokrajowcy")
+        # Filtry
+        col1, col2, col3 = st.columns([2, 1, 1])
+        with col1:
+            search = st.text_input("Szukaj:")
+        with col2:
+            # Filtr sezonu (na podstawie strzelcy.csv)
+            if df_strzelcy is not None:
+                # Szukamy kolumn z sezonami (mają / w nazwie)
+                cols_sezon = [c for c in df_strzelcy.columns if '/' in c]
+                sezony = ["Wszystkie"] + sorted(cols_sezon, reverse=True)
+                wyb_sezon = st.selectbox("Sezon (aktywność):", sezony)
+            else:
+                wyb_sezon = "Wszystkie"
+        with col3:
+            obcy = st.checkbox("Tylko obcokrajowcy")
+            
+        # Logika filtrowania
+        if wyb_sezon != "Wszystkie" and df_strzelcy is not None:
+            # Pobieramy graczy którzy mają cokolwiek w kolumnie sezonu (nie są null)
+            aktywni = df_strzelcy[df_strzelcy[wyb_sezon].notna()]['imię i nazwisko'].unique()
+            df = df[df['imię i nazwisko'].isin(aktywni)]
+            
         df = prepare_flags(df)
-        if obcy and 'Narodowość' in df.columns: df = df[~df['Narodowość'].str.contains("Polska", na=False)]
-        if s: df = df[df.astype(str).apply(lambda x: x.str.contains(s, case=False)).any(axis=1)]
-        st.dataframe(df, use_container_width=True, hide_index=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
+        
+        if obcy and 'Narodowość' in df.columns:
+            df = df[~df['Narodowość'].str.contains("Polska", na=False)]
+            
+        if search:
+            df = df[df.astype(str).apply(lambda x: x.str.contains(search, case=False)).any(axis=1)]
+            
+        df.index = range(1, len(df)+1)
+        st.dataframe(df, use_container_width=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
 
 elif opcja == "Historia Meczów":
     st.header("🏟️ Archiwum Meczów")
@@ -213,7 +230,8 @@ elif opcja == "Historia Meczów":
                             elif res[0]<res[1]: p+=1
                             else: r+=1
                     st.caption(f"Bilans: ✅ {w} | ➖ {r} | ❌ {p}")
-                    st.dataframe(sub.style.map(color_results_logic, subset=['wynik']), use_container_width=True, hide_index=True)
+                    sub.index = range(1, len(sub)+1)
+                    st.dataframe(sub.style.map(color_results_logic, subset=['wynik']), use_container_width=True)
 
 elif opcja == "⚽ Klasyfikacja Strzelców":
     st.header("⚽ Klasyfikacja Strzelców")
@@ -255,7 +273,9 @@ elif opcja == "Frekwencja":
     if df is not None:
         col = next((c for c in df.columns if 'średnia' in c), None)
         if col and 'sezon' in df.columns:
-            df['n'] = pd.to_numeric(df[col].astype(str).str.replace(' ', '').str.replace(',', '.'), errors='coerce').fillna(0).astype(int)
+            # FIX: Zamiana spacji i twardej spacji (\xa0) na pusty ciąg
+            df['n'] = df[col].astype(str).str.replace(r'\s+', '', regex=True).str.replace(',', '.')
+            df['n'] = pd.to_numeric(df['n'], errors='coerce').fillna(0).astype(int)
             
             c1, c2, c3 = st.columns(3)
             c1.metric("Najwyższa średnia", f"{df['n'].max():,} widzów")
@@ -270,7 +290,8 @@ elif opcja == "Frekwencja":
             else:
                 st.line_chart(df.set_index('sezon')['n'])
                 
-            st.dataframe(df.drop(columns=['n'], errors='ignore'), use_container_width=True, hide_index=True)
+            df.index = range(1, len(df)+1)
+            st.dataframe(df.drop(columns=['n'], errors='ignore'), use_container_width=True)
 
 elif opcja == "Rywale (H2H)":
     st.header("⚔️ Bilans z Rywalami")
@@ -315,7 +336,8 @@ elif opcja == "Rywale (H2H)":
 
                     st.divider()
                     st.write("Lista meczów:")
-                    st.dataframe(sub.style.map(color_results_logic, subset=['wynik']), use_container_width=True, hide_index=True)
+                    sub.index = range(1, len(sub)+1)
+                    st.dataframe(sub.style.map(color_results_logic, subset=['wynik']), use_container_width=True)
             with t2:
                 all_stats = df.groupby(col_r).apply(calc).reset_index().sort_values(['Pkt'], ascending=False)
                 all_stats.index = range(1, len(all_stats)+1)
@@ -341,7 +363,8 @@ elif opcja == "Trenerzy":
         with t1:
             v = df.sort_values('początek_dt', ascending=False)
             cols = [c for c in ['funkcja', 'imię i nazwisko', 'Narodowość', 'Flaga', 'początek', 'koniec', 'mecze', 'punkty'] if c in v.columns]
-            st.dataframe(v[cols], use_container_width=True, hide_index=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
+            v.index = range(1, len(v)+1)
+            st.dataframe(v[cols], use_container_width=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
         with t2:
             agg = df.groupby(['imię i nazwisko', 'Narodowość', 'Flaga'], as_index=False)[['mecze', 'punkty']].sum()
             agg = agg.sort_values('punkty', ascending=False)
@@ -380,11 +403,14 @@ elif opcja == "Trenerzy":
                             
                             if all_scorers:
                                 st.write("⚽ Najlepsi strzelcy:")
-                                st.dataframe(pd.DataFrame(list(all_scorers.items()), columns=['Zawodnik', 'Gole']).sort_values('Gole', ascending=False).reset_index(drop=True), use_container_width=True)
+                                df_s = pd.DataFrame(list(all_scorers.items()), columns=['Zawodnik', 'Gole']).sort_values('Gole', ascending=False).reset_index(drop=True)
+                                df_s.index = range(1, len(df_s)+1)
+                                st.dataframe(df_s, use_container_width=True)
                             
                             st.write(f"Lista meczów ({len(coach_matches)}):")
                             view_c = [c for c in coach_matches.columns if c not in ['dt', 'data sortowania', 'mecz_id']]
-                            st.dataframe(coach_matches[view_c].style.map(color_results_logic, subset=['wynik']), use_container_width=True, hide_index=True)
+                            coach_matches.index = range(1, len(coach_matches)+1)
+                            st.dataframe(coach_matches[view_c].style.map(color_results_logic, subset=['wynik']), use_container_width=True)
                         else: st.warning("Brak meczów.")
                     else: st.error("Brak kolumny z datą.")
 
@@ -401,16 +427,22 @@ elif opcja == "Transfery":
                 st.plotly_chart(fig, use_container_width=True)
         
         df = prepare_flags(df, 'narodowość')
-        st.dataframe(df.drop(columns=['val'], errors='ignore'), use_container_width=True, hide_index=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
+        df.index = range(1, len(df)+1)
+        st.dataframe(df.drop(columns=['val'], errors='ignore'), use_container_width=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
 
 elif opcja == "Statystyki Wyników":
     st.header("🎲 Wyniki")
     df = load_data("wyniki.csv")
-    if df is not None: st.bar_chart(df.set_index('wynik')['częstotliwość']); st.dataframe(df, use_container_width=True)
+    if df is not None: 
+        st.bar_chart(df.set_index('wynik')['częstotliwość'])
+        df.index = range(1, len(df)+1)
+        st.dataframe(df, use_container_width=True)
 
 elif opcja == "Młoda Ekstraklasa":
     st.header("🎓 Młoda Ekstraklasa")
     df = load_data("me.csv")
     df = prepare_flags(df, 'narodowość')
-    st.dataframe(df, use_container_width=True, hide_index=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
+    df.index = range(1, len(df)+1)
+    st.dataframe(df, use_container_width=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
+
 
