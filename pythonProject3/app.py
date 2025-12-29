@@ -17,7 +17,7 @@ FLAGS_MAP = {
     'Japonia': '🇯🇵', 'Senegal': '🇸🇳', 'Bułgaria': '🇧🇬',
     'Izrael': '🇮🇱', 'Nigieria': '🇳🇬', 'Grecja': '🇬🇷',
     'Francja': '🇫🇷', 'Niemcy': '🇩🇪', 'Argentyna': '🇦🇷',
-    'USA': '🇺🇸', 'Kolumbia': '🇨🇴', 'Anglia': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+    'USA': '🇺🇸', 'Kolumbia': '🇨🇴', 'Anglia': 'GB',
     'Włochy': '🇮🇹', 'Belgia': '🇧🇪', 'Szwecja': '🇸🇪',
     'Portugalia': '🇵🇹', 'Węgry': '🇭🇺', 'Austria': '🇦🇹'
 }
@@ -449,6 +449,7 @@ elif opcja == "Młoda Ekstraklasa":
     st.header("🎓 Młoda Ekstraklasa")
     df = load_data("me.csv")
     show_table(df, use_container_width=True, column_config=get_flag_config(df or pd.DataFrame()))
+
 
 
 
