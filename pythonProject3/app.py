@@ -397,7 +397,7 @@ elif opcja == "Rywale (H2H)":
             show_table(df, use_container_width=True)
 
 # =========================================================
-# MODUŁ 8: TRENERZY (NOWY)
+# MODUŁ 8: TRENERZY
 # =========================================================
 elif opcja == "Trenerzy":
     st.header("👔 Trenerzy TSP - Historia i Statystyki")
@@ -424,6 +424,7 @@ elif opcja == "Trenerzy":
                 'mecze', 'wygrane', 'remisy', 'przegrane', 
                 'punkty', 'śr. pkt /mecz'
             ]
+            # Wybieramy tylko te kolumny, które faktycznie istnieją
             cols_to_show = [c for c in cols_to_show if c in df_chron.columns]
             
             st.dataframe(
@@ -439,11 +440,15 @@ elif opcja == "Trenerzy":
         with tab2:
             st.subheader("🏆 Podsumowanie Trenerów (Łącznie)")
             numeric_cols = ['mecze', 'wygrane', 'remisy', 'przegrane', 'punkty', 'suma dni']
+            # Konwersja na liczby
             for col in numeric_cols:
                 if col in df.columns:
                     df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
 
+            # Agregacja
             df_agg = df.groupby(['imię i nazwisko', 'narodowość'], as_index=False)[numeric_cols].sum()
+            
+            # Przeliczenie średniej
             df_agg['śr. pkt /mecz'] = df_agg.apply(
                 lambda x: x['punkty'] / x['mecze'] if x['mecze'] > 0 else 0, axis=1
             )
@@ -460,21 +465,24 @@ elif opcja == "Trenerzy":
                 }
             )
 
-            col_a, col_b, col_c = st.columns(3)
-            top_mecze = df_agg.loc[df_agg['mecze'].idxmax()]
-            top_pts = df_agg.loc[df_agg['punkty'].idxmax()]
-            df_min10 = df_agg[df_agg['mecze'] >= 10]
-            if not df_min10.empty:
-                top_avg = df_min10.loc[df_min10['śr. pkt /mecz'].idxmax()]
-            else:
-                top_avg = top_pts
+            # Karty statystyk
+            if not df_agg.empty:
+                col_a, col_b, col_c = st.columns(3)
+                top_mecze = df_agg.loc[df_agg['mecze'].idxmax()]
+                top_pts = df_agg.loc[df_agg['punkty'].idxmax()]
+                
+                df_min10 = df_agg[df_agg['mecze'] >= 10]
+                if not df_min10.empty:
+                    top_avg = df_min10.loc[df_min10['śr. pkt /mecz'].idxmax()]
+                else:
+                    top_avg = top_pts
 
-            with col_a:
-                st.metric("Najwięcej meczów", f"{top_mecze['imię i nazwisko']}", f"{int(top_mecze['mecze'])} spotkań")
-            with col_b:
-                st.metric("Najwięcej punktów", f"{top_pts['imię i nazwisko']}", f"{int(top_pts['punkty'])} pkt")
-            with col_c:
-                st.metric("Najlepsza średnia (min. 10 spotkań)", f"{top_avg['imię i nazwisko']}", f"{top_avg['śr. pkt /mecz']:.2f}")
+                with col_a:
+                    st.metric("Najwięcej meczów", f"{top_mecze['imię i nazwisko']}", f"{int(top_mecze['mecze'])} spotkań")
+                with col_b:
+                    st.metric("Najwięcej punktów", f"{top_pts['imię i nazwisko']}", f"{int(top_pts['punkty'])} pkt")
+                with col_c:
+                    st.metric("Najlepsza średnia (min. 10 spotkań)", f"{top_avg['imię i nazwisko']}", f"{top_avg['śr. pkt /mecz']:.2f}")
 
         with tab3:
             st.subheader("📅 Oś czasu")
@@ -499,7 +507,9 @@ elif opcja == "Trenerzy":
 elif opcja == "Transfery":
     st.header("💸 Historia Transferów")
     df = load_data("transfery.csv")
-    show_table(df, use_container_width=True, column_config=get_flag_config(df or pd.DataFrame()))
+    # POPRAWKA: bezpieczne przekazanie dataframe
+    safe_df = df if df is not None else pd.DataFrame()
+    show_table(df, use_container_width=True, column_config=get_flag_config(safe_df))
 
 # =========================================================
 # MODUŁ 10: WYNIKI
@@ -518,4 +528,6 @@ elif opcja == "Statystyki Wyników":
 elif opcja == "Młoda Ekstraklasa":
     st.header("🎓 Młoda Ekstraklasa")
     df = load_data("me.csv")
-    show_table(df, use_container_width=True, column_config=get_flag_config(df or pd.DataFrame()))
+    # POPRAWKA: bezpieczne przekazanie dataframe
+    safe_df = df if df is not None else pd.DataFrame()
+    show_table(df, use_container_width=True, column_config=get_flag_config(safe_df))
