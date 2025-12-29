@@ -123,21 +123,44 @@ def color_results_logic(val):
     return style
 
 def parse_scorers(scorers_str):
+    """
+    Parsuje kolumnę strzelcy.
+    Obsługuje: (k) - karny (liczy), (s) - samobój (ignoruje).
+    Format: "Nazwisko 12, Nazwisko 15 (k), Rywal 33 (s)"
+    """
     if not isinstance(scorers_str, str) or pd.isna(scorers_str) or scorers_str == '-':
         return {}
+    
     parts = scorers_str.split(',')
     stats = {}
     current_scorer = None
+    
     for part in parts:
         part = part.strip()
         if not part: continue
-        if re.search(r'[a-zA-Z]', part):
-            name = re.sub(r'\d+', '', part).strip()
+        
+        # Sprawdź tagi
+        is_own = bool(re.search(r'\(s\)|s\.|sam\.', part.lower()))
+        
+        # Czy to nazwisko (ma litery)?
+        clean_check = re.sub(r'\(k\)|k\.|\(s\)|s\.', '', part.lower())
+        has_letters = bool(re.search(r'[a-z]{2,}', clean_check))
+        
+        if has_letters:
+            # Wyciągnij nazwisko
+            name = re.sub(r'\d+', '', part) # usuń cyfry
+            name = re.sub(r'\(k\)|k\.|\(s\)|s\.', '', name, flags=re.IGNORECASE) # usuń tagi
+            name = name.replace('(', '').replace(')', '').replace('.', '').strip()
+            
             if name:
                 current_scorer = name
-                stats[current_scorer] = stats.get(current_scorer, 0) + 1
+                if not is_own: # Licz tylko jeśli nie samobój
+                    stats[current_scorer] = stats.get(current_scorer, 0) + 1
         else:
-            if current_scorer: stats[current_scorer] += 1
+            # Kontynuacja (minuta dla poprzedniego)
+            if current_scorer and not is_own:
+                stats[current_scorer] += 1
+                
     return stats
 
 # --- MENU ---
@@ -172,40 +195,34 @@ elif opcja == "Wyszukiwarka Piłkarzy":
         c1, c2, c3 = st.columns([2, 1, 1])
         with c1: search = st.text_input("Szukaj:")
         with c2:
-            # Lista sezonów z Strzelców i Transferów
+            # MULTISELECT SEZONÓW
             sezony = set()
             if df_strz is not None:
                 sezony.update([c for c in df_strz.columns if '/' in c])
             if df_trans is not None and 'sezon' in df_trans.columns:
                 sezony.update(df_trans['sezon'].dropna().unique())
-            
             sorted_sezony = sorted(list(sezony), reverse=True)
             wyb_sezony = st.multiselect("Wybierz sezony (aktywność):", sorted_sezony)
-            
         with c3:
             obcy = st.checkbox("Tylko obcokrajowcy")
             
         # Filtracja
         if wyb_sezony:
             active_players = set()
-            # 1. Z tabeli strzelców
             if df_strz is not None:
                 for s in wyb_sezony:
                     if s in df_strz.columns:
                         p = df_strz[df_strz[s].notna()]['imię i nazwisko'].unique()
                         active_players.update(p)
-            
-            # 2. Z tabeli transferów
             if df_trans is not None and 'sezon' in df_trans.columns:
                 p_trans = df_trans[df_trans['sezon'].isin(wyb_sezony)]['imię i nazwisko'].unique()
                 active_players.update(p_trans)
-            
             if active_players:
                 df = df[df['imię i nazwisko'].isin(active_players)]
                 st.info(f"Znaleziono {len(df)} zawodników aktywnych w wybranych sezonach.")
             else:
-                st.warning("Brak danych o zawodnikach w wybranych sezonach (w plikach strzelcy/transfery).")
-                df = df.iloc[0:0] # Pusta tabela
+                st.warning("Brak danych o zawodnikach w wybranych sezonach.")
+                df = df.iloc[0:0]
 
         df = prepare_flags(df)
         if obcy and 'Narodowość' in df.columns:
@@ -287,13 +304,11 @@ elif opcja == "Frekwencja":
     if df is not None:
         col = next((c for c in df.columns if 'średnia' in c), None)
         if col and 'sezon' in df.columns:
-            # PANCERNE CZYSZCZENIE: usuwamy twarde spacje \xa0, spacje, zamieniamy , na .
-            # Zostawiamy tylko cyfry
-            df['n'] = df[col].astype(str).str.replace('\xa0', '').str.replace(' ', '').str.replace(',', '.')
+            # PANCERNE CZYSZCZENIE:
+            df['n'] = df[col].astype(str).str.replace(r'\D', '', regex=True) # Zostaw tylko cyfry
             df['n'] = pd.to_numeric(df['n'], errors='coerce').fillna(0).astype(int)
             
-            # Sortowanie chronologiczne
-            df = df.sort_values('sezon')
+            df = df.sort_values('sezon') # Sortowanie chronologiczne
             
             c1, c2, c3 = st.columns(3)
             c1.metric("Najwyższa średnia", f"{df['n'].max():,} widzów")
@@ -405,19 +420,21 @@ elif opcja == "Trenerzy":
                                 mask |= (mecze_df['dt'] >= row['początek_dt']) & (mecze_df['dt'] <= row['koniec_dt'])
                         coach_matches = mecze_df[mask].sort_values('dt')
                         if not coach_matches.empty:
-                            total_pts, match_count, avg_hist = 0, 0, []
+                            points_list = []
                             all_scorers = {}
                             for _, m in coach_matches.iterrows():
-                                match_count += 1
                                 r = parse_result(m['wynik'])
                                 pts = 3 if r and r[0]>r[1] else (1 if r and r[0]==r[1] else 0)
-                                total_pts += pts
-                                avg_hist.append(total_pts / match_count)
+                                points_list.append(pts)
                                 if 'strzelcy' in m and pd.notnull(m['strzelcy']):
                                     for s, c in parse_scorers(m['strzelcy']).items(): all_scorers[s] = all_scorers.get(s, 0) + c
                             
+                            # Średnia krocząca (okno 5)
+                            coach_matches['pts'] = points_list
+                            coach_matches['rolling_avg'] = coach_matches['pts'].rolling(window=5, min_periods=1).mean()
+                            
                             if HAS_PLOTLY:
-                                st.plotly_chart(px.line(x=coach_matches['dt'], y=avg_hist, markers=True, title=f"Średnia punktów (narastająco): {wybrany_trener}", labels={'y': 'Śr. pkt'}), use_container_width=True)
+                                st.plotly_chart(px.line(x=coach_matches['dt'], y=coach_matches['rolling_avg'], markers=True, title=f"Forma (śr. pkt z 5 meczów): {wybrany_trener}", labels={'y': 'Śr. pkt'}), use_container_width=True)
                             
                             if all_scorers:
                                 st.write("⚽ Najlepsi strzelcy:")
@@ -426,7 +443,7 @@ elif opcja == "Trenerzy":
                                 st.dataframe(df_s, use_container_width=True)
                             
                             st.write(f"Lista meczów ({len(coach_matches)}):")
-                            view_c = [c for c in coach_matches.columns if c not in ['dt', 'data sortowania', 'mecz_id']]
+                            view_c = [c for c in coach_matches.columns if c not in ['dt', 'data sortowania', 'mecz_id', 'pts', 'rolling_avg']]
                             coach_matches.index = range(1, len(coach_matches)+1)
                             st.dataframe(coach_matches[view_c].style.map(color_results_logic, subset=['wynik']), use_container_width=True)
                         else: st.warning("Brak meczów.")
@@ -462,6 +479,7 @@ elif opcja == "Młoda Ekstraklasa":
     df = prepare_flags(df, 'narodowość')
     df.index = range(1, len(df)+1)
     st.dataframe(df, use_container_width=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
+
 
 
 
