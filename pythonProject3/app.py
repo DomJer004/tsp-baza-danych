@@ -268,6 +268,9 @@ elif opcja == "⚽ Klasyfikacja Strzelców":
             df_show = df_show.sort_values('gole', ascending=False)
             df_show = prepare_dataframe_with_flags(df_show, kraj_col)
             
+            # Wymuszenie int
+            df_show['gole'] = pd.to_numeric(df_show['gole'], errors='coerce').fillna(0).astype(int)
+            
             df_show = df_show.rename(columns={'imię i nazwisko': 'Zawodnik', 'gole': 'Bramki'})
             df_show.index = range(1, len(df_show) + 1)
             
@@ -284,7 +287,7 @@ elif opcja == "⚽ Klasyfikacja Strzelców":
             st.warning("Brak danych.")
 
 # =========================================================
-# MODUŁ 5: KLUB 100 (NOWY - Z BAZY PIŁKARZY)
+# MODUŁ 5: KLUB 100 (POPRAWIONY DLA PILKARZY I SUMY)
 # =========================================================
 elif opcja == "Klub 100":
     st.header("💯 Klub 100 (Najwięcej Meczów)")
@@ -292,9 +295,8 @@ elif opcja == "Klub 100":
     df = load_data("pilkarze.csv")
     
     if df is not None:
-        # Szukamy kolumny z meczami
-        target_col = next((c for c in df.columns if any(k in c for k in ['mecze', 'występy', 'spotkania'])), None)
-        # Szukamy kolumny z krajem
+        # Szukamy kolumny 'suma' lub 'mecze'
+        target_col = next((c for c in df.columns if any(k in c for k in ['suma', 'mecze', 'występy', 'spotkania'])), None)
         nat_col = next((c for c in df.columns if c in ['narodowość', 'kraj']), None)
         
         if target_col:
@@ -311,7 +313,6 @@ elif opcja == "Klub 100":
                 # Sortowanie
                 df_100 = df_100.sort_values(by=target_col, ascending=False)
 
-                # Wykres (Top 30 z Klubu 100)
                 st.subheader(f"Członkowie Klubu 100 (Razem: {len(df_100)})")
                 top_chart = df_100.head(30)
                 st.bar_chart(top_chart.set_index('imię i nazwisko')[target_col])
@@ -335,7 +336,8 @@ elif opcja == "Klub 100":
             else:
                 st.info("Brak zawodników z 100+ meczami w bazie.")
         else:
-            st.error("W pliku 'pilkarze.csv' nie znaleziono kolumny z liczbą meczów.")
+            st.error("W pliku 'pilkarze.csv' nie znaleziono kolumny 'suma' lub 'mecze'.")
+            st.write("Dostępne kolumny:", list(df.columns))
     else:
         st.error("Brak pliku: pilkarze.csv")
 
