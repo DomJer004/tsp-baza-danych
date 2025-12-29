@@ -63,7 +63,7 @@ st.sidebar.header("Nawigacja")
 opcja = st.sidebar.radio("Wybierz moduł:", [
     "Aktualny Sezon (25/26)",
     "Wyszukiwarka Piłkarzy", 
-    "Historia Meczów",
+    "Historia Meczów", 
     "⚽ Klasyfikacja Strzelców",
     "Klub 100",
     "Frekwencja",
