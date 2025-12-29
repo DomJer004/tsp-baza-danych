@@ -1,6 +1,6 @@
-lp.,imię i nazwisko,narodowość,flaga,pozycja,Kolumna nr 1,data urodzenia,Wiek,1995/96,1996/97,1997/98,1998/99,1999/00,2000/01,2001/02,2002/03,2003/04,2004/05,2005/06,2006/07,2007/08,2008/09,2009/10,2010/11,2011/12,2012/13,2013/14,2014/15,2015/16,2016/17,2017/18,2018/19,2019/20,2020/21,2021/22,2022/23,2023/24,2024/25,2025/26,SUMA
-435,Bartosz Martosz,Polska,,napastnik,11-11),11.11.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,11,20,31
-450,Dalibor Takáč,Słowacja,,pomocnik,10-11),11.10.1997,28,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,20,20
+lp.,imię i nazwisko,narodowość,flaga url,pozycja,Kolumna nr 1,data urodzenia,Wiek,1995/96,1996/97,1997/98,1998/99,1999/00,2000/01,2001/02,2002/03,2003/04,2004/05,2005/06,2006/07,2007/08,2008/09,2009/10,2010/11,2011/12,2012/13,2013/14,2014/15,2015/16,2016/17,2017/18,2018/19,2019/20,2020/21,2021/22,2022/23,2023/24,2024/25,2025/26,SUMA
+435,Bartosz Martosz,Polska,https://flagcdn.com/w40/pl.png,napastnik,11-11),11.11.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,11,20,31
+450,Dalibor Takáč,Słowacja,https://flagcdn.com/w40/sk.png,pomocnik,10-11),11.10.1997,28,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,20,20
 426,Marcin Biernat,Polska,,obrońca,05-28),28.05.1992,33,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,30,19,49
 432,Mateusz Kizyma,Polska,,pomocnik,07-08),08.07.2002,23,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,28,19,47
 434,Jan Majsterek,Polska,,obrońca,06-09),09.06.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,28,19,47
@@ -15,7 +15,7 @@ lp.,imię i nazwisko,narodowość,flaga,pozycja,Kolumna nr 1,data urodzenia,Wiek
 449,Oskar Zawada,Polska,,pomocnik,11-17),17.11.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,13,13
 453,Kacper Piątek,Polska,,pomocnik,10-22),22.10.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,11,11
 430,Konrad Forenc,Polska,,bramkarz,07-17),17.07.1992,33,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,32,10,42
-452,Unai Buján,Hiszpania,,pomocnik,02-08),08.02.2001,24,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,10,10
+452,Unai Buján,Hiszpania,https://flagcdn.com/w40/es.png,pomocnik,02-08),08.02.2001,24,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,10,10
 373,Bartosz Bieroński,Polska,,pomocnik,05-10),10.05.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,1,,,6,9,16
 447,Richard Nagy,Słowacja,,obrońca,08-10),10.08.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9,9
 455,Wojciech Słomka,Polska,,pomocnik,11-04),04.11.1998,27,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9,9
@@ -458,4 +458,5 @@ lp.,imię i nazwisko,narodowość,flaga,pozycja,Kolumna nr 1,data urodzenia,Wiek
 437,Maksymilian Manikowski,Polska,,bramkarz,01-07),07.01.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0
 438,Nikodem Gancarczyk,Polska,,obrońca,03-06),06.03.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0
 440,Maksymilian Biskup,Polska,,pomocnik,08-16),16.08.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,6,,6
+
 444,Linus Rönnberg,Finlandia,,napastnik,01-13),13.01.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,35,,35
