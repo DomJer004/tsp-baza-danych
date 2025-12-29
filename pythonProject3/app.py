@@ -339,36 +339,44 @@ elif opcja == "Rywale (H2H)":
         show_table(df, use_container_width=True)
 
 # =========================================================
-# MODUŁ 8: TRENERZY (PEŁNY I POPRAWIONY)
+# MODUŁ 8: TRENERZY (NOWY - LINIOWA OŚ CZASU)
 # =========================================================
 elif opcja == "Trenerzy":
     st.header("👔 Trenerzy TSP - Historia i Statystyki")
     df = load_data("trenerzy.csv")
     
     if df is not None:
-        # 1. Parsowanie dat
+        # 1. Parsowanie dat i liczb
         if 'początek' in df.columns:
             df['początek_dt'] = pd.to_datetime(df['początek'], format='%d.%m.%Y', errors='coerce')
         if 'koniec' in df.columns:
             df['koniec_dt'] = pd.to_datetime(df['koniec'], format='%d.%m.%Y', errors='coerce')
             df['koniec_dt'] = df['koniec_dt'].fillna(pd.Timestamp.today())
 
-        # 2. DODANIE FLAG (KLUCZOWY MOMENT)
-        # Zamieniamy "Polska" na "🇵🇱 Polska"
+        # Dodanie flag
         if 'narodowość' in df.columns:
             df['narodowość'] = df['narodowość'].apply(add_flag)
 
-        # 3. Zakładki
-        tab1, tab2, tab3 = st.tabs(["📋 Lista Chronologiczna", "📊 Rankingi", "⏳ Oś Czasu"])
+        # Konwersja liczb dla pewności
+        nums = ['mecze', 'wygrane', 'remisy', 'przegrane', 'punkty', 'suma dni']
+        for c in nums:
+            if c in df.columns: df[c] = pd.to_numeric(df[c], errors='coerce').fillna(0)
 
-        # -- ZAKŁADKA 1 --
+        # 2. Obliczenie średniej punktów (jeśli brak w pliku lub błędna)
+        if 'mecze' in df.columns and 'punkty' in df.columns:
+             df['śr. pkt /mecz'] = df.apply(lambda x: x['punkty'] / x['mecze'] if x['mecze'] > 0 else 0.0, axis=1)
+
+        # ZAKŁADKI
+        tab1, tab2, tab3 = st.tabs(["📋 Lista Chronologiczna", "📊 Rankingi", "📈 Wykres Formy (Oś Czasu)"])
+
+        # -- ZAKŁADKA 1: LISTA --
         with tab1:
-            df_chron = df.sort_values('początek_dt', ascending=False).copy()
-            cols = ['funkcja', 'imię i nazwisko', 'narodowość', 'wiek', 'początek', 'koniec', 'suma dni', 'mecze', 'wygrane', 'remisy', 'przegrane', 'punkty', 'śr. pkt /mecz']
-            cols = [c for c in cols if c in df_chron.columns]
+            df_chron = df.sort_values(by='początek_dt', ascending=False).copy()
+            cols_show = ['funkcja', 'imię i nazwisko', 'narodowość', 'wiek', 'początek', 'koniec', 'mecze', 'punkty', 'śr. pkt /mecz']
+            cols_show = [c for c in cols_show if c in df_chron.columns]
             
             st.dataframe(
-                df_chron[cols],
+                df_chron[cols_show],
                 use_container_width=True,
                 hide_index=True,
                 column_config={
@@ -377,18 +385,17 @@ elif opcja == "Trenerzy":
                 }
             )
 
-        # -- ZAKŁADKA 2 --
+        # -- ZAKŁADKA 2: RANKINGI ZBIORCZE --
         with tab2:
             st.subheader("🏆 Podsumowanie Trenerów (Łącznie)")
-            # Konwersja liczb
-            nums = ['mecze', 'wygrane', 'remisy', 'przegrane', 'punkty', 'suma dni']
-            for c in nums:
-                if c in df.columns: df[c] = pd.to_numeric(df[c], errors='coerce').fillna(0)
-
-            # Grupowanie
+            
+            # Grupowanie (sumujemy kadencje tego samego trenera)
             df_agg = df.groupby(['imię i nazwisko', 'narodowość'], as_index=False)[nums].sum()
+            # Przeliczenie średniej ważonej
             df_agg['śr. pkt /mecz'] = df_agg.apply(lambda x: x['punkty']/x['mecze'] if x['mecze']>0 else 0, axis=1)
-            df_agg = df_agg.sort_values('punkty', ascending=False).reset_index(drop=True)
+            
+            # Sortowanie i indeks
+            df_agg = df_agg.sort_values(by='punkty', ascending=False).reset_index(drop=True)
             df_agg.index += 1
 
             st.dataframe(
@@ -401,11 +408,12 @@ elif opcja == "Trenerzy":
                 }
             )
             
-            # Karty
+            # Statystyki Top 3
             if not df_agg.empty:
                 c1, c2, c3 = st.columns(3)
                 top_m = df_agg.loc[df_agg['mecze'].idxmax()]
                 top_p = df_agg.loc[df_agg['punkty'].idxmax()]
+                # Średnia dla trenerów z min 10 meczami
                 df_10 = df_agg[df_agg['mecze'] >= 10]
                 top_a = df_10.loc[df_10['śr. pkt /mecz'].idxmax()] if not df_10.empty else top_p
                 
@@ -413,20 +421,43 @@ elif opcja == "Trenerzy":
                 c2.metric("Najwięcej punktów", f"{top_p['imię i nazwisko']}", f"{int(top_p['punkty'])}")
                 c3.metric("Najlepsza średnia (min. 10 spotkań)", f"{top_a['imię i nazwisko']}", f"{top_a['śr. pkt /mecz']:.2f}")
 
-        # -- ZAKŁADKA 3 --
+        # -- ZAKŁADKA 3: NOWA OŚ CZASU (Wykres Scatter) --
         with tab3:
-            st.subheader("📅 Oś czasu")
+            st.subheader("📈 Historia efektywności trenerów")
+            st.caption("Oś pozioma to czas. Wysokość kropki to średnia punktów (jakość). Wielkość kropki to liczba meczów (staż).")
+            
             if HAS_PLOTLY:
-                fig = px.timeline(
-                    df.sort_values('początek_dt'), 
-                    x_start="początek_dt", x_end="koniec_dt", 
-                    y="imię i nazwisko", color="funkcja",
-                    hover_data=["mecze", "punkty"]
+                # Sortujemy chronologicznie
+                df_chart = df.sort_values('początek_dt').copy()
+                
+                # Tworzymy wykres
+                fig = px.scatter(
+                    df_chart,
+                    x="początek_dt",
+                    y="śr. pkt /mecz",
+                    size="mecze",          # Wielkość kropki zależy od liczby meczów
+                    color="śr. pkt /mecz", # Kolor zależy od punktów (gradient)
+                    hover_name="imię i nazwisko",
+                    hover_data=["mecze", "punkty", "początek", "koniec"],
+                    text="imię i nazwisko", # Podpisujemy kropki
+                    color_continuous_scale="RdYlGn", # Czerwony -> Żółty -> Zielony
+                    title="Oś czasu: Kadencje i Wyniki"
                 )
-                fig.update_yaxes(autorange="reversed")
+                
+                # Dodajemy linię łączącą, żeby widać było chronologię
+                fig.update_traces(mode='markers+lines+text', textposition='top center')
+                
+                # Ustawienia wyglądu
+                fig.update_layout(
+                    xaxis_title="Rok objęcia funkcji",
+                    yaxis_title="Średnia pkt / mecz",
+                    showlegend=False,
+                    height=600
+                )
+                
                 st.plotly_chart(fig, use_container_width=True)
             else:
-                st.info("Zainstaluj bibliotekę 'plotly', aby zobaczyć wykres.")
+                st.info("Zainstaluj bibliotekę 'plotly', aby zobaczyć interaktywny wykres.")
 
 # =========================================================
 # MODUŁ 9: TRANSFERY
