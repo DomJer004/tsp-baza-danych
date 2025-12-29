@@ -118,8 +118,7 @@ def color_results_logic(val):
         elif t < o: style = 'color: #dc3545; font-weight: bold;'
         else: style = 'color: #fd7e14; font-weight: bold;'
     
-    lower_val = val.lower()
-    if 'pd' in lower_val or 'k.' in lower_val or 'wo' in lower_val:
+    if any(x in val.lower() for x in ['pd', 'k.', 'wo']):
         style += ' font-style: italic; background-color: #f0f0f040;'
     return style
 
@@ -166,36 +165,33 @@ if opcja == "Aktualny Sezon (25/26)":
 elif opcja == "Wyszukiwarka Piłkarzy":
     st.header("🏃 Baza Zawodników")
     df = load_data("pilkarze.csv")
-    df_strzelcy = load_data("strzelcy.csv") # Do filtrowania po sezonie
+    df_strz = load_data("strzelcy.csv")
     
     if df is not None:
-        # Filtry
-        col1, col2, col3 = st.columns([2, 1, 1])
-        with col1:
-            search = st.text_input("Szukaj:")
-        with col2:
-            # Filtr sezonu (na podstawie strzelcy.csv)
-            if df_strzelcy is not None:
-                # Szukamy kolumn z sezonami (mają / w nazwie)
-                cols_sezon = [c for c in df_strzelcy.columns if '/' in c]
-                sezony = ["Wszystkie"] + sorted(cols_sezon, reverse=True)
-                wyb_sezon = st.selectbox("Sezon (aktywność):", sezony)
-            else:
-                wyb_sezon = "Wszystkie"
-        with col3:
+        c1, c2, c3 = st.columns([2, 1, 1])
+        with c1: search = st.text_input("Szukaj:")
+        with c2:
+            # Filtr sezonów z pliku strzelcy.csv
+            sezony = ["Wszystkie"]
+            if df_strz is not None:
+                # Szukamy kolumn z '/' (np. 1999/20)
+                cols_sez = sorted([c for c in df_strz.columns if '/' in c], reverse=True)
+                sezony += cols_sez
+            wyb_sezon = st.selectbox("Wybierz sezon (aktywność):", sezony)
+        with c3:
             obcy = st.checkbox("Tylko obcokrajowcy")
             
-        # Logika filtrowania
-        if wyb_sezon != "Wszystkie" and df_strzelcy is not None:
-            # Pobieramy graczy którzy mają cokolwiek w kolumnie sezonu (nie są null)
-            aktywni = df_strzelcy[df_strzelcy[wyb_sezon].notna()]['imię i nazwisko'].unique()
+        # Filtracja
+        if wyb_sezon != "Wszystkie" and df_strz is not None:
+            # Pobieramy graczy, którzy mają wpis w kolumnie danego sezonu
+            aktywni = df_strz[df_strz[wyb_sezon].notna()]['imię i nazwisko'].unique()
             df = df[df['imię i nazwisko'].isin(aktywni)]
             
         df = prepare_flags(df)
         
         if obcy and 'Narodowość' in df.columns:
             df = df[~df['Narodowość'].str.contains("Polska", na=False)]
-            
+        
         if search:
             df = df[df.astype(str).apply(lambda x: x.str.contains(search, case=False)).any(axis=1)]
             
@@ -273,8 +269,8 @@ elif opcja == "Frekwencja":
     if df is not None:
         col = next((c for c in df.columns if 'średnia' in c), None)
         if col and 'sezon' in df.columns:
-            # FIX: Zamiana spacji i twardej spacji (\xa0) na pusty ciąg
-            df['n'] = df[col].astype(str).str.replace(r'\s+', '', regex=True).str.replace(',', '.')
+            # TOTALNA CZYSTKA DANYCH: Usuwamy wszystko co nie jest cyfrą
+            df['n'] = df[col].astype(str).str.replace(r'\D', '', regex=True)
             df['n'] = pd.to_numeric(df['n'], errors='coerce').fillna(0).astype(int)
             
             c1, c2, c3 = st.columns(3)
@@ -289,7 +285,8 @@ elif opcja == "Frekwencja":
                 st.plotly_chart(fig, use_container_width=True)
             else:
                 st.line_chart(df.set_index('sezon')['n'])
-                
+            
+            # Tabela
             df.index = range(1, len(df)+1)
             st.dataframe(df.drop(columns=['n'], errors='ignore'), use_container_width=True)
 
@@ -364,7 +361,7 @@ elif opcja == "Trenerzy":
             v = df.sort_values('początek_dt', ascending=False)
             cols = [c for c in ['funkcja', 'imię i nazwisko', 'Narodowość', 'Flaga', 'początek', 'koniec', 'mecze', 'punkty'] if c in v.columns]
             v.index = range(1, len(v)+1)
-            st.dataframe(v[cols], use_container_width=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
+            st.dataframe(v[cols], use_container_width=True, hide_index=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
         with t2:
             agg = df.groupby(['imię i nazwisko', 'Narodowość', 'Flaga'], as_index=False)[['mecze', 'punkty']].sum()
             agg = agg.sort_values('punkty', ascending=False)
@@ -444,5 +441,7 @@ elif opcja == "Młoda Ekstraklasa":
     df = prepare_flags(df, 'narodowość')
     df.index = range(1, len(df)+1)
     st.dataframe(df, use_container_width=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
+
+
 
 
