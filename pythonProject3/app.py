@@ -1,4 +1,4 @@
-import streamlit as st
+iimport streamlit as st
 import pandas as pd
 import datetime
 
@@ -9,11 +9,12 @@ st.title("⚽ Baza Danych TSP - Centrum Wiedzy")
 # Próba importu plotly
 try:
     import plotly.express as px
+    import plotly.graph_objects as go
     HAS_PLOTLY = True
 except ImportError:
     HAS_PLOTLY = False
 
-# --- 2. MAPOWANIE KRAJÓW (BEZ ANGLII) ---
+# --- 2. MAPOWANIE KRAJÓW (ROZSZERZONE) ---
 COUNTRY_TO_ISO = {
     'polska': 'pl', 'hiszpania': 'es', 'słowacja': 'sk', 'łotwa': 'lv', 
     'chorwacja': 'hr', 'kamerun': 'cm', 'zimbabwe': 'zw', 'finlandia': 'fi', 
@@ -27,7 +28,10 @@ COUNTRY_TO_ISO = {
     'austria': 'at', 'brazylia': 'br', 'szkocja': 'gb-sct',
     'walia': 'gb-wls', 'irlandia': 'ie', 'irlandia północna': 'gb-nir',
     'rosja': 'ru', 'dania': 'dk', 'norwegia': 'no', 'szwajcaria': 'ch',
-    'rumunia': 'ro', 'cypr': 'cy', 'macedonia': 'mk', 'czarnogóra': 'me'
+    'rumunia': 'ro', 'cypr': 'cy', 'macedonia': 'mk', 'czarnogóra': 'me',
+    'ghana': 'gh', 'estonia': 'ee', 'haiti': 'ht', 'kanada': 'ca', 
+    'wybrzeże kości słoniowej': 'ci', 'maroko': 'ma', 'tunezja': 'tn',
+    'algieria': 'dz', 'egipt': 'eg', 'islandia': 'is'
 }
 
 # --- 3. FUNKCJE POMOCNICZE ---
@@ -36,6 +40,7 @@ def get_flag_url(country_name):
     """Generuje URL do flagi z Flagpedii."""
     if not isinstance(country_name, str):
         return None
+    # Pobieramy pierwszy człon (np. "Haiti" z "Haiti/Dania")
     first_country = country_name.split('/')[0].strip().lower()
     iso_code = COUNTRY_TO_ISO.get(first_country)
     if iso_code:
@@ -83,7 +88,7 @@ def prepare_dataframe_with_flags(df, country_col='narodowość'):
     return df
 
 def parse_result(val):
-    """Analizuje wynik meczu."""
+    """Analizuje wynik meczu (zwraca: gole_nasze, gole_rywala)."""
     if not isinstance(val, str): return None
     val = val.replace('-', ':').replace(' ', '')
     if ':' in val:
@@ -268,7 +273,6 @@ elif opcja == "⚽ Klasyfikacja Strzelców":
             df_show = df_show.sort_values('gole', ascending=False)
             df_show = prepare_dataframe_with_flags(df_show, kraj_col)
             
-            # Wymuszenie int
             df_show['gole'] = pd.to_numeric(df_show['gole'], errors='coerce').fillna(0).astype(int)
             
             df_show = df_show.rename(columns={'imię i nazwisko': 'Zawodnik', 'gole': 'Bramki'})
@@ -287,41 +291,34 @@ elif opcja == "⚽ Klasyfikacja Strzelców":
             st.warning("Brak danych.")
 
 # =========================================================
-# MODUŁ 5: KLUB 100 (POPRAWIONY DLA PILKARZY I SUMY)
+# MODUŁ 5: KLUB 100
 # =========================================================
 elif opcja == "Klub 100":
     st.header("💯 Klub 100 (Najwięcej Meczów)")
-    # Zmiana źródła danych na pilkarze.csv
     df = load_data("pilkarze.csv")
     
     if df is not None:
-        # Szukamy kolumny 'suma' lub 'mecze'
         target_col = next((c for c in df.columns if any(k in c for k in ['suma', 'mecze', 'występy', 'spotkania'])), None)
         nat_col = next((c for c in df.columns if c in ['narodowość', 'kraj']), None)
         
         if target_col:
-            # Czyszczenie i konwersja na liczby
             df[target_col] = pd.to_numeric(
                 df[target_col].astype(str).str.replace(" ", ""), 
                 errors='coerce'
             ).fillna(0).astype(int)
             
-            # FILTRACJA: Tylko >= 100 meczów
             df_100 = df[df[target_col] >= 100].copy()
             
             if not df_100.empty:
-                # Sortowanie
                 df_100 = df_100.sort_values(by=target_col, ascending=False)
 
                 st.subheader(f"Członkowie Klubu 100 (Razem: {len(df_100)})")
                 top_chart = df_100.head(30)
                 st.bar_chart(top_chart.set_index('imię i nazwisko')[target_col])
                 
-                # Tabela
                 if nat_col:
                     df_100 = prepare_dataframe_with_flags(df_100, nat_col)
                 
-                # Zmiana nazw i indeksu
                 df_100 = df_100.rename(columns={'imię i nazwisko': 'Zawodnik', target_col: 'Mecze'})
                 df_100.index = range(1, len(df_100) + 1)
                 
@@ -337,7 +334,6 @@ elif opcja == "Klub 100":
                 st.info("Brak zawodników z 100+ meczami w bazie.")
         else:
             st.error("W pliku 'pilkarze.csv' nie znaleziono kolumny 'suma' lub 'mecze'.")
-            st.write("Dostępne kolumny:", list(df.columns))
     else:
         st.error("Brak pliku: pilkarze.csv")
 
@@ -386,7 +382,7 @@ elif opcja == "Rywale (H2H)":
         )
 
 # =========================================================
-# MODUŁ 8: TRENERZY
+# MODUŁ 8: TRENERZY (ZBIORCZY I SZCZEGÓŁOWY)
 # =========================================================
 elif opcja == "Trenerzy":
     st.header("👔 Trenerzy TSP - Historia i Statystyki")
@@ -407,7 +403,7 @@ elif opcja == "Trenerzy":
 
         df = prepare_dataframe_with_flags(df, 'narodowość')
 
-        tab1, tab2, tab3 = st.tabs(["📋 Lista Chronologiczna", "📊 Rankingi", "📈 Wykres Efektywności"])
+        tab1, tab2, tab3 = st.tabs(["📋 Lista Chronologiczna", "📊 Rankingi", "📈 Oś Czasu / Analiza"])
 
         with tab1:
             df_view = df.sort_values('początek_dt', ascending=False)
@@ -450,20 +446,103 @@ elif opcja == "Trenerzy":
             )
 
         with tab3:
-            st.subheader("📈 Wykres Efektywności (Punkty / Czas)")
+            st.subheader("📈 Analiza Szczegółowa Kadencji")
+            
+            # Główny wykres efektywności
             if HAS_PLOTLY:
                 fig = px.scatter(
                     df.sort_values('początek_dt'),
                     x="początek_dt", y="śr. pkt /mecz",
                     size="mecze", color="śr. pkt /mecz",
                     hover_name="imię i nazwisko",
-                    title="Historia formy (Wielkość = Liczba meczów)",
+                    title="Historia formy (Wielkość kropki = Liczba meczów)",
                     color_continuous_scale="RdYlGn"
                 )
                 fig.update_layout(xaxis_title="Rok", yaxis_title="Średnia pkt/mecz")
                 st.plotly_chart(fig, use_container_width=True)
             else:
                 st.info("Zainstaluj 'plotly' w requirements.txt")
+
+            st.divider()
+            
+            # --- SEKCJA SZCZEGÓŁÓW TRENERA ---
+            st.subheader("🔎 Szczegóły Trenera i Lista Meczów")
+            
+            # Lista trenerów do wyboru
+            trenerzy_list = sorted(df['imię i nazwisko'].unique())
+            wybrany_trener = st.selectbox("Wybierz trenera do analizy:", trenerzy_list)
+            
+            if wybrany_trener:
+                # Pobieramy dane trenera z tabeli trenerzy
+                coach_data = df[df['imię i nazwisko'] == wybrany_trener]
+                
+                # Pobieramy mecze z mecze.csv
+                mecze_df = load_data("mecze.csv")
+                
+                if mecze_df is not None:
+                    # Parsujemy daty w meczach
+                    # Zakładamy kolumnę 'data meczu' lub podobną
+                    date_col = next((c for c in mecze_df.columns if 'data' in c and 'sort' not in c), None)
+                    
+                    if date_col:
+                        mecze_df['dt'] = pd.to_datetime(mecze_df[date_col], errors='coerce')
+                        
+                        # Zbieramy wszystkie mecze z okresów pracy tego trenera
+                        # Trener może mieć kilka kadencji
+                        mask = pd.Series([False] * len(mecze_df))
+                        
+                        for _, row in coach_data.iterrows():
+                            start = row['początek_dt']
+                            end = row['koniec_dt']
+                            if pd.notnull(start):
+                                # Filtrujemy mecze pomiędzy start a koniec
+                                mask |= (mecze_df['dt'] >= start) & (mecze_df['dt'] <= end)
+                        
+                        coach_matches = mecze_df[mask].copy()
+                        
+                        if not coach_matches.empty:
+                            coach_matches = coach_matches.sort_values('dt')
+                            
+                            # Obliczamy punkty dla wykresu liniowego
+                            pts_history = []
+                            acc_pts = 0
+                            match_labels = []
+                            
+                            for idx, m in coach_matches.iterrows():
+                                res = parse_result(m['wynik'])
+                                pts = 0
+                                if res:
+                                    if res[0] > res[1]: pts = 3
+                                    elif res[0] == res[1]: pts = 1
+                                acc_pts += pts
+                                pts_history.append(acc_pts)
+                                match_labels.append(f"{m.get('rywal', 'Rywal')} ({m.get('wynik', '')})")
+                            
+                            # Wykres liniowy punktowania
+                            if HAS_PLOTLY:
+                                fig_line = px.line(
+                                    x=coach_matches['dt'], 
+                                    y=pts_history,
+                                    markers=True,
+                                    title=f"Progres punktowy: {wybrany_trener}",
+                                    labels={'x': 'Data', 'y': 'Suma punktów'}
+                                )
+                                st.plotly_chart(fig_line, use_container_width=True)
+                            
+                            # Tabela meczów
+                            st.write(f"Lista meczów ({len(coach_matches)}):")
+                            
+                            # Kolorowanie wyników
+                            cols_view = [c for c in coach_matches.columns if c not in ['dt', 'data sortowania']]
+                            st.dataframe(
+                                coach_matches[cols_view].style.map(color_results_logic, subset=['wynik']),
+                                use_container_width=True,
+                                hide_index=True
+                            )
+                        else:
+                            st.warning("Nie znaleziono meczów w tym zakresie dat (sprawdź poprawność dat w plikach).")
+                    else:
+                        st.error("W pliku mecze.csv brakuje kolumny z datą meczu.")
 
 # =========================================================
 # POZOSTAŁE MODUŁY
@@ -484,4 +563,5 @@ elif opcja == "Statystyki Wyników":
 elif opcja == "Młoda Ekstraklasa":
     st.header("🎓 Młoda Ekstraklasa")
     df = load_data("me.csv")
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    df = prepare_dataframe_with_flags(df, 'kraj' if df is not None and 'kraj' in df.columns else 'narodowość')
+    st.dataframe(df, use_container_width=True, hide_index=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
