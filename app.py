@@ -352,35 +352,136 @@ elif opcja == "Frekwencja":
         st.dataframe(df.drop(columns=['num'], errors='ignore'), use_container_width=True, hide_index=True)
 
 # =========================================================
-# MODUŁ 7: RYWALE
+# MODUŁ 7: RYWALE (H2H - DYNAMICZNY Z MECZÓW)
 # =========================================================
 elif opcja == "Rywale (H2H)":
     st.header("⚔️ Bilans z Rywalami")
-    df = load_data("rywale.csv")
-    if df is not None and not df.empty:
-        rywal_col = df.columns[0]
-        rywale = sorted(df[rywal_col].astype(str).unique())
-        wybrany = st.selectbox("Wybierz rywala:", rywale)
+    # Ładujemy mecze, bo to z nich wyliczymy statystyki
+    df = load_data("mecze.csv")
+    
+    if df is not None:
+        # Szukamy kolumny z nazwą rywala
+        # Szukamy: 'rywal', 'przeciwnik', 'klub', 'gość' (zakładając że TSP to gospodarz lub odwrotnie, ale tu szukamy nazwy)
+        col_rywal = next((c for c in df.columns if c in ['rywal', 'przeciwnik', 'klub']), None)
         
-        stat = df[df[rywal_col] == wybrany]
-        st.dataframe(stat, use_container_width=True, hide_index=True)
-        
-        st.divider()
-        st.subheader("Wszyscy rywale")
-        st.dataframe(
-            df, 
-            use_container_width=True, 
-            hide_index=True,
-            column_config={
-                "Mecze": st.column_config.NumberColumn(format="%d"),
-                "Wygrane": st.column_config.NumberColumn(format="%d"),
-                "Remisy": st.column_config.NumberColumn(format="%d"),
-                "Porażki": st.column_config.NumberColumn(format="%d"),
-                "Punkty": st.column_config.NumberColumn(format="%d"),
-                "Punkty na mecz": st.column_config.NumberColumn(format="%.2f")
-            }
-        )
+        if not col_rywal:
+            # Jeśli nie znaleziono standardowej nazwy, szukamy tekstowych kolumn
+            # i bierzemy pierwszą, która nie jest sezonem ani wynikiem
+            candidates = [c for c in df.columns if df[c].dtype == 'object' and c not in ['sezon', 'wynik', 'data', 'godzina']]
+            if candidates:
+                col_rywal = candidates[0]
 
+        if col_rywal and 'wynik' in df.columns:
+            
+            # --- FUNKCJA AGREGUJĄCA STATYSTYKI ---
+            def calculate_stats(subset):
+                mecze = len(subset)
+                w, r, p = 0, 0, 0
+                gole_strzelone = 0
+                gole_stracone = 0
+                
+                for res in subset['wynik']:
+                    parsed = parse_result(res)
+                    if parsed:
+                        tsp, opp = parsed
+                        gole_strzelone += tsp
+                        gole_stracone += opp
+                        if tsp > opp: w += 1
+                        elif tsp < opp: p += 1
+                        else: r += 1
+                
+                punkty = (w * 3) + (r * 1)
+                sr_pkt = punkty / mecze if mecze > 0 else 0
+                
+                return pd.Series({
+                    'Mecze': mecze,
+                    'Zwycięstwa': w,
+                    'Remisy': r,
+                    'Porażki': p,
+                    'Bramki': f"{gole_strzelone}:{gole_stracone}",
+                    'Bilans bramkowy': gole_strzelone - gole_stracone,
+                    'Punkty': punkty,
+                    'Śr. pkt': sr_pkt
+                })
+
+            # --- TABS ---
+            tab1, tab2 = st.tabs(["🔎 Analiza konkretnego rywala", "📊 Tabela wszech czasów"])
+
+            # ZAKŁADKA 1: SZCZEGÓŁY RYWALA
+            with tab1:
+                # Lista unikalnych rywali posortowana alfabetycznie
+                lista_rywali = sorted(df[col_rywal].astype(str).unique())
+                wybrany_rywal = st.selectbox("Wybierz przeciwnika:", lista_rywali)
+                
+                if wybrany_rywal:
+                    # Filtrujemy mecze z tym rywalem
+                    mecze_rywala = df[df[col_rywal] == wybrany_rywal].copy()
+                    
+                    # Obliczamy statystyki
+                    stats = calculate_stats(mecze_rywala)
+                    
+                    # Wyświetlamy karty (Metrics)
+                    c1, c2, c3, c4 = st.columns(4)
+                    c1.metric("Mecze", f"{int(stats['Mecze'])}")
+                    c2.metric("Bilans (Z-R-P)", f"{int(stats['Zwycięstwa'])}-{int(stats['Remisy'])}-{int(stats['Porażki'])}")
+                    c3.metric("Bramki", stats['Bramki'])
+                    c4.metric("Średnia pkt", f"{stats['Śr. pkt']:.2f}")
+                    
+                    st.divider()
+                    st.subheader(f"Historia spotkań: {wybrany_rywal}")
+                    
+                    # Sortowanie chronologiczne meczów
+                    col_data = next((c for c in mecze_rywala.columns if 'data' in c and 'sort' not in c), None)
+                    if not col_data: col_data = next((c for c in mecze_rywala.columns if 'data' in c), None)
+                    
+                    if col_data:
+                        # Próba konwersji daty do sortowania
+                        mecze_rywala['_dt'] = pd.to_datetime(mecze_rywala[col_data], dayfirst=True, errors='coerce')
+                        mecze_rywala = mecze_rywala.sort_values('_dt', ascending=False)
+                        mecze_rywala = mecze_rywala.drop(columns=['_dt'])
+
+                    # Ukrywamy kolumny techniczne
+                    view_cols = [c for c in mecze_rywala.columns if c not in ['data sortowania', 'mecz_id']]
+                    
+                    st.dataframe(
+                        mecze_rywala[view_cols].style.map(color_results_logic, subset=['wynik']),
+                        use_container_width=True,
+                        hide_index=True
+                    )
+
+            # ZAKŁADKA 2: TABELA ZBIORCZA
+            with tab2:
+                st.caption("Poniższa tabela jest generowana dynamicznie na podstawie wszystkich wprowadzonych meczów.")
+                
+                # Grupujemy i aplikujemy funkcję liczącą
+                # To może chwilę potrwać przy tysiącach meczów, ale st.cache_data przy load_data pomaga
+                df_all = df.groupby(col_rywal).apply(calculate_stats).reset_index()
+                
+                # Sortowanie: Najpierw punkty, potem bilans bramkowy
+                df_all = df_all.sort_values(by=['Punkty', 'Bilans bramkowy'], ascending=False)
+                df_all.index = range(1, len(df_all) + 1)
+                
+                # Formatowanie kolumn
+                st.dataframe(
+                    df_all,
+                    use_container_width=True,
+                    column_config={
+                        col_rywal: "Przeciwnik",
+                        "Mecze": st.column_config.NumberColumn("M", format="%d"),
+                        "Zwycięstwa": st.column_config.NumberColumn("Z", format="%d"),
+                        "Remisy": st.column_config.NumberColumn("R", format="%d"),
+                        "Porażki": st.column_config.NumberColumn("P", format="%d"),
+                        "Punkty": st.column_config.NumberColumn("Pkt", format="%d"),
+                        "Śr. pkt": st.column_config.NumberColumn("Śr. Pkt", format="%.2f"),
+                        "Bilans bramkowy": st.column_config.NumberColumn("Bilans", format="%d")
+                    }
+                )
+
+        else:
+            st.error("Nie udało się zidentyfikować kolumny z nazwą rywala lub wyniku w pliku mecze.csv.")
+            st.write("Dostępne kolumny:", df.columns.tolist())
+    else:
+        st.error("Brak pliku mecze.csv")
 # =========================================================
 # MODUŁ 8: TRENERZY (Z ULEPSZONYM ROZPOZNAWANIEM DAT)
 # =========================================================
@@ -584,5 +685,6 @@ elif opcja == "Młoda Ekstraklasa":
     df = load_data("me.csv")
     df = prepare_dataframe_with_flags(df, 'kraj' if df is not None and 'kraj' in df.columns else 'narodowość')
     st.dataframe(df, use_container_width=True, hide_index=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
+
 
 
