@@ -41,7 +41,7 @@ if not st.session_state['logged_in']:
     st.stop()  # Zatrzymaj dalsze wykonywanie skryptu
 
 # ==============================================================================
-# GŁÓWNA APLIKACJA (URUCHAMIA SIĘ TYLKO PO ZALOGOWANIU)
+# GŁÓWNA APLIKACJA
 # ==============================================================================
 
 st.title("⚽ Baza Danych TSP - Centrum Wiedzy")
@@ -340,10 +340,15 @@ elif opcja == "Rywale (H2H)":
                     c4.metric("Średnia pkt", f"{stats['Śr. pkt']:.2f}")
                     st.divider()
                     st.subheader(f"Historia spotkań: {wybrany}")
+                    
+                    # Sortowanie dat
                     col_data = next((c for c in subset.columns if 'data' in c and 'sort' not in c), None)
                     if col_data:
                         subset['_dt'] = pd.to_datetime(subset[col_data], dayfirst=True, errors='coerce')
+                        if subset['_dt'].isna().mean() > 0.5:
+                             subset['_dt'] = pd.to_datetime(subset[col_data], errors='coerce')
                         subset = subset.sort_values('_dt', ascending=False).drop(columns=['_dt'])
+                    
                     view = subset.drop(columns=['mecz', 'data sortowania'], errors='ignore')
                     st.dataframe(view.style.map(color_results_logic, subset=['wynik']), use_container_width=True, hide_index=True)
             with tab2:
@@ -358,24 +363,30 @@ elif opcja == "Rywale (H2H)":
 elif opcja == "Trenerzy":
     st.header("👔 Trenerzy TSP")
     df = load_data("trenerzy.csv")
+    
     if df is not None:
         def smart_date(s):
             d = pd.to_datetime(s, format='%d.%m.%Y', errors='coerce')
             if d.isna().mean() > 0.5: d = pd.to_datetime(s, errors='coerce')
             return d
+        
         if 'początek' in df.columns: df['początek_dt'] = smart_date(df['początek'])
         if 'koniec' in df.columns: 
             df['koniec_dt'] = smart_date(df['koniec'])
             df['koniec_dt'] = df['koniec_dt'].fillna(pd.Timestamp.today())
+        
         df = prepare_dataframe_with_flags(df, 'narodowość')
+        
         for c in ['mecze', 'punkty', 'wygrane', 'remisy', 'przegrane']:
             if c in df.columns: df[c] = pd.to_numeric(df[c], errors='coerce').fillna(0).astype(int)
 
         tab1, tab2, tab3 = st.tabs(["📋 Lista Chronologiczna", "📊 Rankingi", "📈 Oś Czasu / Analiza"])
+        
         with tab1:
             view = df.sort_values('początek_dt', ascending=False)
             cols = [c for c in ['funkcja', 'imię i nazwisko', 'Narodowość', 'Flaga', 'wiek', 'początek', 'koniec', 'mecze', 'punkty', 'śr. pkt /mecz'] if c in view.columns]
             st.dataframe(view[cols], use_container_width=True, hide_index=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small"), "śr. pkt /mecz": st.column_config.NumberColumn(format="%.2f"), "mecze": st.column_config.NumberColumn(format="%d"), "punkty": st.column_config.NumberColumn(format="%d")})
+        
         with tab2:
             st.subheader("Podsumowanie zbiorcze")
             grp = ['imię i nazwisko', 'Narodowość', 'Flaga']
@@ -384,28 +395,47 @@ elif opcja == "Trenerzy":
             agg = agg.sort_values('punkty', ascending=False).reset_index(drop=True)
             agg.index += 1
             st.dataframe(agg, use_container_width=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small"), "śr. pkt /mecz": st.column_config.NumberColumn(format="%.2f"), "mecze": st.column_config.ProgressColumn("Mecze", format="%d", min_value=0, max_value=int(agg['mecze'].max())), "punkty": st.column_config.ProgressColumn("Punkty", format="%d", min_value=0, max_value=int(agg['punkty'].max()))})
+        
         with tab3:
             st.subheader("📈 Analiza Szczegółowa Kadencji")
             if HAS_PLOTLY:
                 fig = px.scatter(df.sort_values('początek_dt'), x="początek_dt", y="śr. pkt /mecz", size="mecze", color="śr. pkt /mecz", hover_name="imię i nazwisko", title="Historia formy (Wielkość kropki = Liczba meczów)", color_continuous_scale="RdYlGn")
                 st.plotly_chart(fig, use_container_width=True)
             st.divider()
+            
+            st.subheader("🔎 Szczegóły Trenera i Lista Meczów")
             trenerzy_list = sorted(df['imię i nazwisko'].unique())
             wybrany_trener = st.selectbox("Wybierz trenera do analizy:", trenerzy_list)
+            
             if wybrany_trener:
                 coach_data = df[df['imię i nazwisko'] == wybrany_trener]
                 mecze_df = load_data("mecze.csv")
+                
                 if mecze_df is not None:
-                    col_data = next((c for c in mecze_df.columns if 'data' in c and 'sort' not in c), None) or next((c for c in mecze_df.columns if 'data' in c), None)
-                    if col_data:
-                        mecze_df['dt'] = pd.to_datetime(mecze_df[col_data], dayfirst=True, errors='coerce')
-                        if mecze_df['dt'].isna().mean() > 0.5: mecze_df['dt'] = pd.to_datetime(mecze_df[col_data], errors='coerce')
+                    # Szukanie kolumny z datą (data meczu lub data)
+                    date_col = next((c for c in mecze_df.columns if 'data' in c and 'sort' not in c), None)
+                    if not date_col: date_col = next((c for c in mecze_df.columns if 'data' in c), None)
+                    
+                    if date_col:
+                        # Ujednolicenie nazwy na 'data'
+                        mecze_df = mecze_df.rename(columns={date_col: 'data'})
+                        
+                        # Konwersja daty
+                        mecze_df['dt'] = pd.to_datetime(mecze_df['data'], dayfirst=True, errors='coerce')
+                        if mecze_df['dt'].isna().mean() > 0.5: 
+                            mecze_df['dt'] = pd.to_datetime(mecze_df['data'], errors='coerce')
+                        
+                        # Filtrowanie meczów w zakresach dat
                         mask = pd.Series([False]*len(mecze_df))
                         for _, row in coach_data.iterrows():
                             if pd.notnull(row['początek_dt']):
+                                # Logika: data_meczu >= poczatek AND data_meczu <= koniec
                                 mask |= (mecze_df['dt'] >= row['początek_dt']) & (mecze_df['dt'] <= row['koniec_dt'])
+                        
                         coach_matches = mecze_df[mask].sort_values('dt')
+                        
                         if not coach_matches.empty:
+                            # Wykres liniowy punktowania
                             pts_hist = []
                             acc = 0
                             for _, m in coach_matches.iterrows():
@@ -413,12 +443,20 @@ elif opcja == "Trenerzy":
                                 pts = 3 if r and r[0]>r[1] else (1 if r and r[0]==r[1] else 0)
                                 acc += pts
                                 pts_hist.append(acc)
+                            
                             if HAS_PLOTLY:
-                                st.plotly_chart(px.line(x=coach_matches['dt'], y=pts_hist, markers=True, title=f"Progres punktowy: {wybrany_trener}", labels={'y': 'Suma punktów'}), use_container_width=True)
+                                st.plotly_chart(px.line(x=coach_matches['dt'], y=pts_hist, markers=True, title=f"Progres punktowy: {wybrany_trener}", labels={'y': 'Suma punktów', 'x': 'Data meczu'}), use_container_width=True)
+                            
                             st.write(f"Znaleziono {len(coach_matches)} meczów (Pełna lista):")
+                            
+                            # Wyświetlenie tabeli meczów pod wykresem
                             view_c = [c for c in coach_matches.columns if c not in ['dt', 'data sortowania', 'mecz_id']]
-                            st.dataframe(coach_matches[view_c].style.map(color_results_logic, subset=['wynik']), use_container_width=True, hide_index=True)
-                        else: st.warning("Brak meczów w okresach pracy tego trenera.")
+                            st.dataframe(
+                                coach_matches[view_c].style.map(color_results_logic, subset=['wynik']),
+                                use_container_width=True,
+                                hide_index=True
+                            )
+                        else: st.warning("Brak meczów w okresach pracy tego trenera (sprawdź poprawność dat w plikach).")
                     else: st.error("Brak kolumny z datą w mecze.csv")
 
 # 9. TRANSFERY
