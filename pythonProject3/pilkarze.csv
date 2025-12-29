@@ -1,31 +1,31 @@
-lp.,imię i nazwisko,narodowość,flaga,pozycja,Kolumna nr 1,data urodzenia,Wiek,1995/96,1996/97,1997/98,1998/99,1999/00,2000/01,2001/02,2002/03,2003/04,2004/05,2005/06,2006/07,2007/08,2008/09,2009/10,2010/11,2011/12,2012/13,2013/14,2014/15,2015/16,2016/17,2017/18,2018/19,2019/20,2020/21,2021/22,2022/23,2023/24,2024/25,2025/26,SUMA
-435,Bartosz Martosz,Polska,,napastnik,11-11),11.11.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,11,20,31
+lp.,imię i nazwisko,narodowość,flaga url,pozycja,Kolumna nr 1,data urodzenia,Wiek,1995/96,1996/97,1997/98,1998/99,1999/00,2000/01,2001/02,2002/03,2003/04,2004/05,2005/06,2006/07,2007/08,2008/09,2009/10,2010/11,2011/12,2012/13,2013/14,2014/15,2015/16,2016/17,2017/18,2018/19,2019/20,2020/21,2021/22,2022/23,2023/24,2024/25,2025/26,SUMA
+435,Bartosz Martosz,Polska,https://flagcdn.com/w40/pl.png,napastnik,11-11),11.11.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,11,20,31
 450,Dalibor Takáč,Słowacja,,pomocnik,10-11),11.10.1997,28,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,20,20
-426,Marcin Biernat,Polska,,obrońca,05-28),28.05.1992,33,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,30,19,49
-432,Mateusz Kizyma,Polska,,pomocnik,07-08),08.07.2002,23,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,28,19,47
-434,Jan Majsterek,Polska,,obrońca,06-09),09.06.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,28,19,47
-442,Maciej Górski,Polska,,napastnik,03-01),01.03.1990,35,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,14,19,33
-371,Maksymilian Sitek,Polska,,pomocnik,12-04),04.12.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,19,,29,29,,18,95
-433,Lucjan Klisiewicz,Polska,,napastnik,04-20),20.04.2002,23,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,32,17,49
-454,Krzysztof Kolanko,Polska,,pomocnik,08-03),03.08.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,17,17
-443,Marcin Urynowicz,Polska,,napastnik,03-16),16.03.1996,29,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,14,16,30
-445,Wojciech Szumilas,Polska,,pomocnik,11-07),07.11.1996,29,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,15,16,31
-317,Kacper Gach,Polska,,obrońca,07-11),11.07.1998,27,,,,,,,,,,,,,,,,,,,,,,,1,8,19,13,18,,,27,15,101
-428,Daniel Dziwniel,Polska /Niemcy,,obrońca,08-19),19.08.1992,33,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,21,13,34
-449,Oskar Zawada,Polska,,pomocnik,11-17),17.11.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,13,13
-453,Kacper Piątek,Polska,,pomocnik,10-22),22.10.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,11,11
-430,Konrad Forenc,Polska,,bramkarz,07-17),17.07.1992,33,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,32,10,42
+426,Marcin Biernat,Polska,https://flagcdn.com/w40/pl.png,obrońca,05-28),28.05.1992,33,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,30,19,49
+432,Mateusz Kizyma,Polska,https://flagcdn.com/w40/pl.png,pomocnik,07-08),08.07.2002,23,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,28,19,47
+434,Jan Majsterek,Polska,https://flagcdn.com/w40/pl.png,obrońca,06-09),09.06.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,28,19,47
+442,Maciej Górski,Polska,https://flagcdn.com/w40/pl.png,napastnik,03-01),01.03.1990,35,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,14,19,33
+371,Maksymilian Sitek,Polska,https://flagcdn.com/w40/pl.png,pomocnik,12-04),04.12.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,19,,29,29,,18,95
+433,Lucjan Klisiewicz,Polska,https://flagcdn.com/w40/pl.png,napastnik,04-20),20.04.2002,23,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,32,17,49
+454,Krzysztof Kolanko,Polska,https://flagcdn.com/w40/pl.png,pomocnik,08-03),03.08.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,17,17
+443,Marcin Urynowicz,Polska,https://flagcdn.com/w40/pl.png,napastnik,03-16),16.03.1996,29,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,14,16,30
+445,Wojciech Szumilas,Polska,https://flagcdn.com/w40/pl.png,pomocnik,11-07),07.11.1996,29,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,15,16,31
+317,Kacper Gach,Polska,https://flagcdn.com/w40/pl.png,obrońca,07-11),11.07.1998,27,,,,,,,,,,,,,,,,,,,,,,,1,8,19,13,18,,,27,15,101
+428,Daniel Dziwniel,Polska /Niemcy,https://flagcdn.com/w40/pl.png,obrońca,08-19),19.08.1992,33,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,21,13,34
+449,Oskar Zawada,Polska,https://flagcdn.com/w40/pl.png,pomocnik,11-17),17.11.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,13,13
+453,Kacper Piątek,Polska,https://flagcdn.com/w40/pl.png,pomocnik,10-22),22.10.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,11,11
+430,Konrad Forenc,Polska,https://flagcdn.com/w40/pl.png,bramkarz,07-17),17.07.1992,33,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,32,10,42
 452,Unai Buján,Hiszpania,,pomocnik,02-08),08.02.2001,24,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,10,10
-373,Bartosz Bieroński,Polska,,pomocnik,05-10),10.05.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,1,,,6,9,16
+373,Bartosz Bieroński,Polska,https://flagcdn.com/w40/pl.png,pomocnik,05-10),10.05.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,1,,,6,9,16
 447,Richard Nagy,Słowacja,,obrońca,08-10),10.08.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9,9
-455,Wojciech Słomka,Polska,,pomocnik,11-04),04.11.1998,27,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9,9
-398,Krystian Wieczorek,Polska,,bramkarz,07-22),22.07.2002,23,,,,,,,,,,,,,,,,,,,,,,,,,,,,1,,4,8,13
-439,Dawid Ściuk,Polska,,obrońca,06-30),30.06.2005,20,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9,7,16
-425,Michał Bednarski,Polska,,pomocnik,01-31),31.01.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,27,4,31
-448,Szymon Brańczyk,Polska,,bramkarz,08-13),13.08.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,4,4
-354,Kornel Osyra,Polska,,obrońca,02-07),07.02.1993,32,,,,,,,,,,,,,,,,,,,,,,,,,32,2,,,,17,3,54
-429,Bartosz Florek,Polska,,napastnik,08-06),06.08.2004,21,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,30,3,33
-451,Łukasz Kabaj,Polska,,obrońca,02-13),13.02.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,3,3
+455,Wojciech Słomka,Polska,https://flagcdn.com/w40/pl.png,pomocnik,11-04),04.11.1998,27,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9,9
+398,Krystian Wieczorek,Polska,https://flagcdn.com/w40/pl.png,bramkarz,07-22),22.07.2002,23,,,,,,,,,,,,,,,,,,,,,,,,,,,,1,,4,8,13
+439,Dawid Ściuk,Polska,https://flagcdn.com/w40/pl.png,obrońca,06-30),30.06.2005,20,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9,7,16
+425,Michał Bednarski,Polska,https://flagcdn.com/w40/pl.png,pomocnik,01-31),31.01.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,27,4,31
+448,Szymon Brańczyk,Polska,https://flagcdn.com/w40/pl.png,bramkarz,08-13),13.08.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,4,4
+354,Kornel Osyra,Polska,https://flagcdn.com/w40/pl.png,obrońca,02-07),07.02.1993,32,,,,,,,,,,,,,,,,,,,,,,,,,32,2,,,,17,3,54
+429,Bartosz Florek,Polska,https://flagcdn.com/w40/pl.png,napastnik,08-06),06.08.2004,21,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,30,3,33
+451,Łukasz Kabaj,Polska,https://flagcdn.com/w40/pl.png,obrońca,02-13),13.02.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,3,3
 441,Piotr Szumiński,Polska,,pomocnik,07-13),13.07.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1,1
 446,Grzegorz Janusz,Polska,,napastnik,05-08),08.05.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1,1
 456,Krzysztof Wiesner,Polska,,pomocnik,10-13),13.10.2009,16,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1,1
@@ -458,4 +458,5 @@ lp.,imię i nazwisko,narodowość,flaga,pozycja,Kolumna nr 1,data urodzenia,Wiek
 437,Maksymilian Manikowski,Polska,,bramkarz,01-07),07.01.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0
 438,Nikodem Gancarczyk,Polska,,obrońca,03-06),06.03.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0
 440,Maksymilian Biskup,Polska,,pomocnik,08-16),16.08.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,6,,6
+
 444,Linus Rönnberg,Finlandia,,napastnik,01-13),13.01.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,35,,35
