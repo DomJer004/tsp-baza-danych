@@ -483,5 +483,3 @@ elif opcja == "Młoda Ekstraklasa":
 
 
 
-
-
