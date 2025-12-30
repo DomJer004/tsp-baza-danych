@@ -744,3 +744,4 @@ elif opcja == "Trenerzy":
                             st.dataframe(coach_matches[view_c].style.map(color_results_logic, subset=['wynik']), use_container_width=True)
                         else: st.warning("Brak meczów.")
                     else: st.error("Brak kolumny z datą w pliku mecze.csv.")
+
