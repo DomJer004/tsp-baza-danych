@@ -1,0 +1,461 @@
+imię i nazwisko,narodowość,pozycja,data urodzenia,wiek,1995/96,1996/97,1997/98,1998/99,1999/00,2000/01,2001/02,2002/03,2003/04,2004/05,2005/06,2006/07,2007/08,2008/09,2009/10,2010/11,2011/12,2012/13,2013/14,2014/15,2015/16,2016/17,2017/18,2018/19,2019/20,2020/21,2021/22,2022/23,2023/24,2024/25,2025/26,suma
+Bartosz Martosz,Polska,napastnik,11.11.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,11.0,20.0,31
+Dalibor Takáč,Słowacja,pomocnik,11.10.1997,28,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,20.0,20
+Marcin Biernat,Polska,obrońca,28.05.1992,33,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,30.0,19.0,49
+Mateusz Kizyma,Polska,pomocnik,08.07.2002,23,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,28.0,19.0,47
+Jan Majsterek,Polska,obrońca,09.06.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,28.0,19.0,47
+Maciej Górski,Polska,napastnik,01.03.1990,35,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,14.0,19.0,33
+Maksymilian Sitek,Polska,pomocnik,04.12.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,19.0,,29.0,29.0,,18.0,95
+Lucjan Klisiewicz,Polska,napastnik,20.04.2002,23,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,32.0,17.0,49
+Krzysztof Kolanko,Polska,pomocnik,03.08.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,17.0,17
+Marcin Urynowicz,Polska,napastnik,16.03.1996,29,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,14.0,16.0,30
+Wojciech Szumilas,Polska,pomocnik,07.11.1996,29,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,15.0,16.0,31
+Kacper Gach,Polska,obrońca,11.07.1998,27,,,,,,,,,,,,,,,,,,,,,,,1.0,8.0,19.0,13.0,18.0,,,27.0,15.0,101
+Daniel Dziwniel,Polska /Niemcy,obrońca,19.08.1992,33,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,21.0,13.0,34
+Oskar Zawada,Polska,pomocnik,17.11.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,13.0,13
+Kacper Piątek,Polska,pomocnik,22.10.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,11.0,11
+Konrad Forenc,Polska,bramkarz,17.07.1992,33,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,32.0,10.0,42
+Unai Buján,Hiszpania,pomocnik,08.02.2001,24,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,10.0,10
+Bartosz Bieroński,Polska,pomocnik,10.05.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,1.0,,,6.0,9.0,16
+Richard Nagy,Słowacja,obrońca,10.08.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9.0,9
+Wojciech Słomka,Polska,pomocnik,04.11.1998,27,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9.0,9
+Krystian Wieczorek,Polska,bramkarz,22.07.2002,23,,,,,,,,,,,,,,,,,,,,,,,,,,,,1.0,,4.0,8.0,13
+Dawid Ściuk,Polska,obrońca,30.06.2005,20,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9.0,7.0,16
+Michał Bednarski,Polska,pomocnik,31.01.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,27.0,4.0,31
+Szymon Brańczyk,Polska,bramkarz,13.08.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,4.0,4
+Kornel Osyra,Polska,obrońca,07.02.1993,32,,,,,,,,,,,,,,,,,,,,,,,,,32.0,2.0,,,,17.0,3.0,54
+Bartosz Florek,Polska,napastnik,06.08.2004,21,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,30.0,3.0,33
+Łukasz Kabaj,Polska,obrońca,13.02.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,3.0,3
+Piotr Szumiński,Polska,pomocnik,13.07.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1.0,1
+Grzegorz Janusz,Polska,napastnik,08.05.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1.0,1
+Krzysztof Wiesner,Polska,pomocnik,13.10.2009,16,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1.0,1
+Krzysztof Zagórski,Polska,napastnik,04.02.1967,58,17.0,17.0,,22.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,56
+Mariusz Brańka,Polska,,,125,16.0,18.0,,,26.0,6.0,,,,,,,,,,,,,,,,,,,,,,,,,,66
+Mrózek,Polska,,,125,16.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,16
+Tomasz Duleba,Polska,,,125,16.0,24.0,23.0,12.0,,5.0,,,,,,,,,,,,,,,,,,,,,,,,,,80
+Tomasz Gębczyński,Polska,,,125,16.0,,28.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,44
+Krzysztof Nolka,Polska,bramkarz,,125,15.0,25.0,27.0,20.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,87
+Rafał Studencki,Polska,,,125,15.0,23.0,22.0,,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,61
+Wiesław Wawrzuta,Polska,,,125,14.0,,27.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,41
+Jurasz,Polska,,,125,14.0,16.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,30
+Paduch,Polska,,,125,13.0,15.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,28
+Czechowski,Polska,,,125,7.0,17.0,,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,25
+Dariusz Ziółkowski,Polska,,,125,6.0,23.0,27.0,,26.0,6.0,,,,,,,,,,,,,,,,,,,,,,,,,,88
+Krystian Gańcarczyk,Polska,,,125,6.0,24.0,26.0,18.0,5.0,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,80
+Mariusz Smagoń,Polska,,,125,4.0,24.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,28
+Marek Sokołowski,Polska,pomocnik,11.03.1978,47,4.0,26.0,28.0,30.0,32.0,18.0,,7.0,,,,,,,,12.0,25.0,26.0,29.0,31.0,29.0,20.0,,,,,,,,,,287
+Grzegorz Bak,Polska,,,125,,10.0,25.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,35
+Bubula,Polska,,,125,3.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,3
+Włodarczak,Polska,,,125,3.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,3
+Kubinek,Polska,,,125,2.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2
+Kusiak,Polska,,,125,2.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2
+Bartosz Żelichowski,Polska,,,125,2.0,15.0,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,18
+Przemysław Bieniek,Polska,,,125,,9.0,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,10
+Michał Klimczak,Polska,bramkarz,,125,2.0,6.0,3.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,11
+Filimowski,Polska,,,125,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1
+Krzysztof Szczygieł,Polska,,,125,1.0,28.0,11.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,40
+Jerzy Pilarz,Polska,,,125,,18.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,18
+Kaletka,Polska,,,125,,9.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9
+Jerzy Gruszfeld,Polska,,,125,,8.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,8
+Szal,Polska,,,125,,4.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,4
+Marcin Ślęzak,Polska,bramkarz,,125,,3.0,1.0,16.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,20
+Janicki,Polska,,,125,,3.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,3
+Zygmunt,Polska,,,125,,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1
+Paweł Senecki,Polska,,,125,,,25.0,4.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,29
+Marek Móll,Polska,,26.06.1968,57,,,25.0,15.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,40
+Krzysztof Skrzyp,Polska,,,125,,,9.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,9
+Andrzej Fluder,Polska,,,125,,,7.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,7
+Jacek Czernek,Polska,,,125,,,15.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,15
+Jarosław Gawłowski,Polska,,,125,,,13.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,13
+Mirosław Marasik,Polska,,,125,,,2.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2
+Bogusław Zioło,Polska,,,125,,,10.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,10
+Tomasz Moskała,Polska,napastnik,05.02.1977,48,,,20.0,32.0,27.0,20.0,,,,,,,,,,,,,,,,,,,,,,,,,,99
+Maciej Matejko,Polska,,,125,,,13.0,10.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,23
+Piotr Kuś,Polska,,,125,,,12.0,24.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,36
+Foltyn,Polska,,,125,,,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1
+Damian Połącarz,Polska,,,125,,,2.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2
+Wrzaszcz,Polska,,,125,,3.0,,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,4
+Mirosław Majdak,Polska,pomocnik,,125,,,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1
+Adam Majdak,Polska,napastnik,,125,,,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1
+Brycz,Polska,,,125,,,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1
+Piotr Kalinowski,Polska,,,125,,,,28.0,4.0,,,,,,,,,,,,,,,,,,,,,,,,,,,32
+Robert Wszołek,Polska,,,125,,,,31.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,31
+Sławomir Frączek,Polska,,,125,,,,33.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,33
+Mariusz Sibik,Polska,,,125,,,,25.0,10.0,,,,,,,,,,,,,,,,,,,,,,,,,,,35
+Łukasz Nolka,Polska,bramkarz,,125,,,,1.0,3.0,,,,,,,,,,,,,,,,,,,,,,,,,,,4
+Dariusz Drewniak,Polska,,,125,,,,8.0,22.0,,12.0,,,,,,,,,,,,,,,,,,,,,,,,,42
+Distel,Polska,,,125,,,,8.0,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,9
+Kania,Polska,,,125,,,,1.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,1
+Arkadiusz Rucki,Polska,,,125,,,,1.0,5.0,4.0,9.0,,,,,,,,,,,,,,,,,,,,,,,,,19
+Włodarczyk,Polska,,,125,,,,2.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,2
+Waliczek,Polska,,,125,,,,2.0,,,,,,,,,,,,,,,,,,,,,,,,,,,,2
+Jarosław Matusiak,Polska,bramkarz,15.02.1965,60,,,,1.0,34.0,38.0,29.0,,,,,,,,,,,,,,,,,,,,,,,,,102
+Arkadiusz Lazar,Polska,napastnik,05.01.1971,54,,,,,32.0,8.0,,,,,,,,,,,,,,,,,,,,,,,,,,40
+Janusz Pancer,Polska,,,125,,,,,10.0,,,,,,,,,,,,,,,,,,,,,,,,,,,10
+Nalepa,Polska,,,125,,,,,5.0,,,,,,,,,,,,,,,,,,,,,,,,,,,5
+Roman Skorupa,Polska,pomocnik,28.04.1967,58,,,,,13.0,,,,,,,,,,,,,,,,,,,,,,,,,,,13
+Młynarczyk,Polska,,,125,,,,,15.0,,,,,,,,,,,,,,,,,,,,,,,,,,,15
+Koźmiński,Polska,,,125,,,,,1.0,,2.0,,,,,,,,,,,,,,,,,,,,,,,,,3
+Arkadiusz Kłoda,Polska,obrońca,24.11.1980,45,,,,,,36.0,,,,,,,,,,,,,,,,,,,,,,,,,,36
+Daniel Dziarmaga,Polska,pomocnik,30.09.1974,51,,,,,33.0,31.0,15.0,,,,,,,,,,,,,,,,,,,,,,,,,79
+Sebastian Olszar,Polska /Niemcy,napastnik,16.12.1981,44,,,,,,20.0,,,,,,,,,,,,,,,,,,,,,,,,,,20
+Marcin Radzewicz,Polska,pomocnik,30.06.1980,45,,,,,,20.0,,,,,,,,,,,,,,,,,,,,,,,,,,20
+Marcin Domagała,Polska,,,125,,,,,,24.0,,,,,,,,,,,,,,,,,,,,,,,,,,24
+Samson Godwin,Nigeria,pomocnik,11.11.1983,42,,,,,,23.0,,,,,,,,,,,,,,,,,,,,,,,,,,23
+Grzegorz Jurczyk,Polska,obrońca,06.08.1975,50,,,,,,9.0,,,,,,,,,,,,,,,,,,,,,,,,,,9
+Robert Sołtysek,Polska,pomocnik,26.11.1974,51,,,,,,14.0,,,,,,,,,,,,,,,,,,,,,,,,,,14
+Roman Cegiełka,Polska,pomocnik,20.02.1972,53,,,,,,,5.0,,,,,,,,,,,,,,,,,,,,,,,,,5
+Kolber,Polska,,,125,,,,,,,4.0,,,,,,,,,,,,,,,,,,,,,,,,,4
+Karol Stawecki,Polska,napastnik,18.06.1978,47,,,,,,,31.0,,,,,,,,,,,,,,,,,,,,,,,,,31
+Tomasz Matloch,Polska,obrońca,24.05.1973,52,,,,,,,28.0,,,,,,,,,,,,,,,,,,,,,,,,,28
+Damian Galeja,Polska,pomocnik,05.02.1976,49,,,,,,,9.0,,,,,,,,,,,,,,,,,,,,,,,,,9
+Artur Pajkos,Polska,obrońca,19.12.1972,53,,,,,,,21.0,,,,,,,,,,,,,,,,,,,,,,,,,21
+Łysoń,Polska,,,125,,,,,,,1.0,,,,,,,,,,,,,,,,,,,,,,,,,1
+Marcin Folga,Polska,napastnik,31.03.1977,48,,,,,,,6.0,,,,,,,,,,,,,,,,,,,,,,,,,6
+Patryk Krupa,Polska,,,125,,,,,,,12.0,,,,,,,,,,,,,,,,,,,,,,,,,12
+Piotr Bielak,Polska,pomocnik,04.09.1976,49,,,,,,,,13.0,,,,,,,,,,,,,,,,,,,,,,,,13
+Grzegorz Bogdan,Polska,pomocnik,27.08.1980,45,,,,,,,31.0,26.0,9.0,,,2.0,,,,,,,,,,,,,,,,,,,,68
+Jarosław Bujok,Polska,obrońca,04.09.1974,51,,,,,34.0,32.0,31.0,31.0,31.0,37.0,,,,,,,,,,,,,,,,,,,,,,196
+Dawid Bułka,Polska,bramkarz,01.06.1976,49,,,,,,1.0,7.0,32.0,13.0,,,,,,,,,,,,,,,,,,,,,,,53
+Piotr Cetnarowicz,Polska,napastnik,19.05.1973,52,,,,,,,,12.0,,,,,,,,,,,,,,,,,,,,,,,,12
+Piotr Czak,Polska,napastnik,18.05.1971,54,,,,,,,,32.0,29.0,,,,,,,,,,,,,,,,,,,,,,,61
+Zdeněk Dembinný,Czechy,pomocnik,03.03.1980,45,,,,,,,,4.0,,,,,,,,,,,,,,,,,,,,,,,,4
+Mariusz Gałgan,Polska,napastnik,15.06.1976,49,,,,,,16.0,,27.0,,,,,,,,,,,,,,,,,,,,,,,,43
+Paweł Hajduczek,Polska,pomocnik,17.05.1982,43,,,,,,,,13.0,,,,,,,,,,,,,,,,,,,,,,,,13
+Lukáš Hojdys,Czechy,napastnik,28.11.1984,41,,,,,,,,3.0,,,,,,,,,,,,,,,,,,,,,,,,3
+Mariusz Jendryczko,Polska,obrońca,26.06.1973,52,,,,31.0,26.0,33.0,29.0,28.0,15.0,,,,,,,,,,,,,,,,,,,,,,,162
+Marcin Klaczka,Polska,obrońca,13.08.1973,52,,,,,,,,31.0,28.0,,,,,,,,,,,,,,,,,,,,,,,59
+Michał Kurzeja,Polska,obrońca,01.02.1971,54,,,,26.0,28.0,30.0,26.0,9.0,,,,,,,,,,,,,,,,,,,,,,,,119
+Sebastian Łukiewicz,Polska,bramkarz,07.03.1971,54,,,,,,,,2.0,,,,,,,,,,,,,,,,,,,,,,,,2
+Robert Piekarski,Polska,obrońca,01.04.1970,55,,,,,30.0,38.0,33.0,33.0,27.0,14.0,,,,,,,,,,,,,,,,,,,,,,175
+Adrian Sikora,Polska,napastnik,19.03.1980,45,,,,,,13.0,24.0,15.0,,,,,,,,,,,,,,,,,,,,,,,,52
+Andrzej Szłapa,Polska,pomocnik,19.06.1975,50,,,,,,,33.0,33.0,16.0,,,,,,,,,,,,,,,,,,,,,,,82
+Dariusz Turkowski,Polska,obrońca,02.11.1975,50,,,,,,,,10.0,,,,,,,,,,,,,,,,,,,,,,,,10
+Grzegorz Więzik,Polska,pomocnik,21.07.1963,62,,,,30.0,34.0,26.0,24.0,19.0,,,,,,,,,,,,,,,,,,,,,,,,133
+Grzegorz Wilczok,Polska,obrońca,19.03.1969,56,,,,,,,,11.0,,,,,,,,,,,,,,,,,,,,,,,,11
+Bartosz Woźniak,Polska,pomocnik,23.09.1977,48,,,,,31.0,34.0,33.0,27.0,23.0,,,,,,,,,,,,,,,,,,,,,,,148
+Sławomir Zachnik,Polska,pomocnik,05.06.1977,48,,,,,,,,9.0,,,,,,,,,,,,,,,,,,,,,,,,9
+Damian Zdolski,Polska,napastnik,09.07.1984,41,,,,,4.0,6.0,3.0,9.0,13.0,10.0,,15.0,,,,,,,,,,,,,,,,,,,,60
+Robert Zięba,Polska,obrońca,19.05.1981,44,,,,1.0,16.0,29.0,21.0,9.0,5.0,21.0,15.0,,,,,,,,,,,,,,,,,,,,,117
+Marcin Żukowski,Polska,pomocnik,03.06.1981,44,,,,,,,,27.0,22.0,,,,,,,,,,,,,,,,,,,,,,,49
+Mieczysław Agafon,Polska,pomocnik,18.11.1971,54,,,,,,,,,29.0,,,,,,,,,,,,,,,,,,,,,,,29
+Łukasz Błasiak,Polska,napastnik,30.07.1978,47,,,,,,,,,14.0,36.0,,,,,,,,,,,,,,,,,,,,,,50
+Sławomir Cienciała,Polska,obrońca,19.03.1983,42,,,,,,,,,12.0,27.0,,30.0,21.0,32.0,17.0,29.0,9.0,7.0,,,,,,,,,,,,,,184
+Paweł Jermakowicz,Polska,obrońca,01.02.1975,50,,,,,,,,,18.0,,,,,,,,,,,,,,,,,,,,,,,18
+Tomasz Kazimierowicz,Polska,pomocnik,12.06.1979,46,,,,,,,,,8.0,,,,,,,,,,,,,,,,,,,,,,,8
+Piotr Koman,Polska,pomocnik,25.06.1985,40,,,,,,,,,4.0,38.0,38.0,29.0,16.0,1.0,,31.0,9.0,2.0,,,,,,,,,,,,,,168
+Uzoma Luke,Nigeria,napastnik,27.05.1982,43,,,,,,,,,13.0,,,,,,,,,,,,,,,,,,,,,,,13
+Marek Matuszek,Polska,bramkarz,13.11.1970,55,,,,,,,,,6.0,14.0,6.0,,,,,,,,,,,,,,,,,,,,,26
+Łukasz Merda,Polska,bramkarz,04.05.1980,45,,,,,,,,,15.0,29.0,31.0,23.0,33.0,28.0,6.0,,,,,,,,,,,,,,,,,165
+Bogdan Prusek,Polska,napastnik,11.04.1971,54,,,,,,,,,10.0,15.0,,,,,,,,,,,,,,,,,,,,,,25
+Wojciech Rączka,Polska,pomocnik,01.11.1976,49,,,,,,,,,25.0,32.0,14.0,,,,,,,,,,,,,,,,,,,,,71
+Abel Salami,Nigeria,napastnik,15.12.1979,46,,,,,,,,,18.0,,,,,,,,,,,,,,,,,,,,,,,18
+Mieczysław Sikora,Polska,napastnik,06.02.1982,43,,,,,,,,,16.0,,,,,9.0,,,,,,,,,,,,,,,,,,25
+Andriej Szyło,Białoruś,pomocnik,11.07.1976,49,,,,,,,,,15.0,,,,,,,,,,,,,,,,,,,,,,,15
+Seweryn Wojciechowski,Polska,pomocnik,25.05.1980,45,,,,,,,,,1.0,,,,,,,,,,,,,,,,,,,,,,,1
+Paweł Woźniak,Polska,pomocnik,11.10.1978,47,,,,,,,,,13.0,,,,,,,,,,,,,,,,,,,,,,,13
+Rafał Andraszak,Polska,pomocnik,05.02.1978,47,,,,,,,,,,19.0,,,,,,,,,,,,,,,,,,,,,,19
+Daniel Dubicki,Polska,pomocnik,25.05.1975,50,,,,,,,,,,20.0,,,,,,,,,,,,,,,,,,,,,,20
+François Endene,Kamerun /Meksyk,napastnik,20.10.1978,47,,,,,,,,,,16.0,,,,,,,,,,,,,,,,,,,,,,16
+Tomasz Fornalik,Polska,obrońca,03.06.1973,52,,,,,,,,,,2.0,,,,,,,,,,,,,,,,,,,,,,2
+Tomasz Górkiewicz,Polska,obrońca,28.01.1985,40,,,,,,,,,,3.0,24.0,31.0,20.0,1.0,9.0,12.0,11.0,12.0,30.0,34.0,,,,,,,,,,,,187
+Hubert Jaromin,Polska,pomocnik,04.03.1979,46,,,,,,,,,,13.0,,,,,,,,,,,,,,,,,,,,,,13
+Adam Kompała,Polska,pomocnik,16.08.1973,52,,,,,,,,,,40.0,,,,,,,,,,,,,,,,,,,,,,40
+Tomasz Księżyc,Polska,obrońca,20.04.1974,51,,,,,,,,,,15.0,,,,,,,,,,,,,,,,,,,,,,15
+Marcin Makuch,Polska,obrońca,03.04.1980,45,,,,,,,,,,17.0,13.0,,,,,,,,,,,,,,,,,,,,,30
+Grzegorz Pater,Polska,pomocnik,05.05.1974,51,,,,,,,,,,38.0,36.0,29.0,26.0,12.0,,,,,,,,,,,,,,,,,,141
+Cristian Popescu,Rumunia,obrońca,10.10.1973,52,,,,,,,,,,1.0,,,,,,,,,,,,,,,,,,,,,,1
+Artur Prokop,Polska,pomocnik,18.12.1972,53,,,,,,,,,,40.0,,,,,,,,,,,,,,,,,,,,,,40
+Błażej Radler,Polska,obrońca,02.08.1982,43,,,,,,,,,,33.0,,,,,,,,,,,,,,,,,,,,,,33
+Artur Rozmus,Polska,napastnik,01.11.1977,48,,,,,,19.0,,,,26.0,,,,,,,,,,,,,,,,,,,,,,45
+Dariusz Rucki,Polska,obrońca,03.02.1985,40,,,,,,,,,,1.0,3.0,10.0,,,,,,,,,,,,,,,,,,,,14
+Mariusz Sacha,Polska,pomocnik,19.07.1987,38,,,,,,,,,,8.0,32.0,29.0,25.0,19.0,,,15.0,5.0,,,,,,,,,,,,,,133
+Paweł Sibik,Polska,pomocnik,15.02.1971,54,,,,,,,,,,17.0,,,,,,,,,,,,,,,,,,,,,,17
+Paweł Stalmach,Polska,pomocnik,18.11.1983,42,,,,,,,,,,15.0,6.0,,,,,,,,,,,,,,,,,,,,,21
+Grzegorz Sztorc,Polska,napastnik,11.12.1981,44,,,,,,,,,,2.0,,,,,,,,,,,,,,,,,,,,,,2
+Adam Bała,Polska,pomocnik,17.01.1973,52,,,,,,,,,,,11.0,,,,,,,,,,,,,,,,,,,,,11
+Nikołaj Branfiłow,Białoruś,obrońca,16.12.1977,48,,,,,,,,,,,16.0,,,,,,,,,,,,,,,,,,,,,16
+Krzysztof Chrapek,Polska,napastnik,07.10.1985,40,,,,,,,,,,,14.0,30.0,29.0,32.0,,,,,19.0,16.0,,,,,,,,,,,,140
+Piotr Gierczak,Polska,pomocnik,02.05.1976,49,,,,,,,,,,,18.0,,,,,,,,,,,,,,,,,,,,,18
+Łukasz Gorszkow,Polska,pomocnik,06.10.1974,51,,,,,,,,,,,36.0,29.0,29.0,5.0,,,,,,,,,,,,,,,,,,99
+Marcin Hirsz,Polska,obrońca,04.01.1980,45,,,,,,,,,,,8.0,15.0,23.0,9.0,,,,,,,,,,,,,,,,,,55
+Jacek Imianowski,Polska,obrońca,09.02.1981,44,,,,,,,,,,,5.0,,,,,,,,,,,,,,,,,,,,,5
+Błażej Jankowski,Polska,obrońca,26.10.1980,45,,,,,,,,,,,15.0,,,,,,,,,,,,,,,,,,,,,15
+Sławomir Jarczyk,Polska,obrońca,18.08.1980,45,,,,,,,,,,,17.0,,,,,,,,,,,,,,,,,,,,,17
+Tomasz Jodłowiec,Polska,pomocnik,08.09.1985,40,,,,,,,,,,,13.0,,,,,,,,,,,,,,,,,18.0,22.0,,,53
+Daniel Kasprzycki,Polska,pomocnik,31.01.1985,40,,,,,,,,,,,1.0,,,,,,,,,,,,,,,,,,,,,1
+Dariusz Kołodziej,Polska,pomocnik,17.04.1982,43,,,,,,,,,,,31.0,32.0,32.0,,30.0,18.0,7.0,3.0,16.0,18.0,14.0,14.0,,,,,,,,,,215
+Kamil Konieczny,Polska,pomocnik,17.04.1982,43,,,,,,,,,,,3.0,2.0,3.0,,,,,,,,,,,,,,,,,,,8
+Krzysztof Kowalczyk,Polska,pomocnik,11.03.1979,46,,,,,,,,,,,27.0,,,,,,,,,,,,,,,,,,,,,27
+Krzysztof Michałowski,Polska,bramkarz,04.01.1984,41,,,,,,,,,,,5.0,13.0,,,,,,,,,,,,,,,,,,,,18
+Przemysław Pluta,Polska,pomocnik,13.11.1978,47,,,,,,,,,,,11.0,,,,,,,,,,,,,,,,,,,,,11
+Grzegorz Podstawek,Polska,napastnik,25.06.1979,46,,,,,,,,,,,35.0,,,,,,,,,,,,,,,,,,,,,35
+Paweł Sobczak,Polska,napastnik,29.06.1978,47,,,,,,,,,,,27.0,,,,,,,,,,,,,,,,,,,,,27
+Bartłomiej Socha,Polska,napastnik,28.08.1981,44,,,,,,,,,,,9.0,,,,,,,,,,,,,,,,,,,,,9
+Stanley Udenkwor,Nigeria /Polska,napastnik,01.05.1981,44,,,,,,,,,,,12.0,,,,,,,,,,,,,,,,,,,,,12
+Krzysztof Butryn,Polska,pomocnik,17.11.1981,44,,,,,,,,,,,,24.0,3.0,,,,,,,,,,,,,,,,,,,27
+Aleksandr Gierasimowicz,Białoruś,bramkarz,02.01.1979,46,,,,,,,,,,,,1.0,,,,,,,,,,,,,,,,,,,,1
+Marcin Józefowicz,Polska,napastnik,31.01.1977,48,,,,,,,,,,,,24.0,,,,,,,,,,,,,,,,,,,,24
+Marcin Kocur,Polska,napastnik,29.01.1984,41,,,,,,,,,,,,30.0,5.0,,,,,,,,,,,,,,,,,,,35
+Artur Łazar,Polska,pomocnik,11.01.1980,45,,,,,,,,,,,,3.0,,,,,,,,,,,,,,,,,,,,3
+Artur Monasterski,Polska,obrońca,06.02.1983,42,,,,,,,,,,,,22.0,,,,,,,,,,,,,,,,,,,,22
+Mike Mozie,Nigeria,obrońca,20.03.1978,47,,,,,,,,,,,,29.0,16.0,,,,,,,,,,,,,,,,,,,45
+Paweł Odrzywolski,Polska,obrońca,06.03.1983,42,,,,,,,,,,,,17.0,7.0,,,,,,,,,,,,,,,,,,,24
+Marcin Wielgus,Polska,napastnik,22.09.1980,45,,,,,,,,,,,,11.0,,,,,,,,,,,,,,,,,,,,11
+Marcin Wróbel,Polska,napastnik,28.11.1984,41,,,,,,,,,,,,3.0,,,,,,,,,,,,,,,,,,,,3
+Krzysztof Zaremba,Polska,pomocnik,08.12.1987,38,,,,,,,,,,,,7.0,12.0,26.0,,9.0,,,,,,,,,,,,,,,,54
+Juraj Dančík,Słowacja,obrońca,21.02.1982,43,,,,,,,,,,,,,24.0,20.0,27.0,25.0,22.0,6.0,,,,,,,,,,,,,,124
+Rafał Jarosz,Polska,pomocnik,12.03.1976,49,,,,,,,,,,,,,32.0,28.0,17.0,,,,,,,,,,,,,,,,,77
+Andrzej Maślorz,Polska,pomocnik,31.10.1985,40,,,,,,,,,,,,,4.0,,,,,,,,,,,,,,,,,,,4
+Martin Matúš,Słowacja,napastnik,09.03.1982,43,,,,,,,,,,,,,33.0,23.0,13.0,,,,,,,,,,,,,,,,,69
+Rafał Nalepa,Polska,obrońca,13.05.1988,37,,,,,,,,,,,,,1.0,,,,,,,,,,,,,,,,,,,1
+Jacek Paczkowski,Polska,obrońca,02.09.1981,44,,,,,,,,,,,,,1.0,,,,,,,,,,,,,,,,,,,1
+Adrian Pajączkowski,Polska,obrońca,18.06.1979,46,,,,,,,,,,,,,8.0,,,,,,,,,,,,,,,,,,,8
+Marcin Pęszor,Polska,napastnik,05.07.1989,36,,,,,,,,,,,,,1.0,,,,,,,,,,,,,,,,,,,1
+Janusz Surdykowski,Polska,napastnik,04.05.1986,39,,,,,,,,,,,,,9.0,,,,,,,,,,,,,,,,,,,9
+Maciej Szmatiuk,Polska,obrońca,09.05.1980,45,,,,,,,,,,,,,33.0,33.0,,,,,,,,,,,,,,,,,,66
+Sebastian Szymański,Polska,bramkarz,04.10.1979,46,,,,,,,,,,,,,2.0,7.0,,,,,,,,,,,,,,,,,,9
+Damian Świerblewski,Polska,pomocnik,17.01.1984,41,,,,,,,,,,,,,13.0,22.0,18.0,,,,,,,,,,,,,,,,,53
+Piotr Urbańczyk,Polska,pomocnik,28.05.1989,36,,,,,,,,,,,,,1.0,,,,,,,,,,,,,,,,,,,1
+Mateusz Żemła,Polska,pomocnik,02.03.1985,40,,,,,,,,,,,,,1.0,,,,,,,,,,,,,,,,,,,1
+Paweł Żmudziński,Polska,pomocnik,16.01.1978,47,,,,,,,,,,,,,25.0,21.0,,,,,,,,,,,,,,,,,,46
+Paweł Baranowski,Polska,obrońca,11.10.1990,35,,,,,,,,,,,,,,2.0,6.0,,,,,,14.0,,,,,,,,,,,22
+Jarosław Białek,Polska,pomocnik,22.02.1981,44,,,,,,,,,,,,,,3.0,4.0,,,,,,,,,,,,,,,,,7
+Adam Brzezina,Czechy,napastnik,30.10.1978,47,,,,,,,,,,,,,,16.0,,,,,,,,,,,,,,,,,,16
+Damian Chmiel,Polska,pomocnik,06.05.1987,38,,,,,,,,,,,,,,10.0,7.0,22.0,1.0,27.0,22.0,37.0,24.0,21.0,12.0,,,,,,,,,183
+Arkadiusz Gołąb,Polska,obrońca,21.04.1989,36,,,,,,,,,,,,,,1.0,,1.0,,,,,,,,,,,,,,,,2
+Bartłomiej Konieczny,Polska,obrońca,09.06.1981,44,,,,,,,,,,,,,,24.0,18.0,29.0,27.0,14.0,25.0,31.0,,,,,,,,,,,,168
+Piotr Malinowski,Polska,pomocnik,24.03.1984,41,,,,,,,,,,,,,,7.0,31.0,35.0,25.0,27.0,33.0,28.0,,,,,,,,,,,,186
+Clemence Matawu,Zimbabwe,pomocnik,29.11.1982,43,,,,,,,,,,,,,,8.0,32.0,,,,,,,,,,,,,,,,,40
+Łukasz Matusiak,Polska,pomocnik,07.05.1985,40,,,,,,,,,,,,,,29.0,27.0,11.0,,,,,,,,,,,,,,,,67
+Bernanrd Ocholeche,Nigeria,pomocnik,24.05.1987,38,,,,,,,,,,,,,,7.0,1.0,,,,,,,,,,,,,,,,,8
+Michał Osiński,Polska,obrońca,05.09.1978,47,,,,,,,,,,,,,,28.0,31.0,34.0,5.0,,,,,,,,,,,,,,,98
+Patmore Shereni,Zimbabwe,obrońca,14.09.1984,41,,,,,,,,,,,,,,1.0,,,,,,,,,,,,,,,,,,1
+Sebastian Ziajka,Polska,obrońca,15.12.1982,43,,,,,,,,,,,,,,11.0,,33.0,25.0,13.0,,,,,,,,,,,,,,82
+Piotr Bagnicki,Polska,napastnik,10.12.1980,45,,,,,,,,,,,,,,,31.0,,,,,,,,,,,,,,,,,31
+Jacek Broniewicz,Polska,obrońca,18.09.1981,44,,,,,,,,,,,,,,,9.0,23.0,1.0,,,,,,,,,,,,,,,33
+Mateusz Cieluch,Polska,napastnik,21.10.1987,38,,,,,,,,,,,,,,,3.0,,,,,,,,,,,,,,,,,3
+Łukasz Ganowicz,Polska,obrońca,23.05.1981,44,,,,,,,,,,,,,,,24.0,,,,,,,,,,,,,,,,,24
+Łukasz Kanik,Polska,pomocnik,26.02.1988,37,,,,,,,,,,,,,,,19.0,,,,,,,,,,,,,,,,,19
+Paweł Linka,Polska,bramkarz,26.06.1986,39,,,,,,,,,,,,,,,2.0,1.0,,,,,,,,,,,,,,,,3
+Joachim Mikler,Polska,bramkarz,15.11.1988,37,,,,,,,,,,,,,,,12.0,,,,,,,,,,,,,,,,,12
+Ndabenkulu Ncube,Zimbabwe,pomocnik,02.08.1988,37,,,,,,,,,,,,,,,13.0,,,,,,,,,,,,,,,,,13
+Sylwester Patejuk,Polska,pomocnik,30.11.1982,43,,,,,,,,,,,,,,,31.0,30.0,29.0,,,19.0,,,,,,,,,,,,109
+Piotr Rocki,Polska,pomocnik,11.01.1974,51,,,,,,,,,,,,,,,23.0,,,,,,,,,,,,,,,,,23
+Krzysztof Świątek,Polska,pomocnik,13.01.1987,38,,,,,,,,,,,,,,,5.0,,,,,,,,,,,,,,,,,5
+Richard Zajac,Słowacja,bramkarz,16.08.1976,49,,,,,,,,,,,,,,,15.0,40.0,21.0,27.0,25.0,21.0,,,,,,,,,,,,149
+Mateusz Żyła,Polska,pomocnik,16.09.1989,36,,,,,,,,,,,,,,,3.0,7.0,,,,,,,,,,,,,,,,10
+Damian Byrtek,Polska,obrońca,07.03.1991,34,,,,,,,,,,,,,,,,5.0,5.0,9.0,,,,,,,,,,,,,,19
+Adam Cieśliński,Polska,napastnik,11.05.1982,43,,,,,,,,,,,,,,,,33.0,13.0,,,,,,,,,,,,,,,46
+Dariusz Łatka,Polska,pomocnik,14.09.1978,47,,,,,,,,,,,,,,,,31.0,25.0,26.0,31.0,,,,,,,,,,,,,113
+František Metelka,Czechy,pomocnik,08.04.1980,45,,,,,,,,,,,,,,,,15.0,9.0,,,,,,,,,,,,,,,24
+Mariusz Mikoda,Polska,obrońca,13.09.1992,33,,,,,,,,,,,,,,,,3.0,,,,,,,,,,,,,,,,3
+Maciej Rogalski,Polska,pomocnik,21.05.1980,45,,,,,,,,,,,,,,,,34.0,19.0,,,,,,,,,,,,,,,53
+Mateusz Bąk,Polska,bramkarz,24.02.1983,42,,,,,,,,,,,,,,,,,12.0,4.0,,,,,,,,,,,,,,16
+Liran Cohen,Izrael,pomocnik,14.02.1983,42,,,,,,,,,,,,,,,,,20.0,16.0,,,,,,,,,,,,,,36
+Ivan Ćurić,Chorwacja,napastnik,18.05.1987,38,,,,,,,,,,,,,,,,,6.0,,,,,,,,,,,,,,,6
+Róbert Demjan,Słowacja,napastnik,26.10.1982,43,,,,,,,,,,,,,,,,35.0,31.0,30.0,,37.0,35.0,25.0,,,,,,,,,,193
+Liad Elmalich,Izrael,pomocnik,21.02.1989,36,,,,,,,,,,,,,,,,,5.0,,,,,,,,,,,,,,,5
+Mateusz Janeczko,Polska,pomocnik,30.11.1994,31,,,,,,,,,,,,,,,,,1.0,6.0,,,1.0,,,,,,,,,,,8
+Krzysztof Król,Polska,obrońca,06.02.1987,38,,,,,,,,,,,,,,,,,20.0,15.0,,,,,,,,,,,,,,35
+Łukasz Mierzejewski,Polska,obrońca,31.08.1982,43,,,,,,,,,,,,,,,,,5.0,,,,,,,,,,,,,,,5
+Artur Moroń,Polska,obrońca,10.07.1993,32,,,,,,,,,,,,,,,,,1.0,,,,,,,,,,,,,,,1
+Matej Náther,Słowacja,pomocnik,23.07.1985,40,,,,,,,,,,,,,,,,,21.0,9.0,,,,,,,,,,,,,,30
+Damian Nowak,Polska,napastnik,14.05.1992,33,,,,,,,,,,,,,,,,,2.0,,,,,,,,,,,,,,,2
+Wojciech Reiman,Polska,pomocnik,05.08.1988,37,,,,,,,,,,,,,,,,,4.0,3.0,,,,,,,,,,,,,,7
+Serginho,Brazylia,pomocnik,09.06.1990,35,,,,,,,,,,,,,,,,,2.0,,,,,,,,,,,,,,,2
+Ondřej Šourek,Czechy,obrońca,26.04.1983,42,,,,,,,,,,,,,,,,,13.0,,,,,,,,,,,,,,,13
+Kamil Adamek,Polska,napastnik,09.02.1989,36,,,,,,,,,,,,,,,,,,11.0,,,,,,,,,,,,,,11
+Marko Ćetković,Czarnogóra,pomocnik,10.07.1986,39,,,,,,,,,,,,,,,,,,9.0,,,,,,,,,,,,,,9
+Adam Deja,Polska,pomocnik,26.06.1993,32,,,,,,,,,,,,,,,,,,10.0,18.0,25.0,26.0,27.0,,,,,,,,,,106
+Ireneusz Jeleń,Polska,napastnik,09.04.1981,44,,,,,,,,,,,,,,,,,,7.0,,,,,,,,,,,,,,7
+Fabian Pawela,Polska,napastnik,30.11.1985,40,,,,,,,,,,,,,,,,,,25.0,30.0,,,,,,,,,,,,,55
+Dariusz Pietrasiak,Polska,obrońca,12.02.1980,45,,,,,,,,,,,,,,,,,,22.0,31.0,16.0,,,,,,,,,,,,69
+Michal Piter-Bučko,Słowacja,obrońca,28.10.1985,40,,,,,,,,,,,,,,,,,,24.0,,,,,,,,,,,,,,24
+Anton Sloboda,Słowacja,pomocnik,10.07.1987,38,,,,,,,,,,,,,,,,,,13.0,26.0,23.0,11.0,,,,,,,,,,,73
+Damian Szczęsny,Polska,napastnik,26.12.1986,39,,,,,,,,,,,,,,,,,,7.0,,,,,,,,,,,,,,7
+Błażej Telichowski,Polska,obrońca,06.06.1984,41,,,,,,,,,,,,,,,,,,7.0,34.0,,,,,,,,,,,,,41
+Marcin Wodecki,Polska,pomocnik,14.01.1988,37,,,,,,,,,,,,,,,,,,10.0,17.0,,,,,,,,,,,,,27
+Frank Adu Kwame,Ghana,obrońca,16.05.1985,40,,,,,,,,,,,,,,,,,,,20.0,20.0,15.0,,,,,,,,,,,55
+Sebastian Bartlewski,Polska,pomocnik,13.06.1994,31,,,,,,,,,,,,,,,,,,,11.0,3.0,1.0,,,,,,,,,,,15
+Jan Blažek,Czechy,napastnik,20.03.1988,37,,,,,,,,,,,,,,,,,,,5.0,,,,,,,,,,,,,5
+Daniel Bujok,Polska,pomocnik,24.11.1994,31,,,,,,,,,,,,,,,,,,,3.0,,,,,,,,,,,,,3
+Maciej Iwański,Polska,pomocnik,07.05.1981,44,,,,,,,,,,,,,,,,,,,16.0,33.0,,,,,,,,,,,,49
+Aleksander Jagiełło,Polska,pomocnik,02.02.1995,30,,,,,,,,,,,,,,,,,,,18.0,,,,,,,,,,,,,18
+Mateusz Kupczak,Polska,pomocnik,20.02.1992,33,,,,,,,,,,,,,,,,,,,11.0,,,,,,,,,,,,,11
+Kamil Kurowski,Polska,pomocnik,04.09.1994,31,,,,,,,,,,,,,,,,,,,3.0,,,,,,,,,,,,,3
+Mikołaj Lebedyński,Polska,napastnik,14.10.1990,35,,,,,,,,,,,,,,,,,,,5.0,,,,,,,,,,,,,5
+Charles Nwaogu,Nigeria,napastnik,22.07.1990,35,,,,,,,,,,,,,,,,,,,3.0,,,,,,,,,,,,,3
+Przemysław Pietruszka,Polska,obrońca,18.04.1984,41,,,,,,,,,,,,,,,,,,,9.0,,,,,,,,,,,,,9
+Ladislav Rybánsky,Słowacja,bramkarz,19.12.1984,41,,,,,,,,,,,,,,,,,,,13.0,,,,,,,,,,,,,13
+Mateusz Stąporski,Polska,pomocnik,28.01.1988,37,,,,,,,,,,,,,,,,,,,7.0,,,,,,,,,,,,,7
+Wojciech Szymanek,Polska,obrońca,01.03.1982,43,,,,,,,,,,,,,,,,,,,3.0,,,,,,,,,,,,,3
+Rudolf Urban,Słowacja,obrońca,01.03.1980,45,,,,,,,,,,,,,,,,,,,12.0,,,,,,,,,,,,,12
+Łukasz Żegleń,Polska,napastnik,09.06.1995,30,,,,,,,,,,,,,,,,,,,6.0,,,,,,,,,,,,,6
+Idrissa Cissé,Senegal,napastnik,01.01.1990,35,,,,,,,,,,,,,,,,,,,,12.0,,,,,,,,,,,,12
+Maciej Felsch,Polska,obrońca,31.05.1998,27,,,,,,,,,,,,,,,,,,,,1.0,,,,,,,,,,,,1
+Gracjan Horoszkiewicz,Polska,obrońca,18.03.1995,30,,,,,,,,,,,,,,,,,,,,7.0,4.0,,,,,,,,,,,11
+Kristián Kolčák,Słowacja,obrońca,30.01.1990,35,,,,,,,,,,,,,,,,,,,,17.0,23.0,,,,,,,,,,,40
+Maciej Korzym,Polska,napastnik,02.05.1988,37,,,,,,,,,,,,,,,,,,,,23.0,2.0,,,,,,,,,,,25
+Artur Lenartowski,Polska,pomocnik,17.03.1988,37,,,,,,,,,,,,,,,,,,,,14.0,,,,,,,,,,,,14
+Róbert Mazáň,Słowacja,obrońca,09.02.1994,31,,,,,,,,,,,,,,,,,,,,5.0,,,,,,,,,,,,5
+Wojciech Okińczyc,Polska,napastnik,15.02.1986,39,,,,,,,,,,,,,,,,,,,,1.0,,,,,,,,,,,,1
+Adam Pazio,Polska,obrońca,27.09.1992,33,,,,,,,,,,,,,,,,,,,,25.0,16.0,,,,,,,,,,,41
+Michal Peškovič,Słowacja,bramkarz,08.02.1982,43,,,,,,,,,,,,,,,,,,,,22.0,,,,,,23.0,4.0,,,,,49
+Pavol Staňo,Słowacja,obrońca,29.09.1977,48,,,,,,,,,,,,,,,,,,,,30.0,,,,,,,,,,,,30
+Bartosz Śpiączka,Polska,napastnik,19.08.1991,34,,,,,,,,,,,,,,,,,,,,25.0,,,,,,,,,,,,25
+Piotr Tomasik,Polska,obrońca,31.10.1987,38,,,,,,,,,,,,,,,,,,,,22.0,,,,,,,,,29.0,,,51
+Wojciech Trochim,Polska,pomocnik,31.03.1989,36,,,,,,,,,,,,,,,,,,,,4.0,,,,,,,,,,,,4
+Fabian Hiszpański,Polska,pomocnik,26.10.1993,32,,,,,,,,,,,,,,,,,,,,,6.0,,,,,,,,,,,6
+Lukáš Janič,Słowacja,pomocnik,30.12.1986,38,,,,,,,,,,,,,,,,,,,,,8.0,,,,,,,,,,,8
+Bartosz Jaroch,Polska,obrońca,25.01.1995,30,,,,,,,,,,,,,,,,,,,,,7.0,12.0,14.0,24.0,32.0,5.0,,,,,,94
+Wojciech Kaczmarek,Polska,bramkarz,29.03.1983,42,,,,,,,,,,,,,,,,,,,,,4.0,,,,,,,,,,,4
+Kōhei Katō,Japonia,pomocnik,14.06.1989,36,,,,,,,,,,,,,,,,,,,,,37.0,,,,,,,,,,,37
+Jakub Kowalski,Polska,pomocnik,09.10.1987,38,,,,,,,,,,,,,,,,,,,,,34.0,,,,,,,,,,,34
+Celestine Lazarus,Nigeria,obrońca,13.11.1992,33,,,,,,,,,,,,,,,,,,,,,5.0,,,,,,,,,,,5
+Mateusz Możdżeń,Polska,pomocnik,14.03.1991,34,,,,,,,,,,,,,,,,,,,,,35.0,,,,,,,,,,,35
+Adam Mójta,Polska,obrońca,30.06.1986,39,,,,,,,,,,,,,,,,,,,,,32.0,,,,,,,,,,,32
+Krystian Nowak,Polska,obrońca,01.04.1994,31,,,,,,,,,,,,,,,,,,,,,21.0,,,,,,,,,,,21
+Jozef Piaček,Słowacja,obrońca,20.06.1983,42,,,,,,,,,,,,,,,,,,,,,14.0,28.0,,,,,,,,,,42
+Samuel Štefánik ,Słowacja,pomocnik,16.11.1991,34,,,,,,,,,,,,,,,,,,,,,14.0,,,,,,,,,,,14
+Mateusz Szczepaniak,Polska,pomocnik,23.01.1991,34,,,,,,,,,,,,,,,,,,,,,35.0,,,,,,,,,,,35
+Paweł Tarnowski,Polska,pomocnik,28.06.1990,35,,,,,,,,,,,,,,,,,,,,,12.0,14.0,,,,,,,,,,26
+Oleg Wierietiło,Białoruś,obrońca,10.07.1988,37,,,,,,,,,,,,,,,,,,,,,10.0,,,,,,,,,,,10
+Emilijus Zubas,Litwa,bramkarz,10.07.1990,35,,,,,,,,,,,,,,,,,,,,,36.0,,,,,,,,,,,36
+Martin Baran,Słowacja,obrońca,03.01.1988,37,,,,,,,,,,,,,,,,,,,,,,5.0,,,,,,,,,,5
+Jozef Dolný,Słowacja,pomocnik,13.05.1992,33,,,,,,,,,,,,,,,,,,,,,,11.0,,,,,,,,,,11
+Daniel Feruga,Polska,pomocnik,01.05.1988,37,,,,,,,,,,,,,,,,,,,,,,15.0,,,,,,,,,,15
+Robert Gumny,Polska,obrońca,04.06.1998,27,,,,,,,,,,,,,,,,,,,,,,14.0,,,,,,,,,,14
+Łukasz Hanzel,Polska,pomocnik,16.09.1986,39,,,,,,,,,,,,,,,,,,,,,,13.0,32.0,,,,,,,,,45
+Nermin Haskić,Bośnia i Hercegowina,napastnik,27.06.1989,36,,,,,,,,,,,,,,,,,,,,,,12.0,,,,,,,,,,12
+Damian Jakubik,Polska,obrońca,25.03.1990,35,,,,,,,,,,,,,,,,,,,,,,4.0,,,,,,,,,,4
+Michał Janota,Polska,pomocnik,29.07.1990,35,,,,,,,,,,,,,,,,,,,,,,23.0,,,,,18.0,25.0,11.0,,,77
+Kamil Jonkisz,Polska,napastnik,29.08.1995,30,,,,,,,,,,,,,,,,,,,,,,3.0,,,,,,,,,,3
+Kacper Kostorz,Polska,napastnik,21.08.1999,26,,,,,,,,,,,,,,,,,,,,,,2.0,22.0,35.0,,,,,,,,59
+Rafał Leszczyński,Polska,bramkarz,26.04.1992,33,,,,,,,,,,,,,,,,,,,,,,31.0,22.0,17.0,10.0,3.0,,,,,,83
+Szymon Lewicki,Polska,napastnik,05.04.1988,37,,,,,,,,,,,,,,,,,,,,,,24.0,,,,,,,,,,24
+Mateusz Lis,Polska,bramkarz,27.02.1997,28,,,,,,,,,,,,,,,,,,,,,,4.0,,,,,,,,,,4
+Mariusz Magiera,Polska,obrońca,25.08.1984,41,,,,,,,,,,,,,,,,,,,,,,34.0,8.0,,,,,,,,,42
+Mariusz Malec,Polska,obrońca,04.04.1995,30,,,,,,,,,,,,,,,,,,,,,,4.0,32.0,,,,,,,,,36
+Robert Menzel,Polska,obrońca,14.02.1991,34,,,,,,,,,,,,,,,,,,,,,,9.0,,,,,,,,,,9
+Daniel Mikołajewski,Polska,obrońca,25.08.1999,26,,,,,,,,,,,,,,,,,,,,,,11.0,,,,,27.0,23.0,31.0,,,92
+Paweł Moskwik,Polska,obrońca,08.06.1992,33,,,,,,,,,,,,,,,,,,,,,,11.0,25.0,8.0,,,,,,,,44
+Ilir Pali,Australia /Albania /Czarnogóra,pomocnik,10.08.1995,30,,,,,,,,,,,,,,,,,,,,,,1.0,,,,,,,,,,1
+Tomasz Podgórski,Polska,pomocnik,30.12.1985,39,,,,,,,,,,,,,,,,,,,,,,30.0,18.0,,,,,,,,,48
+Łukasz Sierpina,Polska,pomocnik,27.03.1988,37,,,,,,,,,,,,,,,,,,,,,,35.0,36.0,28.0,31.0,24.0,,,,,,154
+Peter Sládek,Słowacja,pomocnik,07.07.1989,36,,,,,,,,,,,,,,,,,,,,,,8.0,,,,,,,,,,8
+Szymon Szymański,Polska,pomocnik,13.04.1996,29,,,,,,,,,,,,,,,,,,,,,,4.0,,,,,,,,,,4
+Ariel Wawszczyk,Polska,obrońca,19.11.1991,34,,,,,,,,,,,,,,,,,,,,,,5.0,,,,,,,,,,5
+Łukasz Zakrzewski,Polska,obrońca,07.03.1996,29,,,,,,,,,,,,,,,,,,,,,,8.0,,,,,,,,,,8
+Mavroudís Bougaḯdis ,Grecja,obrońca,01.06.1993,32,,,,,,,,,,,,,,,,,,,,,,,14.0,15.0,,,,,,,,29
+Wojciech Fabisiak,Polska,bramkarz,31.01.1995,30,,,,,,,,,,,,,,,,,,,,,,,15.0,19.0,,,,,,,,34
+Dimityr Iljew,Bułgaria,pomocnik,25.09.1988,37,,,,,,,,,,,,,,,,,,,,,,,26.0,,,,,,,,,26
+Ľuboš Kolár,Słowacja,pomocnik,01.09.1989,36,,,,,,,,,,,,,,,,,,,,,,,4.0,,,,,,,,,4
+Miłosz Kozak,Polska,pomocnik,23.05.1997,28,,,,,,,,,,,,,,,,,,,,,,,32.0,17.0,,,,,,,,49
+Filip Matuszczyk,Polska,pomocnik,14.02.1998,27,,,,,,,,,,,,,,,,,,,,,,,2.0,,,,,,,,,2
+Filip Modelski,Polska,obrońca,28.09.1992,33,,,,,,,,,,,,,,,,,,,,,,,13.0,15.0,21.0,23.0,,,,,,72
+Paweł Oleksy,Polska,obrońca,01.04.1991,34,,,,,,,,,,,,,,,,,,,,,,,21.0,21.0,,,,,,,,42
+Guga Palawandiszwili,Gruzja,pomocnik,14.08.1993,32,,,,,,,,,,,,,,,,,,,,,,,13.0,28.0,,,,,,,,41
+Adrian Pindera,Polska,napastnik,21.06.1998,27,,,,,,,,,,,,,,,,,,,,,,,3.0,,,,,,,,,3
+Adrian Rakowski,Polska,pomocnik,07.10.1990,35,,,,,,,,,,,,,,,,,,,,,,,30.0,29.0,19.0,1.0,,,,,,79
+Valērijs Šabala ,Łotwa,napastnik,12.10.1994,31,,,,,,,,,,,,,,,,,,,,,,,30.0,33.0,,,,,,,,63
+Marcin Sierczyński,Polska,obrońca,12.04.1991,34,,,,,,,,,,,,,,,,,,,,,,,6.0,,,,,,,,,6
+Szymon Sobczak,Polska,napastnik,07.12.1992,33,,,,,,,,,,,,,,,,,,,,,,,17.0,,,,,,,,,17
+Paweł Tomczyk,Polska,napastnik,04.05.1998,27,,,,,,,,,,,,,,,,,,,,,,,34.0,,,,,,,8.0,,42
+Kamil Wiktorski,Polska,obrońca,12.03.1993,32,,,,,,,,,,,,,,,,,,,,,,,28.0,26.0,1.0,,,,,,,55
+Jakub Bąk,Polska,pomocnik,28.05.1993,32,,,,,,,,,,,,,,,,,,,,,,,,10.0,,,,,,,,10
+Jakub Bieroński,Polska,pomocnik,18.04.2003,22,,,,,,,,,,,,,,,,,,,,,,,,3.0,5.0,17.0,24.0,17.0,,,,66
+Chopi,Hiszpania,pomocnik,16.04.1990,35,,,,,,,,,,,,,,,,,,,,,,,,21.0,,,,,,,,21
+Grzegorz Goncerz,Polska,napastnik,27.04.1988,37,,,,,,,,,,,,,,,,,,,,,,,,16.0,,,,,,,,16
+Adrián Gómez,Hiszpania,pomocnik,17.01.1994,31,,,,,,,,,,,,,,,,,,,,,,,,8.0,,,,,,,,8
+Damian Hilbrycht,Polska,napastnik,19.05.1998,27,,,,,,,,,,,,,,,,,,,,,,,,6.0,10.0,,,,,,,16
+Dominik Jończy,Polska,obrońca,17.05.1997,28,,,,,,,,,,,,,,,,,,,,,,,,24.0,,,,,,,,24
+Aleksander Komor,Polska,obrońca,24.06.1994,31,,,,,,,,,,,,,,,,,,,,,,,,12.0,15.0,14.0,,,,,,41
+Przemysław Mystkowski,Polska,pomocnik,25.04.1998,27,,,,,,,,,,,,,,,,,,,,,,,,22.0,,,,,,,,22
+Przemysław Płacheta,Polska,pomocnik,23.03.1998,27,,,,,,,,,,,,,,,,,,,,,,,,25.0,,,,,,,,25
+Marko Roginić,Chorwacja,napastnik,05.09.1995,30,,,,,,,,,,,,,,,,,,,,,,,,10.0,32.0,23.0,14.0,,,,,79
+Michał Rzuchowski,Polska,pomocnik,27.12.1993,32,,,,,,,,,,,,,,,,,,,,,,,,22.0,19.0,28.0,,,,,,69
+Dmytro Baszłaj,Ukraina,obrońca,25.04.1990,35,,,,,,,,,,,,,,,,,,,,,,,,,23.0,17.0,,,,,,40
+Michał Batelt,Polska,obrońca,23.01.2001,24,,,,,,,,,,,,,,,,,,,,,,,,,1.0,,,,,,,1
+Karol Danielak,Polska,pomocnik,29.09.1991,34,,,,,,,,,,,,,,,,,,,,,,,,,33.0,27.0,,,,,,60
+Rafał Figiel,Polska,pomocnik,08.05.1991,34,,,,,,,,,,,,,,,,,,,,,,,,,33.0,8.0,,,,,,41
+Filip Laskowski,Polska,pomocnik,04.05.2001,24,,,,,,,,,,,,,,,,,,,,,,,,,18.0,7.0,3.0,,,,,28
+Arkadiusz Maj,Polska,napastnik,24.08.1999,26,,,,,,,,,,,,,,,,,,,,,,,,,1.0,,,,,,,1
+Iván Martín ,Hiszpania,napastnik,04.03.1995,30,,,,,,,,,,,,,,,,,,,,,,,,,11.0,6.0,,,,,,17
+Mateusz Marzec,Polska,pomocnik,13.08.1994,31,,,,,,,,,,,,,,,,,,,,,,,,,6.0,18.0,,,,,,24
+Szymon Mroczko,Polska,obrońca,18.01.2001,24,,,,,,,,,,,,,,,,,,,,,,,,,3.0,5.0,,,,,,8
+Tomasz Nowak,Polska,pomocnik,30.10.1985,40,,,,,,,,,,,,,,,,,,,,,,,,,19.0,13.0,,,,,,32
+Martin Polaček,Słowacja,bramkarz,02.04.1990,35,,,,,,,,,,,,,,,,,,,,,,,,,26.0,6.0,19.0,,,,,51
+Konrad Sieracki,Polska,pomocnik,08.07.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,19.0,,,,,,,19
+Mateusz Sopoćko,Polska,pomocnik,26.06.1999,26,,,,,,,,,,,,,,,,,,,,,,,,,20.0,,,,,,,20
+Desley Ubbink,Holandia,pomocnik,15.06.1993,32,,,,,,,,,,,,,,,,,,,,,,,,,6.0,17.0,,,,,,23
+Kamil Biliński,Polska,napastnik,23.01.1988,37,,,,,,,,,,,,,,,,,,,,,,,,,12.0,27.0,33.0,34.0,,,,106
+Dominik Frelek,Polska,pomocnik,11.10.2001,24,,,,,,,,,,,,,,,,,,,,,,,,,,9.0,31.0,,,,,40
+Konrad Gutowski,Polska,obrońca,22.02.1999,26,,,,,,,,,,,,,,,,,,,,,,,,,,5.0,30.0,,,,,35
+Jakub Hora,Czechy,pomocnik,23.02.1991,34,,,,,,,,,,,,,,,,,,,,,,,,,,16.0,,,,,,16
+Rafał Janicki,Polska,obrońca,05.07.1992,33,,,,,,,,,,,,,,,,,,,,,,,,,,13.0,,,,,,13
+Gergő Kocsis ,Węgry,obrońca,07.03.1994,31,,,,,,,,,,,,,,,,,,,,,,,,,,20.0,,,,,,20
+Bartłomiej Kręcichwost,Polska,napastnik,13.08.1999,26,,,,,,,,,,,,,,,,,,,,,,,,,,2.0,,,,,,2
+Petar Mamić,Chorwacja,obrońca,06.03.1996,29,,,,,,,,,,,,,,,,,,,,,,,,,,12.0,,,,,,12
+Marco Túlio ,Brazylia,obrońca,31.05.1998,27,,,,,,,,,,,,,,,,,,,,,,,,,,10.0,,,,,,10
+Serhij Miakuszko,Ukraina,pomocnik,15.04.1993,32,,,,,,,,,,,,,,,,,,,,,,,,,,16.0,,,,,,16
+David Niepsuj,Polska /Niemcy,obrońca,16.08.1995,30,,,,,,,,,,,,,,,,,,,,,,,,,,9.0,,,,,,9
+Milan Rundić,Serbia,obrońca,29.03.1992,33,,,,,,,,,,,,,,,,,,,,,,,,,,22.0,,,,,,22
+Peter Wilson,Liberia /Szwecja,napastnik,09.10.1996,29,,,,,,,,,,,,,,,,,,,,,,,,,,13.0,,,,,,13
+Ezequiel Bonifacio,Argentyna /Włochy,obrońca,09.05.1994,31,,,,,,,,,,,,,,,,,,,,,,,,,,,26.0,29.0,,,,55
+Yiğit Emre Çeltik ,Turcja,pomocnik,07.04.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,13.0,23.0,,,,36
+Matvei Igonen,Estonia,bramkarz,02.10.1996,29,,,,,,,,,,,,,,,,,,,,,,,,,,,12.0,29.0,,,,41
+Maciej Kowalski-Haberek,Polska,obrońca,16.05.1994,31,,,,,,,,,,,,,,,,,,,,,,,,,,,31.0,,,,,31
+Giorgi Merebaszwili,Gruzja,pomocnik,15.08.1986,39,,,,,,,,,,,,,,,,,,,,,,,,,,,33.0,,2.0,,,35
+Titas Milašius ,Litwa,pomocnik,12.12.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,21.0,27.0,7.0,,,55
+Marcel Misztal,Polska,pomocnik,07.11.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,6.0,29.0,30.0,14.0,,79
+Costa Nhamoinesu,Zimbabwe,obrońca,06.01.1986,39,,,,,,,,,,,,,,,,,,,,,,,,,,,1.0,,,,,1
+Dawid Polkowski,Polska,pomocnik,21.08.1998,27,,,,,,,,,,,,,,,,,,,,,,,,,,,26.0,7.0,,,,33
+Julio Rodríguez ,Hiszpania,obrońca,07.12.1995,30,,,,,,,,,,,,,,,,,,,,,,,,,,,30.0,23.0,,,,53
+Goku Román,Hiszpania,pomocnik,16.05.1993,32,,,,,,,,,,,,,,,,,,,,,,,,,,,32.0,32.0,,,,64
+Mathieu Scalet,Francja /Polska,pomocnik,01.04.1997,28,,,,,,,,,,,,,,,,,,,,,,,,,,,28.0,9.0,,,,37
+Jeppe Simonsen,Haiti /Dania,obrońca,21.11.1995,30,,,,,,,,,,,,,,,,,,,,,,,,,,,14.0,33.0,4.0,,,51
+Kacper Wełniak,Polska,napastnik,21.05.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,17.0,7.0,,,,24
+Mateusz Wypych,Polska,obrońca,10.01.1998,27,,,,,,,,,,,,,,,,,,,,,,,,,,,23.0,18.0,2.0,,,43
+Lionel Abate Etoundi,Kamerun ,napastnik,25.09.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,2.0,25.0,13.0,,40
+Bartosz Bernard,Polska,obrońca,08.02.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,,10.0,4.0,,,14
+Krzysztof Drzazga,Polska,napastnik,20.06.1995,30,,,,,,,,,,,,,,,,,,,,,,,,,,,,31.0,,,,31
+Florian Hartherz,Niemcy,obrońca,29.05.1993,32,,,,,,,,,,,,,,,,,,,,,,,,,,,,15.0,,,,15
+Wiktor Kaczorowski,Polska,bramkarz,31.08.2001,24,,,,,,,,,,,,,,,,,,,,,,,,,,,,5.0,,,,5
+Iwajło Markow,Bułgaria,obrońca,05.06.1997,28,,,,,,,,,,,,,,,,,,,,,,,,,,,,22.0,,,,22
+Tomasz Neugebauer,Polska,pomocnik,08.05.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,,15.0,,,,15
+Maksymilian Nowak,Polska,pomocnik,03.08.2004,21,,,,,,,,,,,,,,,,,,,,,,,,,,,,1.0,,,,1
+Arthur Vitelli,Francja ,obrońca,04.06.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,14.0,,,,14
+Michał Willmann,Polska,pomocnik,22.07.2004,21,,,,,,,,,,,,,,,,,,,,,,,,,,,,4.0,16.0,35.0,,55
+Maksymilian Banaszewski,Polska,pomocnik,22.03.1995,30,,,,,,,,,,,,,,,,,,,,,,,,,,,,,34.0,,,34
+Bartosz Bida,Polska,pomocnik,21.02.2001,24,,,,,,,,,,,,,,,,,,,,,,,,,,,,,31.0,,,31
+Martin Chlumecký ,Czechy,obrońca,11.01.1997,28,,,,,,,,,,,,,,,,,,,,,,,,,,,,,18.0,,,18
+Jan Hlavica,Czechy,obrońca,17.07.1994,31,,,,,,,,,,,,,,,,,,,,,,,,,,,,,23.0,,,23
+Miroslav Iličić ,Chorwacja,napastnik,17.04.1998,27,,,,,,,,,,,,,,,,,,,,,,,,,,,,,10.0,,,10
+Haris Kadrić,Słowenia,napastnik,16.03.2000,25,,,,,,,,,,,,,,,,,,,,,,,,,,,,,13.0,,,13
+Jakub Kisiel,Polska,pomocnik,05.02.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,,,26.0,,,26
+Jaka Kolenc,Słowenia,pomocnik,23.02.1994,31,,,,,,,,,,,,,,,,,,,,,,,,,,,,,23.0,,,23
+Kacper Krzepisz,Polska,bramkarz,16.12.1999,26,,,,,,,,,,,,,,,,,,,,,,,,,,,,,6.0,,,6
+Patrik Lukáč ,Słowacja,bramkarz,05.12.1994,31,,,,,,,,,,,,,,,,,,,,,,,,,,,,,7.0,,,7
+Sylwester Lusiusz,Polska,pomocnik,18.09.1999,26,,,,,,,,,,,,,,,,,,,,,,,,,,,,,8.0,,,8
+Adrian Małachowski,Polska,pomocnik,10.03.1998,27,,,,,,,,,,,,,,,,,,,,,,,,,,,,,10.0,,,10
+Marko Martinaga,Chorwacja,obrońca,27.05.1998,27,,,,,,,,,,,,,,,,,,,,,,,,,,,,,15.0,,,15
+Samuel Nnoshiri,Nigeria,pomocnik,02.07.2001,24,,,,,,,,,,,,,,,,,,,,,,,,,,,,,8.0,,,8
+Antonio Perošević ,Chorwacja,napastnik,06.03.1992,33,,,,,,,,,,,,,,,,,,,,,,,,,,,,,4.0,,,4
+Patryk Procek,Polska,bramkarz,01.03.1995,30,,,,,,,,,,,,,,,,,,,,,,,,,,,,,23.0,,,23
+Matej Senić,Chorwacja,obrońca,21.02.1995,30,,,,,,,,,,,,,,,,,,,,,,,,,,,,,14.0,,,14
+Marco Siverio,Hiszpania,napastnik,04.10.1994,31,,,,,,,,,,,,,,,,,,,,,,,,,,,,,5.0,,,5
+Michał Stempniewicz,Polska,napastnik,21.06.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,3.0,,,3
+Mateusz Stryjewski,Polska,pomocnik,22.06.1997,28,,,,,,,,,,,,,,,,,,,,,,,,,,,,,3.0,,,3
+Michał Stryjewski,Polska,pomocnik,18.09.1995,30,,,,,,,,,,,,,,,,,,,,,,,,,,,,,11.0,,,11
+Radosław Zając,Polska,pomocnik,28.07.2004,21,,,,,,,,,,,,,,,,,,,,,,,,,,,,,10.0,19.0,,29
+Mateusz Ziółkowski,Polska,pomocnik,29.08.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,,,32.0,7.0,,39
+Franciszek Liszka,Polska,pomocnik,07.08.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,,,3.0,,,3
+Michał Studnicki,Polska,napastnik,28.02.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1.0,,,1
+Paweł Czajkowski,Polska,pomocnik,27.02.1995,30,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,27.0,,27
+Szymon Gołuch,Polska,pomocnik,05.10.2002,23,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,12.0,,12
+Matej Mršić,Chorwacja,pomocnik,13.01.1994,31,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,30.0,,30
+Maksymilian Manikowski,Polska,bramkarz,07.01.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0
+Nikodem Gancarczyk,Polska,obrońca,06.03.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,0
+Maksymilian Biskup,Polska,pomocnik,16.08.2006,19,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,6.0,,6
+Linus Rönnberg,Finlandia,napastnik,13.01.2003,22,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,35.0,,35
