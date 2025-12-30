@@ -227,13 +227,20 @@ if opcja == "Aktualny Sezon (25/26)":
         # --- 1. Przygotowanie i KPI ---
         df = prepare_flags(df)
         
+        # Logika Młodzieżowca
+        df['is_youth'] = False
+        if 'status' in df.columns:
+            df['is_youth'] = df['status'].astype(str).str.contains(r'\(M\)', case=False, regex=True)
+            # Oznaczenie w nazwisku
+            df.loc[df['is_youth'], 'imię i nazwisko'] = "Ⓜ️ " + df.loc[df['is_youth'], 'imię i nazwisko']
+
         # Statystyki ogólne
         total_players = len(df)
         avg_age = f"{df['wiek'].mean():.1f}" if 'wiek' in df.columns else "-"
+        youth_count = df['is_youth'].sum()
         
         foreigners = 0
         if 'narodowość' in df.columns:
-            # Liczymy nie-Polaków
             foreigners = df[~df['narodowość'].str.contains('Polska', case=False, na=False)].shape[0]
 
         top_scorer = "-"
@@ -241,28 +248,36 @@ if opcja == "Aktualny Sezon (25/26)":
             max_g = df['gole'].max()
             if max_g > 0:
                 best = df[df['gole'] == max_g].iloc[0]
-                top_scorer = f"{best['imię i nazwisko']} ({max_g})"
+                clean_name = best['imię i nazwisko'].replace('Ⓜ️ ', '')
+                top_scorer = f"{clean_name} ({max_g})"
 
         # Wyświetlanie metryk
-        k1, k2, k3, k4 = st.columns(4)
+        k1, k2, k3, k4, k5 = st.columns(5)
         k1.metric("Liczba Zawodników", total_players)
         k2.metric("Średnia Wieku", avg_age)
         k3.metric("Obcokrajowcy", foreigners)
-        k4.metric("Najlepszy Strzelec", top_scorer)
+        k4.metric("Młodzieżowcy", youth_count)
+        k5.metric("Najlepszy Strzelec", top_scorer)
         
         st.divider()
 
         # --- 2. Filtry i Sterowanie Widokiem ---
-        c1, c2, c3 = st.columns([2, 1, 1])
+        c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
         with c1:
             search_q = st.text_input("🔍 Szukaj (Nazwisko/Pozycja):", placeholder="np. Kowalski")
         with c2:
             view_mode = st.selectbox("Tryb Widoku:", ["Tabela Szczegółowa", "Podział na Formacje"])
         with c3:
             sort_by = st.selectbox("Sortuj wg:", ["Nr", "Wiek", "Mecze", "Gole"], index=0)
+        with c4:
+            show_only_youth = st.checkbox("Tylko Młodzieżowcy", value=False)
 
         # Filtrowanie danych
         df_view = df.copy()
+        
+        if show_only_youth:
+            df_view = df_view[df_view['is_youth']]
+            
         if search_q:
             df_view = df_view[df_view.astype(str).apply(lambda x: x.str.contains(search_q, case=False)).any(axis=1)]
         
@@ -285,13 +300,14 @@ if opcja == "Aktualny Sezon (25/26)":
             "mecze": st.column_config.ProgressColumn("Mecze", format="%d", min_value=0, max_value=int(df['mecze'].max()) if 'mecze' in df.columns else 30),
             "gole": st.column_config.ProgressColumn("Gole", format="%d", min_value=0, max_value=int(df['gole'].max()) if 'gole' in df.columns else 10),
             "minuty": st.column_config.NumberColumn("Minuty", format="%d"),
+            "status": st.column_config.TextColumn("Status", width="small"),
         }
 
         # Wybór kolumn do wyświetlenia
-        preferred = ['numer', 'imię i nazwisko', 'Flaga', 'pozycja', 'wiek', 'mecze', 'gole', 'minuty', 'asysty']
+        preferred = ['numer', 'imię i nazwisko', 'Flaga', 'pozycja', 'wiek', 'status', 'mecze', 'gole', 'minuty', 'asysty']
         final_cols = [c for c in preferred if c in df_view.columns]
-        # Dodajemy resztę kolumn, których nie ma w preferred
-        remaining = [c for c in df_view.columns if c not in final_cols and c not in ['narodowość', 'flaga']]
+        # Dodajemy resztę kolumn
+        remaining = [c for c in df_view.columns if c not in final_cols and c not in ['narodowość', 'flaga', 'is_youth']]
         final_cols.extend(remaining)
 
         if view_mode == "Tabela Szczegółowa":
@@ -305,10 +321,7 @@ if opcja == "Aktualny Sezon (25/26)":
             
         else: # Podział na Formacje
             if 'pozycja' in df_view.columns:
-                # Pobieramy unikalne pozycje i sortujemy
                 formacje = sorted(df_view['pozycja'].astype(str).unique())
-                
-                # Definiujemy kolejność logiczną jeśli się uda (Bramkarz -> Obrońca -> Pomocnik -> Napastnik)
                 priority = {'Bramkarz': 0, 'Obrońca': 1, 'Pomocnik': 2, 'Napastnik': 3}
                 formacje.sort(key=lambda x: priority.get(x, 10))
 
@@ -317,8 +330,7 @@ if opcja == "Aktualny Sezon (25/26)":
                     if not sub_df.empty:
                         with st.expander(f"🟢 {formacja} ({len(sub_df)})", expanded=True):
                             sub_df.index = range(1, len(sub_df)+1)
-                            # W widoku kafelkowym pokazujemy mniej kolumn
-                            cols_f = ['numer', 'imię i nazwisko', 'Flaga', 'wiek', 'mecze', 'gole']
+                            cols_f = ['numer', 'imię i nazwisko', 'Flaga', 'wiek', 'mecze', 'gole', 'status']
                             cols_f = [c for c in cols_f if c in sub_df.columns]
                             
                             st.dataframe(
