@@ -126,7 +126,13 @@ def load_data(filename):
              df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).astype(int)
 
     # --- FIX: Konwersja standardowych kolumn liczbowych ---
-    int_candidates = ['wiek', 'suma', 'liczba', 'mecze', 'gole', 'punkty', 'minuty', 'numer']
+    int_candidates = [
+        'wiek', 'suma', 'liczba', 'mecze', 'gole', 'punkty', 'minuty', 'numer', 
+        'asysty', 'żółte kartki', 'czerwone kartki', 'gole samobójcze', 
+        'asysta 2. stopnia', 'sprokurowany karny', 'wywalczony karny', 
+        'karny', 'niestrzelony karny', 'główka', 'lewa', 'prawa', 
+        'czyste konta', 'obronione karne'
+    ]
     for col in df.columns:
         if col in int_candidates:
             try:
@@ -231,8 +237,11 @@ if opcja == "Aktualny Sezon (25/26)":
         df['is_youth'] = False
         if 'status' in df.columns:
             df['is_youth'] = df['status'].astype(str).str.contains(r'\(M\)', case=False, regex=True)
-            # Oznaczenie w nazwisku
             df.loc[df['is_youth'], 'imię i nazwisko'] = "Ⓜ️ " + df.loc[df['is_youth'], 'imię i nazwisko']
+
+        # Logika Kanadyjska (Gole + Asysty)
+        if 'gole' in df.columns and 'asysty' in df.columns:
+            df['kanadyjka'] = df['gole'] + df['asysty']
 
         # Statystyki ogólne
         total_players = len(df)
@@ -268,7 +277,7 @@ if opcja == "Aktualny Sezon (25/26)":
         with c2:
             view_mode = st.selectbox("Tryb Widoku:", ["Tabela Szczegółowa", "Podział na Formacje"])
         with c3:
-            sort_by = st.selectbox("Sortuj wg:", ["Nr", "Wiek", "Mecze", "Gole"], index=0)
+            sort_by = st.selectbox("Sortuj wg:", ["Nr", "Wiek", "Mecze", "Gole", "Kanadyjka"], index=0)
         with c4:
             show_only_youth = st.checkbox("Tylko Młodzieżowcy", value=False)
 
@@ -282,31 +291,71 @@ if opcja == "Aktualny Sezon (25/26)":
             df_view = df_view[df_view.astype(str).apply(lambda x: x.str.contains(search_q, case=False)).any(axis=1)]
         
         # Sortowanie
-        sort_map = {'Nr': 'numer', 'Wiek': 'wiek', 'Mecze': 'mecze', 'Gole': 'gole'}
+        sort_map = {
+            'Nr': 'numer', 'Wiek': 'wiek', 'Mecze': 'mecze', 
+            'Gole': 'gole', 'Kanadyjka': 'kanadyjka'
+        }
         col_sort = sort_map.get(sort_by)
         if col_sort and col_sort in df_view.columns:
             ascending = True if col_sort in ['numer', 'wiek'] else False
             df_view = df_view.sort_values(col_sort, ascending=ascending)
 
-        # --- 3. Prezentacja Danych ---
+        # --- 3. Prezentacja Danych (Column Config) ---
         
-        # Konfiguracja kolumn (wspólna)
+        # Pełna konfiguracja dla wszystkich możliwych kolumn
         col_config = {
             "Flaga": st.column_config.ImageColumn("Kraj", width="small"),
             "imię i nazwisko": st.column_config.TextColumn("Zawodnik", width="medium"),
             "pozycja": st.column_config.TextColumn("Poz.", width="small"),
             "wiek": st.column_config.NumberColumn("Wiek", format="%d"),
             "numer": st.column_config.TextColumn("Nr", width="small"),
-            "mecze": st.column_config.ProgressColumn("Mecze", format="%d", min_value=0, max_value=int(df['mecze'].max()) if 'mecze' in df.columns else 30),
-            "gole": st.column_config.ProgressColumn("Gole", format="%d", min_value=0, max_value=int(df['gole'].max()) if 'gole' in df.columns else 10),
-            "minuty": st.column_config.NumberColumn("Minuty", format="%d"),
             "status": st.column_config.TextColumn("Status", width="small"),
+            
+            # Główne
+            "mecze": st.column_config.ProgressColumn("Mecze", format="%d", min_value=0, max_value=int(df['mecze'].max()) if 'mecze' in df.columns else 35),
+            "minuty": st.column_config.NumberColumn("Minuty", format="%d'"),
+            "gole": st.column_config.ProgressColumn("Gole", format="%d ⚽", min_value=0, max_value=int(df['gole'].max()) if 'gole' in df.columns else 20),
+            "asysty": st.column_config.ProgressColumn("Asysty", format="%d 🅰️", min_value=0, max_value=15),
+            "kanadyjka": st.column_config.NumberColumn("Kanadyjka", format="%d 🍁", help="Gole + Asysty"),
+            
+            # Kartki
+            "żółte kartki": st.column_config.NumberColumn("ŻK", format="%d 🟨"),
+            "czerwone kartki": st.column_config.NumberColumn("CK", format="%d 🟥"),
+            
+            # Szczegółowe - Atak
+            "gole samobójcze": st.column_config.NumberColumn("Samobój.", format="%d"),
+            "asysta 2. stopnia": st.column_config.NumberColumn("As. 2 st.", format="%d"),
+            "wywalczony karny": st.column_config.NumberColumn("Wyw. K", format="%d"),
+            
+            # Szczegółowe - Obrona
+            "sprokurowany karny": st.column_config.NumberColumn("Sprok. K", format="%d"),
+            "czyste konta": st.column_config.NumberColumn("Czyste K.", format="%d 🧤"),
+            "obronione karne": st.column_config.NumberColumn("Obr. K", format="%d 🧤"),
+            
+            # Karne
+            "karny": st.column_config.NumberColumn("Karne (G)", format="%d"),
+            "niestrzelony karny": st.column_config.NumberColumn("Karne (X)", format="%d"),
+            
+            # Sposób strzelenia
+            "główka": st.column_config.NumberColumn("Głową", format="%d"),
+            "lewa": st.column_config.NumberColumn("Lewą", format="%d"),
+            "prawa": st.column_config.NumberColumn("Prawą", format="%d"),
         }
 
-        # Wybór kolumn do wyświetlenia
-        preferred = ['numer', 'imię i nazwisko', 'Flaga', 'pozycja', 'wiek', 'status', 'mecze', 'gole', 'minuty', 'asysty']
-        final_cols = [c for c in preferred if c in df_view.columns]
-        # Dodajemy resztę kolumn
+        # Definiujemy kolejność wyświetlania kolumn (jeśli istnieją w pliku)
+        preferred_order = [
+            'numer', 'imię i nazwisko', 'Flaga', 'pozycja', 'wiek', 'status',
+            'mecze', 'minuty', 'gole', 'asysty', 'kanadyjka',
+            'żółte kartki', 'czerwone kartki',
+            'gole samobójcze', 'asysta 2. stopnia', 'wywalczony karny', 'sprokurowany karny',
+            'karny', 'niestrzelony karny',
+            'główka', 'lewa', 'prawa',
+            'czyste konta', 'obronione karne'
+        ]
+        
+        final_cols = [c for c in preferred_order if c in df_view.columns]
+        
+        # Dodajemy ewentualne pozostałe kolumny, których nie ma w liście preferred
         remaining = [c for c in df_view.columns if c not in final_cols and c not in ['narodowość', 'flaga', 'is_youth']]
         final_cols.extend(remaining)
 
@@ -330,8 +379,8 @@ if opcja == "Aktualny Sezon (25/26)":
                     if not sub_df.empty:
                         with st.expander(f"🟢 {formacja} ({len(sub_df)})", expanded=True):
                             sub_df.index = range(1, len(sub_df)+1)
-                            cols_f = ['numer', 'imię i nazwisko', 'Flaga', 'wiek', 'mecze', 'gole', 'status']
-                            cols_f = [c for c in cols_f if c in sub_df.columns]
+                            # W widoku kafelkowym pokazujemy skrócony zestaw
+                            cols_f = [c for c in ['numer', 'imię i nazwisko', 'Flaga', 'wiek', 'mecze', 'gole', 'asysty', 'kanadyjka', 'żółte kartki', 'status'] if c in sub_df.columns]
                             
                             st.dataframe(
                                 sub_df[cols_f],
@@ -744,4 +793,3 @@ elif opcja == "Trenerzy":
                             st.dataframe(coach_matches[view_c].style.map(color_results_logic, subset=['wynik']), use_container_width=True)
                         else: st.warning("Brak meczów.")
                     else: st.error("Brak kolumny z datą w pliku mecze.csv.")
-
