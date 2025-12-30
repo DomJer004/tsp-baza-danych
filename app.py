@@ -101,7 +101,7 @@ def load_data(filename):
     if '1999/20' in df.columns:
         df.rename(columns={'1999/20': '1999/00'}, inplace=True)
 
-    # --- NOWE: Konwersja float -> int (usuwanie "0.") ---
+    # Konwersja float -> int
     int_candidates = ['wiek', 'suma', 'liczba', 'mecze', 'gole', 'punkty']
     for col in df.columns:
         if col in int_candidates:
@@ -163,7 +163,6 @@ def parse_scorers(scorers_str):
         part = part.strip()
         if not part: continue
         
-        # FIX: Lepsze wykrywanie samobója
         is_own = bool(re.search(r'\(s\)|s\.|sam\.', part.lower()))
         clean_check = re.sub(r'\(k\)|k\.|\(s\)|s\.|sam\.', '', part.lower())
         has_letters = bool(re.search(r'[a-z]{2,}', clean_check))
@@ -212,13 +211,11 @@ elif opcja == "Centrum Zawodników":
     with tab1:
         st.subheader("Baza Zawodników - Występy i Gole")
         
-        # Ładujemy oba pliki: występy (long) i strzelcy (wide/matrix)
         df_long = load_data("pilkarze.csv")
         df_strzelcy = load_data("strzelcy.csv")
         df_mecze = load_data("mecze.csv") 
         
         if df_long is not None:
-            # Filtry
             c1, c2, c3 = st.columns([2, 1, 1])
             with c1: 
                 search = st.text_input("Szukaj zawodnika:")
@@ -231,10 +228,8 @@ elif opcja == "Centrum Zawodników":
             with c3:
                 obcy = st.checkbox("Tylko obcokrajowcy", key="obcy_search")
             
-            # Kopia robocza
             df_show = df_long.copy()
             
-            # Filtrowanie
             if search:
                 df_show = df_show[df_show['imię i nazwisko'].astype(str).str.contains(search, case=False)]
             if obcy and 'narodowość' in df_show.columns:
@@ -242,47 +237,32 @@ elif opcja == "Centrum Zawodników":
             if wybrane_sezony and 'sezon' in df_show.columns:
                 df_show = df_show[df_show['sezon'].astype(str).isin(wybrane_sezony)]
             
-            # --- FIX: PRZYWRÓCENIE PLUSA PRZY GOLACH ---
-            # Musimy połączyć dane z df_show (liczba meczów) z df_strzelcy (gole w danym sezonie)
-            
             if df_strzelcy is not None:
-                # Indeksujemy strzelców po nazwisku dla szybkosci
                 strzelcy_map = df_strzelcy.set_index('imię i nazwisko')
-                
                 def format_stats(row):
                     matches = row['liczba']
                     season = row['sezon']
                     name = row['imię i nazwisko']
-                    
                     goals = 0
-                    # Sprawdzamy czy ten gracz i ten sezon istnieją w pliku strzelcy
                     if name in strzelcy_map.index and season in strzelcy_map.columns:
                         val = strzelcy_map.at[name, season]
                         goals = int(pd.to_numeric(val, errors='coerce')) if pd.notnull(val) and val != '-' else 0
                     
-                    if goals > 0:
-                        return f"{matches} ({goals} ➕)"
-                    else:
-                        return str(matches)
+                    if goals > 0: return f"{matches} ({goals} ➕)"
+                    else: return str(matches)
 
-                # Tworzymy nową kolumnę do wyświetlania
                 if 'sezon' in df_show.columns and 'liczba' in df_show.columns:
                     df_show['Występy (Gole)'] = df_show.apply(format_stats, axis=1)
             else:
-                # Jak nie ma pliku strzelcy, po prostu pokazujemy liczbe
                 df_show['Występy (Gole)'] = df_show['liczba'].astype(str)
 
-            # Flagowanie
             df_show = prepare_flags(df_show)
-            
             if 'sezon' in df_show.columns:
                 df_show = df_show.sort_values(['imię i nazwisko', 'sezon'], ascending=[True, False])
 
-            # Wybór kolumn (teraz używamy tej sformatowanej z plusem)
             base_cols = ['imię i nazwisko', 'Flaga', 'Narodowość', 'pozycja', 'wiek', 'sezon', 'Występy (Gole)', 'suma']
             final_cols = [c for c in base_cols if c in df_show.columns]
             
-            # Wyświetlanie
             st.dataframe(
                 df_show[final_cols], 
                 use_container_width=True, 
@@ -294,7 +274,6 @@ elif opcja == "Centrum Zawodników":
                 }
             )
             
-            # Sekcja detali (bez zmian, działała dobrze)
             st.divider()
             st.subheader("🔍 Sprawdź szczegóły bramek")
             dostepni_gracze = sorted(df_show['imię i nazwisko'].unique())
@@ -315,12 +294,24 @@ elif opcja == "Centrum Zawodników":
                                 'Wynik': row.get('wynik', '-'),
                                 'Gole': strzelcy_map[wybrany_gracz]
                             })
+                
                 if found_matches:
-                    st.dataframe(pd.DataFrame(found_matches), use_container_width=True)
+                    df_goals_det = pd.DataFrame(found_matches)
+                    
+                    # --- FILTRUJEMY PO SEZONACH Z MULTISELECTA ---
+                    if wybrane_sezony:
+                        df_goals_det = df_goals_det[df_goals_det['Sezon'].isin(wybrane_sezony)]
+                    
+                    if not df_goals_det.empty:
+                        # --- FIX: INDEKSOWANIE OD 1 ---
+                        df_goals_det.index = range(1, len(df_goals_det) + 1)
+                        st.dataframe(df_goals_det, use_container_width=True)
+                    else:
+                        st.info("Brak bramek w wybranych sezonach.")
                 else:
                     st.info("Brak bramek w bazie meczowej dla tego zawodnika.")
         else:
-            st.error("BŁĄD: Nie udało się wczytać pliku 'pilkarze.csv'. Sprawdź czy plik istnieje i ma poprawny format.")
+            st.error("BŁĄD: Nie udało się wczytać pliku 'pilkarze.csv'.")
 
     with tab2:
         st.subheader("Klasyfikacja Strzelców")
@@ -362,11 +353,8 @@ elif opcja == "Centrum Zawodników":
             target = 'suma' if 'suma' in df.columns else next((c for c in df.columns if 'suma' in c.lower()), None)
             if target:
                 df[target] = pd.to_numeric(df[target], errors='coerce').fillna(0).astype(int)
-                # Usuwamy duplikaty (bo plik jest teraz długi), bierzemy po nazwisku
                 df_uniq = df.drop_duplicates(subset=['imię i nazwisko'])
-                
                 df_uniq = df_uniq[df_uniq[target] >= 100].sort_values(target, ascending=False)
-                
                 st.bar_chart(df_uniq.head(30).set_index('imię i nazwisko')[target])
                 df_uniq = prepare_flags(df_uniq)
                 df_uniq = df_uniq.rename(columns={target: 'Mecze'})
@@ -556,7 +544,6 @@ elif opcja == "Trenerzy":
                                 pts = 3 if r and r[0]>r[1] else (1 if r and r[0]==r[1] else 0)
                                 points_list.append(pts)
                                 if 'strzelcy' in m and pd.notnull(m['strzelcy']):
-                                    # Zmienione: dodajemy samobóje do listy
                                     for s, c in parse_scorers(m['strzelcy']).items(): 
                                         all_scorers[s] = all_scorers.get(s, 0) + c
                             
@@ -570,7 +557,12 @@ elif opcja == "Trenerzy":
                                 st.write("⚽ Najlepsi strzelcy (wraz z samobójami):")
                                 df_s = pd.DataFrame(list(all_scorers.items()), columns=['Zawodnik', 'Gole']).sort_values('Gole', ascending=False).reset_index(drop=True)
                                 df_s.index = range(1, len(df_s)+1)
-                                st.dataframe(df_s, use_container_width=True)
+                                
+                                # --- FIX: KOLOR CZERWONY DLA SAMOBÓJCZEJ ---
+                                def highlight_red(val):
+                                    return 'color: #dc3545; font-weight: bold;' if val == 'Bramka samobójcza' else ''
+                                
+                                st.dataframe(df_s.style.map(highlight_red, subset=['Zawodnik']), use_container_width=True)
                             
                             st.write(f"Lista meczów ({len(coach_matches)}):")
                             view_c = [c for c in coach_matches.columns if c not in ['dt', 'data sortowania', 'mecz_id', 'pts', 'rolling_avg']]
