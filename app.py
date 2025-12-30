@@ -131,7 +131,7 @@ def load_data(filename):
         'asysty', 'żółte kartki', 'czerwone kartki', 'gole samobójcze', 
         'asysta 2. stopnia', 'sprokurowany karny', 'wywalczony karny', 
         'karny', 'niestrzelony karny', 'główka', 'lewa', 'prawa', 
-        'czyste konta', 'obronione karne'
+        'czyste konta', 'obronione karne', 'kanadyjka'
     ]
     for col in df.columns:
         if col in int_candidates:
@@ -230,8 +230,7 @@ if opcja == "Aktualny Sezon (25/26)":
     df = load_data("25_26.csv")
     
     if df is not None:
-        # --- 1. Przygotowanie i KPI ---
-        df = prepare_flags(df)
+        # --- 1. OBLICZANIE KPI ---
         
         # Logika Młodzieżowca
         df['is_youth'] = False
@@ -248,9 +247,11 @@ if opcja == "Aktualny Sezon (25/26)":
         avg_age = f"{df['wiek'].mean():.1f}" if 'wiek' in df.columns else "-"
         youth_count = df['is_youth'].sum()
         
+        # Obcokrajowcy (liczymy na danych surowych przed zmianą nagłówka na Narodowość)
         foreigners = 0
-        if 'narodowość' in df.columns:
-            foreigners = df[~df['narodowość'].str.contains('Polska', case=False, na=False)].shape[0]
+        nat_col_raw = 'narodowość' if 'narodowość' in df.columns else ('kraj' if 'kraj' in df.columns else None)
+        if nat_col_raw:
+            foreigners = df[~df[nat_col_raw].str.contains('Polska', case=False, na=False)].shape[0]
 
         top_scorer = "-"
         if 'gole' in df.columns:
@@ -259,6 +260,9 @@ if opcja == "Aktualny Sezon (25/26)":
                 best = df[df['gole'] == max_g].iloc[0]
                 clean_name = best['imię i nazwisko'].replace('Ⓜ️ ', '')
                 top_scorer = f"{clean_name} ({max_g})"
+
+        # --- 2. PRZYGOTOWANIE WIDOKU ---
+        df = prepare_flags(df)
 
         # Wyświetlanie metryk
         k1, k2, k3, k4, k5 = st.columns(5)
@@ -270,7 +274,7 @@ if opcja == "Aktualny Sezon (25/26)":
         
         st.divider()
 
-        # --- 2. Filtry i Sterowanie Widokiem ---
+        # --- 3. Filtry i Sterowanie Widokiem ---
         c1, c2, c3, c4 = st.columns([2, 1, 1, 1])
         with c1:
             search_q = st.text_input("🔍 Szukaj (Nazwisko/Pozycja):", placeholder="np. Kowalski")
@@ -290,7 +294,7 @@ if opcja == "Aktualny Sezon (25/26)":
         if search_q:
             df_view = df_view[df_view.astype(str).apply(lambda x: x.str.contains(search_q, case=False)).any(axis=1)]
         
-        # Sortowanie
+        # Sortowanie główne
         sort_map = {
             'Nr': 'numer', 'Wiek': 'wiek', 'Mecze': 'mecze', 
             'Gole': 'gole', 'Kanadyjka': 'kanadyjka'
@@ -300,16 +304,13 @@ if opcja == "Aktualny Sezon (25/26)":
             ascending = True if col_sort in ['numer', 'wiek'] else False
             df_view = df_view.sort_values(col_sort, ascending=ascending)
 
-        # --- 3. Prezentacja Danych (Column Config) ---
-        
-        # Pełna konfiguracja dla wszystkich możliwych kolumn
+        # --- 4. Prezentacja Danych (Column Config) ---
         col_config = {
             "Flaga": st.column_config.ImageColumn("Kraj", width="small"),
             "imię i nazwisko": st.column_config.TextColumn("Zawodnik", width="medium"),
             "pozycja": st.column_config.TextColumn("Poz.", width="small"),
             "wiek": st.column_config.NumberColumn("Wiek", format="%d"),
             "numer": st.column_config.TextColumn("Nr", width="small"),
-            "status": st.column_config.TextColumn("Status", width="small"),
             
             # Główne
             "mecze": st.column_config.ProgressColumn("Mecze", format="%d", min_value=0, max_value=int(df['mecze'].max()) if 'mecze' in df.columns else 35),
@@ -342,9 +343,8 @@ if opcja == "Aktualny Sezon (25/26)":
             "prawa": st.column_config.NumberColumn("Prawą", format="%d"),
         }
 
-        # Definiujemy kolejność wyświetlania kolumn (jeśli istnieją w pliku)
         preferred_order = [
-            'numer', 'imię i nazwisko', 'Flaga', 'pozycja', 'wiek', 'status',
+            'numer', 'imię i nazwisko', 'Flaga', 'pozycja', 'wiek',
             'mecze', 'minuty', 'gole', 'asysty', 'kanadyjka',
             'żółte kartki', 'czerwone kartki',
             'gole samobójcze', 'asysta 2. stopnia', 'wywalczony karny', 'sprokurowany karny',
@@ -354,9 +354,8 @@ if opcja == "Aktualny Sezon (25/26)":
         ]
         
         final_cols = [c for c in preferred_order if c in df_view.columns]
-        
-        # Dodajemy ewentualne pozostałe kolumny, których nie ma w liście preferred
-        remaining = [c for c in df_view.columns if c not in final_cols and c not in ['narodowość', 'flaga', 'is_youth']]
+        hidden_cols = ['narodowość', 'flaga', 'is_youth', 'status'] 
+        remaining = [c for c in df_view.columns if c not in final_cols and c not in hidden_cols]
         final_cols.extend(remaining)
 
         if view_mode == "Tabela Szczegółowa":
@@ -371,16 +370,26 @@ if opcja == "Aktualny Sezon (25/26)":
         else: # Podział na Formacje
             if 'pozycja' in df_view.columns:
                 formacje = sorted(df_view['pozycja'].astype(str).unique())
-                priority = {'Bramkarz': 0, 'Obrońca': 1, 'Pomocnik': 2, 'Napastnik': 3}
-                formacje.sort(key=lambda x: priority.get(x, 10))
+                
+                # Inteligentne sortowanie formacji (szukanie po fragmencie słowa)
+                def get_priority(pos):
+                    pos_lower = str(pos).lower()
+                    if 'bramkarz' in pos_lower: return 0
+                    if 'obroń' in pos_lower or 'obron' in pos_lower: return 1
+                    if 'pomoc' in pos_lower: return 2
+                    if 'napast' in pos_lower: return 3
+                    return 10
+                
+                formacje.sort(key=get_priority)
 
                 for formacja in formacje:
                     sub_df = df_view[df_view['pozycja'] == formacja]
                     if not sub_df.empty:
                         with st.expander(f"🟢 {formacja} ({len(sub_df)})", expanded=True):
                             sub_df.index = range(1, len(sub_df)+1)
-                            # W widoku kafelkowym pokazujemy skrócony zestaw
-                            cols_f = [c for c in ['numer', 'imię i nazwisko', 'Flaga', 'wiek', 'mecze', 'gole', 'asysty', 'kanadyjka', 'żółte kartki', 'status'] if c in sub_df.columns]
+                            # Pokaż minuty, ukryj status
+                            cols_f_pref = ['numer', 'imię i nazwisko', 'Flaga', 'wiek', 'mecze', 'minuty', 'gole', 'asysty', 'kanadyjka', 'żółte kartki']
+                            cols_f = [c for c in cols_f_pref if c in sub_df.columns]
                             
                             st.dataframe(
                                 sub_df[cols_f],
