@@ -109,13 +109,22 @@ def load_data(filename):
     
     df = df.fillna("-")
     
-    # Normalizacja nazw kolumn (małe litery, usuwanie spacji)
+    # Normalizacja nazw kolumn
     df.columns = [c.strip().lower() for c in df.columns]
     
-    # --- AUTO-ZMIANA NAZWY DLA MECZE.CSV ---
-    # Jeśli plik to mecze.csv i ma kolumnę 'frekwencja', zmieniamy ją na 'widzów'
-    if 'mecze.csv' in filename and 'frekwencja' in df.columns:
-        df.rename(columns={'frekwencja': 'widzów'}, inplace=True)
+    # --- LOGIKA DLA MECZE.CSV ---
+    if 'mecze.csv' in filename:
+        # 1. Zmiana nazwy frekwencja -> widzów
+        if 'frekwencja' in df.columns:
+            df.rename(columns={'frekwencja': 'widzów'}, inplace=True)
+        
+        # 2. Automatyczne dodanie kolumny 'dom', jeśli nie istnieje
+        # Sprawdzamy czy jest jakikolwiek synonim
+        synonyms = ['dom', 'gospodarz', 'u siebie', 'gdzie']
+        has_dom = any(col in df.columns for col in synonyms)
+        
+        if not has_dom:
+            df['dom'] = "-" # Domyślna wartość, żeby kod nie padł
     
     # Usuwanie zduplikowanych kolumn
     df = df.loc[:, ~df.columns.duplicated()]
@@ -291,20 +300,28 @@ if st.session_state.get('username') == 'Djero':
                 try: df_editor = pd.read_csv(selected_file, encoding='utf-8')
                 except: df_editor = pd.read_csv(selected_file, encoding='windows-1250')
                 
-                # --- AUTO-ZMIANA NAZWY PRZY EDYCJI ---
-                # Jeśli edytujemy mecze.csv, normalizujemy nazwę kolumny od razu
+                # --- AUTO-ZMIANY DLA MECZE.CSV ---
                 if selected_file == "mecze.csv":
-                    # Szukamy kolumny 'frekwencja' bez względu na wielkość liter
+                    cols_lower = [c.lower().strip() for c in df_editor.columns]
+                    
+                    # 1. Zmiana nazwy Frekwencja -> Widzów
                     for col in df_editor.columns:
                         if col.lower().strip() == 'frekwencja':
                             df_editor.rename(columns={col: 'Widzów'}, inplace=True)
-                            st.caption("ℹ️ Automatycznie zmieniono nazwę kolumny 'Frekwencja' na 'Widzów'. Zapisz, aby utrwalić.")
+                            st.toast("ℹ️ Zmieniono 'Frekwencja' na 'Widzów'.")
+                            cols_lower = [c.lower().strip() for c in df_editor.columns] # refresh
                             break
+                    
+                    # 2. Dodanie kolumny Dom, jeśli nie ma
+                    synonyms_dom = ['dom', 'gospodarz', 'u siebie', 'gdzie']
+                    if not any(x in cols_lower for x in synonyms_dom):
+                        df_editor['Dom'] = "" # Tworzymy pustą kolumnę
+                        st.toast("ℹ️ Dodano automatycznie kolumnę 'Dom'. Uzupełnij ją (1=Dom, 0=Wyjazd).")
 
                 # Edytor z obsługą dodawania wierszy (dynamic)
                 edited_df = st.data_editor(
                     df_editor, 
-                    num_rows="dynamic", # TO POZWALA DODAWAĆ I USUWAĆ WIERSZE
+                    num_rows="dynamic",
                     key=f"editor_{selected_file}_{st.session_state['uploader_key']}", 
                     height=400
                 )
@@ -328,7 +345,7 @@ if st.session_state.get('username') == 'Djero':
             
     st.sidebar.divider()
     
-    # Formularze szybkiego dodawania (pozostawiam bez zmian)
+    # --- SZYBKIE DODAWANIE (BEZ ZMIAN) ---
     with st.sidebar.expander("➕ Szybkie dodawanie (Piłkarz)"):
         with st.form("add_player_form"):
             a_imie = st.text_input("Imię i Nazwisko")
@@ -349,10 +366,10 @@ if st.session_state.get('username') == 'Djero':
             a_data_m = st.date_input("Data meczu")
             if st.form_submit_button("Zapisz"):
                 if os.path.exists("mecze.csv"):
-                    admin_save_csv("mecze.csv", {"sezon": a_sezon, "rywal": a_rywal, "wynik": a_wynik, "data meczu": str(a_data_m)})
+                    # Tu też można dodać domyślne pola, jeśli chcesz
+                    admin_save_csv("mecze.csv", {"sezon": a_sezon, "rywal": a_rywal, "wynik": a_wynik, "data meczu": str(a_data_m), "Dom": ""})
                     st.success("Dodano mecz!"); time.sleep(1); st.rerun()
     st.sidebar.divider()
-
 if st.sidebar.button("Wyloguj"): logout()
 
 # --- MODUŁY ---
@@ -1117,5 +1134,3 @@ elif opcja == "Trenerzy":
                             st.plotly_chart(fig_line, use_container_width=True)
                     else:
                         st.error("Brak kolumny z datą w mecze.csv.")
-
-
