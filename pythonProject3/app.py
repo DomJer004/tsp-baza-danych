@@ -1,9 +1,6 @@
 import streamlit as st
 import pandas as pd
 import datetime
-impimport streamlit as st
-import pandas as pd
-import datetime
 import re
 import os
 import time
@@ -943,3 +940,4 @@ elif opcja == "Trenerzy":
                             st.plotly_chart(fig_line, use_container_width=True)
                     else:
                         st.error("Brak kolumny z datą w mecze.csv.")
+
