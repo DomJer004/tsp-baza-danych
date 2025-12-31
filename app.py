@@ -3,6 +3,7 @@ import pandas as pd
 import datetime
 import re
 import os
+import time
 
 # --- 1. KONFIGURACJA STRONY ---
 st.set_page_config(
@@ -106,7 +107,6 @@ def load_data(filename):
     df.columns = [c.strip().lower() for c in df.columns]
     
     # --- FIX: Usuwanie zduplikowanych kolumn (np. dwie kolumny 'suma') ---
-    # To zapobiega błędowi TypeError, który miałeś wcześniej
     df = df.loc[:, ~df.columns.duplicated()]
 
     cols_drop = [c for c in df.columns if 'lp' in c]
@@ -270,14 +270,50 @@ st.sidebar.divider()
 if st.session_state.get('username') == 'Djero':
     st.sidebar.markdown("### 🛠️ Panel Admina (Djero)")
     
-    with st.sidebar.expander("➕ Dodaj Piłkarza"):
+    # Lista wszystkich plików CSV w katalogu
+    all_files = [f for f in os.listdir('.') if f.endswith('.csv')]
+    
+    with st.sidebar.expander("📝 UNIWERSALNY EDYTOR CSV", expanded=False):
+        st.caption("Wybierz dowolny plik i edytuj go.")
+        selected_file = st.selectbox("Wybierz plik:", all_files)
+        
+        if selected_file:
+            try:
+                # Wczytujemy surowy plik, próbując różnych kodowań
+                try:
+                    df_editor = pd.read_csv(selected_file, encoding='utf-8')
+                except:
+                    df_editor = pd.read_csv(selected_file, encoding='windows-1250')
+
+                # Edytor z możliwością dodawania wierszy (num_rows="dynamic")
+                edited_df = st.data_editor(
+                    df_editor,
+                    num_rows="dynamic",
+                    key=f"editor_{selected_file}",
+                    height=300
+                )
+                
+                if st.button(f"💾 Zapisz zmiany w {selected_file}", use_container_width=True):
+                    edited_df.to_csv(selected_file, index=False)
+                    
+                    # EFEKT SUKCESU
+                    st.success("✅ Edycja udana! Odświeżam stronę...")
+                    st.cache_data.clear()
+                    time.sleep(1.5) # Krótka pauza żeby użytkownik zobaczył komunikat
+                    st.rerun() # Automatyczne odświeżenie
+            except Exception as e:
+                st.error(f"Błąd odczytu pliku: {e}")
+
+    st.sidebar.divider()
+    
+    with st.sidebar.expander("➕ Szybkie dodawanie (Piłkarz)"):
         with st.form("add_player_form"):
             a_imie = st.text_input("Imię i Nazwisko")
             a_kraj = st.text_input("Kraj", value="Polska")
             a_poz = st.selectbox("Pozycja", ["Bramkarz", "Obrońca", "Pomocnik", "Napastnik"])
             a_data = st.date_input("Data urodzenia", min_value=datetime.date(1970,1,1))
             if st.form_submit_button("Zapisz w bazie"):
-                if a_imie:
+                if a_imie and os.path.exists("pilkarze.csv"):
                     success = admin_save_csv("pilkarze.csv", {
                         "imię i nazwisko": a_imie,
                         "kraj": a_kraj,
@@ -285,49 +321,31 @@ if st.session_state.get('username') == 'Djero':
                         "data urodzenia": str(a_data),
                         "suma": 0
                     })
-                    if success: st.success(f"Dodano: {a_imie}")
+                    if success: 
+                        st.success(f"Dodano: {a_imie}")
+                        time.sleep(1)
+                        st.rerun()
                 else:
-                    st.warning("Podaj nazwisko")
+                    st.warning("Podaj nazwisko lub brak pliku pilkarze.csv")
 
-    with st.sidebar.expander("⚽ Dodaj Wynik"):
+    with st.sidebar.expander("⚽ Szybkie dodawanie (Mecz)"):
         with st.form("add_result_form"):
             a_sezon = st.text_input("Sezon", value="2025/26")
             a_rywal = st.text_input("Rywal")
             a_wynik = st.text_input("Wynik (np. 2:1)")
             a_data_m = st.date_input("Data meczu")
             if st.form_submit_button("Zapisz mecz"):
-                success = admin_save_csv("mecze.csv", {
-                    "sezon": a_sezon,
-                    "rywal": a_rywal,
-                    "wynik": a_wynik,
-                    "data meczu": str(a_data_m)
-                })
-                if success: st.success("Dodano mecz!")
-
-    # --- EDYTOR SEZONU (POPRAWIONY) ---
-    with st.sidebar.expander("🔄 Edytuj Tabelę 25/26"):
-        st.warning("Edytujesz plik 25_26.csv na żywo!")
-        try:
-            # Wczytujemy surowy plik do edycji (bez przetwarzania load_data, żeby nie psuć formatu)
-            if os.path.exists("25_26.csv"):
-                df_editor_raw = pd.read_csv("25_26.csv")
-                
-                # Wyświetlamy edytowalną tabelę
-                edited_df = st.data_editor(
-                    df_editor_raw,
-                    num_rows="dynamic",  # Pozwala dodawać nowe wiersze
-                    key="editor_season_live",
-                    height=300
-                )
-                
-                if st.button("💾 Zapisz zmiany w 25/26", use_container_width=True):
-                    edited_df.to_csv("25_26.csv", index=False)
-                    st.success("Zapisano zmiany! Odśwież stronę, aby zobaczyć efekty.")
-                    st.cache_data.clear() # Czyścimy cache, żeby wczytać nowe dane
-            else:
-                st.error("Brak pliku 25_26.csv")
-        except Exception as e:
-            st.error(f"Błąd edytora: {e}")
+                if os.path.exists("mecze.csv"):
+                    success = admin_save_csv("mecze.csv", {
+                        "sezon": a_sezon,
+                        "rywal": a_rywal,
+                        "wynik": a_wynik,
+                        "data meczu": str(a_data_m)
+                    })
+                    if success: 
+                        st.success("Dodano mecz!")
+                        time.sleep(1)
+                        st.rerun()
 
     st.sidebar.divider()
 
