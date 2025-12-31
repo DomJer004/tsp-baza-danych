@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import datetime
 import re
+import os
 
 # --- 1. KONFIGURACJA STRONY ---
 st.set_page_config(
@@ -10,7 +11,7 @@ st.set_page_config(
     page_icon="⚽"
 )
 
-# --- 2. LOGOWANIE ---
+# --- 2. LOGOWANIE I SESJA ---
 USERS = {
     "Djero": "TSP1995", 
     "KKowalski": "Tsp2025", 
@@ -22,6 +23,8 @@ USERS = {
 
 if 'logged_in' not in st.session_state:
     st.session_state['logged_in'] = False
+if 'username' not in st.session_state:
+    st.session_state['username'] = ""
 
 def login():
     st.title("🔒 Panel Logowania TSP")
@@ -32,11 +35,13 @@ def login():
         if st.button("Zaloguj", use_container_width=True):
             if u in USERS and USERS[u] == p:
                 st.session_state['logged_in'] = True
+                st.session_state['username'] = u  # ZAPAMIĘTUJEMY UŻYTKOWNIKA
                 st.rerun()
             else: st.error("Błąd logowania")
 
 def logout():
     st.session_state['logged_in'] = False
+    st.session_state['username'] = ""
     st.rerun()
 
 if not st.session_state['logged_in']:
@@ -76,7 +81,7 @@ COUNTRY_TO_ISO = {
     'liberia': 'lr'
 }
 
-# --- FUNKCJE POMOCNICZE ---
+# --- FUNKCJE POMOCNICZE I ADMINA ---
 
 def get_flag_url(name):
     if not isinstance(name, str): return None
@@ -89,6 +94,8 @@ def get_flag_url(name):
 
 @st.cache_data
 def load_data(filename):
+    if not os.path.exists(filename):
+        return None
     try: df = pd.read_csv(filename, encoding='utf-8')
     except: 
         try: df = pd.read_csv(filename, encoding='windows-1250')
@@ -97,11 +104,9 @@ def load_data(filename):
     df = df.fillna("-")
     df.columns = [c.strip().lower() for c in df.columns]
     
-    # Usuwanie kolumn technicznych
     cols_drop = [c for c in df.columns if 'lp' in c]
     if cols_drop: df = df.drop(columns=cols_drop)
 
-    # --- FIX: Formatowanie kolejki (01, 02, 10...) ---
     if 'kolejka' in df.columns:
         def format_kolejka(x):
             s = str(x).strip()
@@ -113,11 +118,9 @@ def load_data(filename):
             return s
         df['kolejka'] = df['kolejka'].apply(format_kolejka)
         
-    # FIX: Literówka w sezonach
     if '1999/20' in df.columns:
         df.rename(columns={'1999/20': '1999/00'}, inplace=True)
 
-    # --- Wykrywanie formatu sezonów (dla starego formatu) ---
     season_cols = [c for c in df.columns if re.match(r'^\d{4}/\d{2}$', c)]
     for col in season_cols:
         if df[col].dtype == object and not df[col].astype(str).str.contains('/').any(): 
@@ -125,7 +128,6 @@ def load_data(filename):
         else:
              df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).astype(int)
 
-    # --- FIX: Konwersja standardowych kolumn liczbowych ---
     int_candidates = [
         'wiek', 'suma', 'liczba', 'mecze', 'gole', 'punkty', 'minuty', 'numer', 
         'asysty', 'żółte kartki', 'czerwone kartki', 'gole samobójcze', 
@@ -211,6 +213,46 @@ def parse_scorers(scorers_str):
                 stats[target] = stats.get(target, 0) + 1
     return stats
 
+# --- NOWE FUNKCJE: WIEK I URODZINY ---
+def get_age_and_birthday(birth_date_val):
+    """Oblicza wiek i sprawdza czy są urodziny."""
+    if pd.isna(birth_date_val) or str(birth_date_val) in ['-', '', 'nan']:
+        return None, False
+    
+    formats = ['%Y-%m-%d', '%d.%m.%Y', '%Y/%m/%d']
+    dt = None
+    for f in formats:
+        try:
+            dt = pd.to_datetime(birth_date_val, format=f)
+            break
+        except: continue
+        
+    if dt is None: # Fallback
+        try: dt = pd.to_datetime(birth_date_val)
+        except: return None, False
+
+    today = datetime.date.today()
+    born = dt.date()
+    
+    age = today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+    is_birthday = (today.month == born.month) and (today.day == born.day)
+    
+    return age, is_birthday
+
+# --- ADMIN ACTIONS (Tylko dla Djero) ---
+def admin_save_csv(filename, new_data_dict):
+    """Prosta funkcja do dopisywania wiersza do CSV"""
+    try:
+        df = pd.read_csv(filename)
+        new_row = pd.DataFrame([new_data_dict])
+        df = pd.concat([df, new_row], ignore_index=True)
+        df.to_csv(filename, index=False)
+        st.cache_data.clear() # Czyścimy cache żeby widzieć zmiany
+        return True
+    except Exception as e:
+        st.error(f"Błąd zapisu: {e}")
+        return False
+
 # --- MENU ---
 st.sidebar.header("Nawigacja")
 opcja = st.sidebar.radio("Moduł:", [
@@ -220,6 +262,50 @@ opcja = st.sidebar.radio("Moduł:", [
     "Trenerzy"
 ])
 st.sidebar.divider()
+
+# --- PANEL ADMINISTRATORA (TYLKO DLA DJERO) ---
+if st.session_state.get('username') == 'Djero':
+    st.sidebar.markdown("### 🛠️ Panel Admina (Djero)")
+    
+    with st.sidebar.expander("➕ Dodaj Piłkarza"):
+        with st.form("add_player_form"):
+            a_imie = st.text_input("Imię i Nazwisko")
+            a_kraj = st.text_input("Kraj", value="Polska")
+            a_poz = st.selectbox("Pozycja", ["Bramkarz", "Obrońca", "Pomocnik", "Napastnik"])
+            a_data = st.date_input("Data urodzenia", min_value=datetime.date(1970,1,1))
+            if st.form_submit_button("Zapisz w bazie"):
+                if a_imie:
+                    # Zakładamy strukturę pliku pilkarze.csv
+                    success = admin_save_csv("pilkarze.csv", {
+                        "imię i nazwisko": a_imie,
+                        "kraj": a_kraj,
+                        "pozycja": a_poz,
+                        "data urodzenia": str(a_data),
+                        "suma": 0
+                    })
+                    if success: st.success(f"Dodano: {a_imie}")
+                else:
+                    st.warning("Podaj nazwisko")
+
+    with st.sidebar.expander("⚽ Dodaj Wynik"):
+        with st.form("add_result_form"):
+            a_sezon = st.text_input("Sezon", value="2025/26")
+            a_rywal = st.text_input("Rywal")
+            a_wynik = st.text_input("Wynik (np. 2:1)")
+            a_data_m = st.date_input("Data meczu")
+            if st.form_submit_button("Zapisz mecz"):
+                success = admin_save_csv("mecze.csv", {
+                    "sezon": a_sezon,
+                    "rywal": a_rywal,
+                    "wynik": a_wynik,
+                    "data meczu": str(a_data_m)
+                })
+                if success: st.success("Dodano mecz!")
+
+    with st.sidebar.expander("🔄 Aktualizuj Sezon"):
+        st.info("Tutaj możesz dodać funkcję edycji tabeli 25_26.csv (wymagałoby edytora tabeli).")
+
+    st.sidebar.divider()
 
 if st.sidebar.button("Wyloguj"): logout()
 
@@ -448,12 +534,50 @@ elif opcja == "Centrum Zawodników":
             )
 
             st.divider()
-            st.subheader("📈 Analiza Sezon po Sezonie")
+            st.subheader("📈 Profil i Analiza")
             
             dostepni_do_wykresu = df_unique_view['imię i nazwisko'].tolist()
-            wybrany_analiza = st.selectbox("Wybierz zawodnika:", [""] + dostepni_do_wykresu)
+            wybrany_analiza = st.selectbox("Wybierz zawodnika do analizy:", [""] + dostepni_do_wykresu)
 
             if wybrany_analiza:
+                # --- NOWA SEKCJA: KARTA ZAWODNIKA I URODZINY ---
+                player_row = df_unique_view[df_unique_view['imię i nazwisko'] == wybrany_analiza].iloc[0]
+                
+                # Szukamy kolumny z datą urodzenia
+                col_birth = next((c for c in player_row.index if c in ['data urodzenia', 'urodzony', 'data_ur']), None)
+                
+                age_info = "-"
+                is_bday = False
+                
+                if col_birth:
+                    age, is_bday = get_age_and_birthday(player_row[col_birth])
+                    if age: age_info = f"{age} lat"
+                
+                # Stylizacja Karty
+                st.markdown("---")
+                if is_bday:
+                    st.balloons()
+                    st.success(f"🎉🎂 WSZYSTKIEGO NAJLEPSZEGO! {player_row['imię i nazwisko']} kończy dzisiaj {age} lat! 🎂🎉")
+
+                c_prof1, c_prof2 = st.columns([1, 3])
+                
+                with c_prof1:
+                    if 'Flaga' in player_row and player_row['Flaga']:
+                        st.image(player_row['Flaga'], width=100)
+                    else:
+                        st.markdown("👤")
+                
+                with c_prof2:
+                    st.markdown(f"## {player_row['imię i nazwisko']}")
+                    st.markdown(f"**Kraj:** {player_row.get('Narodowość', '-')}")
+                    st.markdown(f"**Pozycja:** {player_row.get('pozycja', '-')}")
+                    st.markdown(f"**Wiek:** {age_info}")
+                    if col_birth:
+                        st.caption(f"Data ur.: {player_row[col_birth]}")
+
+                st.markdown("---")
+                # ---------------------------------------------------
+
                 player_stats = df_long[df_long['imię i nazwisko'] == wybrany_analiza].copy()
                 
                 gole_lista = []
@@ -802,4 +926,3 @@ elif opcja == "Trenerzy":
                             st.dataframe(coach_matches[view_c].style.map(color_results_logic, subset=['wynik']), use_container_width=True)
                         else: st.warning("Brak meczów.")
                     else: st.error("Brak kolumny z datą w pliku mecze.csv.")
-
