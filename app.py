@@ -370,7 +370,7 @@ if opcja == "Aktualny Sezon (25/26)":
             "Flaga": st.column_config.ImageColumn("Kraj", width="small"),
             "mecze": st.column_config.ProgressColumn("Mecze", format="%d", min_value=0, max_value=int(df['mecze'].max()) if 'mecze' in df.columns else 35),
             "gole": st.column_config.ProgressColumn("Gole", format="%d ⚽", min_value=0, max_value=int(df['gole'].max()) if 'gole' in df.columns else 20),
-            "asysty": st.column_config.ProgressColumn("Asysty", format="%d 🅰️", min_value=0, max_value=15),
+            "asysty": st.column_config.ProgressColumn("Asysty", format="%d 🅰️", min_value=0, max_value=int(df['asysty'].max()) if 'asysty' in df.columns else 15),
             "kanadyjka": st.column_config.NumberColumn("Kanadyjka", format="%d 🍁"),
         }
         
@@ -852,3 +852,4 @@ elif opcja == "Trenerzy":
                             st.plotly_chart(fig_line, use_container_width=True)
                     else:
                         st.error("Brak kolumny z datą w mecze.csv.")
+
