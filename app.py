@@ -35,7 +35,7 @@ def login():
         if st.button("Zaloguj", use_container_width=True):
             if u in USERS and USERS[u] == p:
                 st.session_state['logged_in'] = True
-                st.session_state['username'] = u  # ZAPAMIĘTUJEMY UŻYTKOWNIKA
+                st.session_state['username'] = u
                 st.rerun()
             else: st.error("Błąd logowania")
 
@@ -102,8 +102,13 @@ def load_data(filename):
         except: return None
     
     df = df.fillna("-")
+    # Normalizacja nazw kolumn
     df.columns = [c.strip().lower() for c in df.columns]
     
+    # --- FIX: Usuwanie zduplikowanych kolumn (np. dwie kolumny 'suma') ---
+    # To zapobiega błędowi TypeError, który miałeś wcześniej
+    df = df.loc[:, ~df.columns.duplicated()]
+
     cols_drop = [c for c in df.columns if 'lp' in c]
     if cols_drop: df = df.drop(columns=cols_drop)
 
@@ -213,7 +218,6 @@ def parse_scorers(scorers_str):
                 stats[target] = stats.get(target, 0) + 1
     return stats
 
-# --- NOWE FUNKCJE: WIEK I URODZINY ---
 def get_age_and_birthday(birth_date_val):
     """Oblicza wiek i sprawdza czy są urodziny."""
     if pd.isna(birth_date_val) or str(birth_date_val) in ['-', '', 'nan']:
@@ -241,13 +245,12 @@ def get_age_and_birthday(birth_date_val):
 
 # --- ADMIN ACTIONS (Tylko dla Djero) ---
 def admin_save_csv(filename, new_data_dict):
-    """Prosta funkcja do dopisywania wiersza do CSV"""
     try:
         df = pd.read_csv(filename)
         new_row = pd.DataFrame([new_data_dict])
         df = pd.concat([df, new_row], ignore_index=True)
         df.to_csv(filename, index=False)
-        st.cache_data.clear() # Czyścimy cache żeby widzieć zmiany
+        st.cache_data.clear()
         return True
     except Exception as e:
         st.error(f"Błąd zapisu: {e}")
@@ -275,7 +278,6 @@ if st.session_state.get('username') == 'Djero':
             a_data = st.date_input("Data urodzenia", min_value=datetime.date(1970,1,1))
             if st.form_submit_button("Zapisz w bazie"):
                 if a_imie:
-                    # Zakładamy strukturę pliku pilkarze.csv
                     success = admin_save_csv("pilkarze.csv", {
                         "imię i nazwisko": a_imie,
                         "kraj": a_kraj,
@@ -302,8 +304,30 @@ if st.session_state.get('username') == 'Djero':
                 })
                 if success: st.success("Dodano mecz!")
 
-    with st.sidebar.expander("🔄 Aktualizuj Sezon"):
-        st.info("Tutaj możesz dodać funkcję edycji tabeli 25_26.csv (wymagałoby edytora tabeli).")
+    # --- EDYTOR SEZONU (POPRAWIONY) ---
+    with st.sidebar.expander("🔄 Edytuj Tabelę 25/26"):
+        st.warning("Edytujesz plik 25_26.csv na żywo!")
+        try:
+            # Wczytujemy surowy plik do edycji (bez przetwarzania load_data, żeby nie psuć formatu)
+            if os.path.exists("25_26.csv"):
+                df_editor_raw = pd.read_csv("25_26.csv")
+                
+                # Wyświetlamy edytowalną tabelę
+                edited_df = st.data_editor(
+                    df_editor_raw,
+                    num_rows="dynamic",  # Pozwala dodawać nowe wiersze
+                    key="editor_season_live",
+                    height=300
+                )
+                
+                if st.button("💾 Zapisz zmiany w 25/26", use_container_width=True):
+                    edited_df.to_csv("25_26.csv", index=False)
+                    st.success("Zapisano zmiany! Odśwież stronę, aby zobaczyć efekty.")
+                    st.cache_data.clear() # Czyścimy cache, żeby wczytać nowe dane
+            else:
+                st.error("Brak pliku 25_26.csv")
+        except Exception as e:
+            st.error(f"Błąd edytora: {e}")
 
     st.sidebar.divider()
 
@@ -502,7 +526,11 @@ elif opcja == "Centrum Zawodników":
         df_mecze = load_data("mecze.csv") 
         
         if df_long is not None:
+            # FIX: Zabezpieczenie przed błędem to_numeric na zduplikowanych kolumnach
             if 'suma' in df_long.columns:
+                # Jeśli mimo zabezpieczenia w load_data coś poszło nie tak, sprawdzamy typ
+                if isinstance(df_long['suma'], pd.DataFrame):
+                    df_long['suma'] = df_long['suma'].iloc[:, 0]
                 df_long['suma'] = pd.to_numeric(df_long['suma'], errors='coerce').fillna(0).astype(int)
                 df_unique_view = df_long.sort_values('suma', ascending=False).drop_duplicates(subset=['imię i nazwisko'])
             else:
@@ -540,12 +568,10 @@ elif opcja == "Centrum Zawodników":
             wybrany_analiza = st.selectbox("Wybierz zawodnika do analizy:", [""] + dostepni_do_wykresu)
 
             if wybrany_analiza:
-                # --- NOWA SEKCJA: KARTA ZAWODNIKA I URODZINY ---
+                # --- KARTA ZAWODNIKA I URODZINY ---
                 player_row = df_unique_view[df_unique_view['imię i nazwisko'] == wybrany_analiza].iloc[0]
                 
-                # Szukamy kolumny z datą urodzenia
                 col_birth = next((c for c in player_row.index if c in ['data urodzenia', 'urodzony', 'data_ur']), None)
-                
                 age_info = "-"
                 is_bday = False
                 
@@ -553,7 +579,6 @@ elif opcja == "Centrum Zawodników":
                     age, is_bday = get_age_and_birthday(player_row[col_birth])
                     if age: age_info = f"{age} lat"
                 
-                # Stylizacja Karty
                 st.markdown("---")
                 if is_bday:
                     st.balloons()
@@ -576,7 +601,6 @@ elif opcja == "Centrum Zawodników":
                         st.caption(f"Data ur.: {player_row[col_birth]}")
 
                 st.markdown("---")
-                # ---------------------------------------------------
 
                 player_stats = df_long[df_long['imię i nazwisko'] == wybrany_analiza].copy()
                 
@@ -704,6 +728,8 @@ elif opcja == "Centrum Zawodników":
         if df is not None:
             target = 'suma' if 'suma' in df.columns else next((c for c in df.columns if 'suma' in c.lower()), None)
             if target:
+                if isinstance(df[target], pd.DataFrame):
+                    df[target] = df[target].iloc[:, 0]
                 df[target] = pd.to_numeric(df[target], errors='coerce').fillna(0).astype(int)
                 df_uniq = df.drop_duplicates(subset=['imię i nazwisko'])
                 df_uniq = df_uniq[df_uniq[target] >= 100].sort_values(target, ascending=False)
@@ -926,4 +952,3 @@ elif opcja == "Trenerzy":
                             st.dataframe(coach_matches[view_c].style.map(color_results_logic, subset=['wynik']), use_container_width=True)
                         else: st.warning("Brak meczów.")
                     else: st.error("Brak kolumny z datą w pliku mecze.csv.")
-
