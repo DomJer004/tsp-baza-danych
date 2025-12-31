@@ -290,85 +290,123 @@ if st.session_state.get('username') == 'Djero':
     st.sidebar.markdown("### 🛠️ Panel Admina (Djero)")
     all_files = [f for f in os.listdir('.') if f.endswith('.csv')]
     
-    with st.sidebar.expander("📝 UNIWERSALNY EDYTOR CSV", expanded=False):
-        st.info("💡 Aby dodać wiersz, kliknij w pustą komórkę na dole tabeli.")
-        selected_file = st.selectbox("Wybierz plik:", all_files)
+    # --- 1. UNIWERSALNY EDYTOR DANYCH ---
+    with st.sidebar.expander("📝 EDYTOR DANYCH (TABELA)", expanded=True):
+        st.info("💡 Aby dodać wiersz, kliknij w pusty wiersz na samym dole tabeli.")
+        selected_file = st.selectbox("Wybierz plik do edycji:", all_files)
         
         if selected_file:
             try:
-                # Wczytujemy plik "na surowo" do edycji
+                # Wczytanie pliku
                 try: df_editor = pd.read_csv(selected_file, encoding='utf-8')
                 except: df_editor = pd.read_csv(selected_file, encoding='windows-1250')
                 
-                # --- AUTO-ZMIANY DLA MECZE.CSV ---
+                # --- AUTO-NAPRAWA DLA MECZE.CSV ---
+                is_changed = False
                 if selected_file == "mecze.csv":
+                    # 1. Frekwencja -> Widzów
                     cols_lower = [c.lower().strip() for c in df_editor.columns]
-                    
-                    # 1. Zmiana nazwy Frekwencja -> Widzów
                     for col in df_editor.columns:
                         if col.lower().strip() == 'frekwencja':
                             df_editor.rename(columns={col: 'Widzów'}, inplace=True)
-                            st.toast("ℹ️ Zmieniono 'Frekwencja' na 'Widzów'.")
-                            cols_lower = [c.lower().strip() for c in df_editor.columns] # refresh
+                            st.toast("ℹ️ Zmieniono nazwę 'Frekwencja' na 'Widzów'.")
+                            is_changed = True
                             break
                     
-                    # 2. Dodanie kolumny Dom, jeśli nie ma
+                    # 2. Dodanie kolumny Dom (jeśli brakuje)
                     synonyms_dom = ['dom', 'gospodarz', 'u siebie', 'gdzie']
                     if not any(x in cols_lower for x in synonyms_dom):
-                        df_editor['Dom'] = "" # Tworzymy pustą kolumnę
-                        st.toast("ℹ️ Dodano automatycznie kolumnę 'Dom'. Uzupełnij ją (1=Dom, 0=Wyjazd).")
+                        df_editor['Dom'] = "-" # Domyślna wartość
+                        st.toast("ℹ️ Dodano brakującą kolumnę 'Dom'.")
+                        is_changed = True
 
-                # Edytor z obsługą dodawania wierszy (dynamic)
+                # Wyświetlenie edytora
                 edited_df = st.data_editor(
                     df_editor, 
-                    num_rows="dynamic",
+                    num_rows="dynamic", # Pozwala na dodawanie wierszy
                     key=f"editor_{selected_file}_{st.session_state['uploader_key']}", 
                     height=400
                 )
                 
-                if st.button(f"💾 Zapisz zmiany w {selected_file}", use_container_width=True):
+                # Przycisk Zapisu
+                save_label = "💾 Zapisz zmiany"
+                if is_changed: save_label += " (Wykryto automatyczne zmiany!)"
+                
+                if st.button(save_label, use_container_width=True):
                     try:
                         edited_df.to_csv(selected_file, index=False)
-                        st.success("✅ Zapisano pomyślnie! Odświeżam widok...")
-                        
-                        # Czyścimy cache i wymuszamy przeładowanie
+                        st.success(f"✅ Zapisano plik {selected_file}!")
                         st.cache_data.clear()
                         st.session_state['uploader_key'] += 1
                         time.sleep(1)
                         st.rerun()
                     except PermissionError:
-                        st.error("⚠️ Plik jest otwarty w innym programie. Zamknij go i spróbuj ponownie.")
+                        st.error("⚠️ Zamknij plik w Excelu i spróbuj ponownie.")
                     except Exception as e:
                         st.error(f"Błąd zapisu: {e}")
-                        
-            except Exception as e: st.error(f"Błąd wczytywania pliku: {e}")
-            
+
+            except Exception as e: st.error(f"Błąd pliku: {e}")
+
+    # --- 2. DODAWANIE KOLUMN (NOWOŚĆ) ---
+    with st.sidebar.expander("➕ ZARZĄDZANIE STRUKTURĄ (DODAJ KOLUMNĘ)"):
+        st.caption("Tutaj możesz dodać nową kolumnę do dowolnego pliku.")
+        target_file = st.selectbox("Plik:", all_files, key="col_file_sel")
+        
+        c_col1, c_col2 = st.columns(2)
+        new_col_name = c_col1.text_input("Nazwa nowej kolumny:")
+        default_val = c_col2.text_input("Wartość domyślna:", value="-")
+        
+        if st.button("Dodaj Kolumnę", use_container_width=True):
+            if target_file and new_col_name:
+                try:
+                    try: df_mod = pd.read_csv(target_file, encoding='utf-8')
+                    except: df_mod = pd.read_csv(target_file, encoding='windows-1250')
+                    
+                    if new_col_name in df_mod.columns:
+                        st.warning("Taka kolumna już istnieje!")
+                    else:
+                        df_mod[new_col_name] = default_val
+                        df_mod.to_csv(target_file, index=False)
+                        st.success(f"Dodano kolumnę '{new_col_name}' do {target_file}!")
+                        st.cache_data.clear()
+                        time.sleep(1)
+                        st.rerun()
+                except Exception as e:
+                    st.error(f"Błąd: {e}")
+            else:
+                st.warning("Wpisz nazwę kolumny.")
+
     st.sidebar.divider()
     
-    # --- SZYBKIE DODAWANIE (BEZ ZMIAN) ---
-    with st.sidebar.expander("➕ Szybkie dodawanie (Piłkarz)"):
-        with st.form("add_player_form"):
-            a_imie = st.text_input("Imię i Nazwisko")
-            a_kraj = st.text_input("Kraj", value="Polska")
-            a_poz = st.selectbox("Pozycja", ["Bramkarz", "Obrońca", "Pomocnik", "Napastnik"])
-            a_data = st.date_input("Data urodzenia", min_value=datetime.date(1970,1,1))
-            if st.form_submit_button("Zapisz"):
-                if a_imie and os.path.exists("pilkarze.csv"):
-                    admin_save_csv("pilkarze.csv", {"imię i nazwisko": a_imie, "kraj": a_kraj, "pozycja": a_poz, "data urodzenia": str(a_data), "suma": 0})
-                    st.success(f"Dodano: {a_imie}"); time.sleep(1); st.rerun()
-                else: st.warning("Brak pliku/danych")
-    
-    with st.sidebar.expander("⚽ Szybkie dodawanie (Mecz)"):
-        with st.form("add_result_form"):
-            a_sezon = st.text_input("Sezon", value="2025/26")
-            a_rywal = st.text_input("Rywal")
-            a_wynik = st.text_input("Wynik (np. 2:1)")
-            a_data_m = st.date_input("Data meczu")
-            if st.form_submit_button("Zapisz"):
-                if os.path.exists("mecze.csv"):
-                    # Tu też można dodać domyślne pola, jeśli chcesz
-                    admin_save_csv("mecze.csv", {"sezon": a_sezon, "rywal": a_rywal, "wynik": a_wynik, "data meczu": str(a_data_m), "Dom": ""})
-                    st.success("Dodano mecz!"); time.sleep(1); st.rerun()
+    # --- 3. SZYBKIE DODAWANIE (BEZ ZMIAN) ---
+    with st.sidebar.expander("⚡ Szybkie dodawanie (Formularz)"):
+        tab_p, tab_m = st.tabs(["Piłkarz", "Mecz"])
+        
+        with tab_p:
+            with st.form("add_player_form"):
+                a_imie = st.text_input("Imię i Nazwisko")
+                a_kraj = st.text_input("Kraj", value="Polska")
+                a_poz = st.selectbox("Pozycja", ["Bramkarz", "Obrońca", "Pomocnik", "Napastnik"])
+                a_data = st.date_input("Data urodzenia", min_value=datetime.date(1970,1,1))
+                if st.form_submit_button("Zapisz Piłkarza"):
+                    if a_imie and os.path.exists("pilkarze.csv"):
+                        admin_save_csv("pilkarze.csv", {"imię i nazwisko": a_imie, "kraj": a_kraj, "pozycja": a_poz, "data urodzenia": str(a_data), "suma": 0})
+                        st.success(f"Dodano: {a_imie}"); time.sleep(1); st.rerun()
+                    else: st.warning("Brak pliku pilkarze.csv")
+
+        with tab_m:
+            with st.form("add_result_form"):
+                a_sezon = st.text_input("Sezon", value="2025/26")
+                a_rywal = st.text_input("Rywal")
+                a_wynik = st.text_input("Wynik (np. 2:1)")
+                a_data_m = st.date_input("Data meczu")
+                a_dom = st.selectbox("Gdzie?", ["Dom", "Wyjazd"])
+                dom_val = "1" if a_dom == "Dom" else "0"
+                
+                if st.form_submit_button("Zapisz Mecz"):
+                    if os.path.exists("mecze.csv"):
+                        admin_save_csv("mecze.csv", {"sezon": a_sezon, "rywal": a_rywal, "wynik": a_wynik, "data meczu": str(a_data_m), "Dom": dom_val, "Widzów": 0})
+                        st.success("Dodano mecz!"); time.sleep(1); st.rerun()
     st.sidebar.divider()
 if st.sidebar.button("Wyloguj"): logout()
 
@@ -1134,3 +1172,4 @@ elif opcja == "Trenerzy":
                             st.plotly_chart(fig_line, use_container_width=True)
                     else:
                         st.error("Brak kolumny z datą w mecze.csv.")
+
