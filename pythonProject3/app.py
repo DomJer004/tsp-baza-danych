@@ -846,39 +846,70 @@ elif opcja == "Centrum Meczowe":
                     
                     st.dataframe(sub[['data meczu', 'rozgrywki', 'wynik', 'Trener']].style.map(color_results_logic, subset=['wynik']), use_container_width=True, hide_index=True)
 
-# --- TAB 4: FREKWENCJA (POPRAWIONE LICZENIE) ---
+# --- TAB 4: FREKWENCJA (WERSJA DIAGNOSTYCZNA) ---
     with tab4:
         st.subheader("📢 Statystyki Frekwencji")
         
+        # --- PRZYCISK DIAGNOSTYCZNY ---
+        with st.expander("🕵️‍♂️ DEBUG: Sprawdź dlaczego nie liczy (Kliknij tutaj)"):
+            st.write("Dostępne kolumny w pliku:", df_matches.columns.tolist())
+            
+            # Szukamy kolumn
+            debug_att = next((c for c in df_matches.columns if c in ['widzów', 'frekwencja', 'kibiców', 'widzow']), None)
+            debug_dom = next((c for c in df_matches.columns if c in ['dom', 'gospodarz', 'u siebie']), None)
+            
+            if debug_att:
+                st.write(f"Znaleziono kolumnę frekwencji: **{debug_att}**")
+                st.write("Przykładowe surowe dane (pierwsze 5):")
+                st.write(df_matches[debug_att].head(5))
+            else:
+                st.error("❌ NIE ZNALEZIONO KOLUMNY 'WIDZÓW' (ani frekwencja, kibiców).")
+
+            if debug_dom:
+                st.write(f"Znaleziono kolumnę dom: **{debug_dom}**")
+            else:
+                st.error("❌ NIE ZNALEZIONO KOLUMNY 'DOM'.")
+
         stats_calculated = False
         if df_matches is not None:
-            col_att = next((c for c in df_matches.columns if c in ['widzów', 'frekwencja', 'kibiców']), None)
+            # 1. Inteligentne szukanie kolumn
+            col_att = next((c for c in df_matches.columns if c in ['widzów', 'frekwencja', 'kibiców', 'widzow']), None)
             col_dom = next((c for c in df_matches.columns if c in ['dom', 'gospodarz', 'u siebie']), None)
             col_liga = next((c for c in df_matches.columns if c in ['rozgrywki', 'liga', 'turniej']), None)
             col_miejsce = next((c for c in df_matches.columns if c in ['miejsce rozgrywania', 'miejsce']), None)
 
+            # Info o automatycznym wykrywaniu domu
             if col_miejsce and col_dom:
-                st.success(f"ℹ️ Wykryto kolumnę '{col_miejsce}'. Mecze w 'Bielsko-Biała' są automatycznie traktowane jako DOM.")
+                st.success(f"ℹ️ Wykryto kolumnę '{col_miejsce}'. Mecze w 'Bielsko-Biała' są traktowane jako DOM.")
 
             if col_att and col_dom and 'sezon' in df_matches.columns:
-                # 1. Filtrowanie meczów domowych
-                df_matches[col_dom] = df_matches[col_dom].astype(str)
-                # Szukamy jedynek w kolumnie Dom
-                df_home = df_matches[df_matches[col_dom].str.contains('1', na=False)].copy()
+                # 2. Logika DOM/WYJAZD
+                # Zamieniamy na string i szukamy "1" LUB "bielsko" w miejscu rozgrywania
+                df_matches[col_dom] = df_matches[col_dom].astype(str).str.lower()
                 
-                # --- KLUCZOWA POPRAWKA: CZYSZCZENIE LICZB ---
-                # 1. Zamieniamy na tekst
-                # 2. regex=True i r'\D' usuwa WSZYSTKO co nie jest cyfrą (spacje, kropki, litery)
-                # Np. "1 590" -> "1590", "2.000" -> "2000", "ok. 500" -> "500"
-                df_home[col_att] = df_home[col_att].astype(str).str.replace(r'\D', '', regex=True)
+                # Jeśli mamy kolumnę miejsce, to ona ma priorytet w ustalaniu domu
+                if col_miejsce:
+                    is_home_mask = df_matches[col_miejsce].astype(str).str.lower().str.contains("bielsko", na=False)
+                else:
+                    # Jeśli nie, ufamy kolumnie 'dom' (1, tak, true)
+                    is_home_mask = df_matches[col_dom].isin(['1', 'true', 'tak', 'dom', 'gospodarz', 'd', 'u siebie'])
+
+                df_home = df_matches[is_home_mask].copy()
                 
-                # 3. Konwersja na liczby (puste stringi zamieniamy na NaN, potem na 0)
-                df_home[col_att] = pd.to_numeric(df_home[col_att], errors='coerce').fillna(0).astype(int)
-                
-                # Usuwamy mecze z zerową frekwencją, żeby nie zaniżały średniej
+                # --- 3. PANCERNE CZYSZCZENIE LICZB (1 590 -> 1590) ---
+                # Zamieniamy na tekst -> usuwamy WSZYSTKO co nie jest cyfrą (regex \D) -> konwertujemy
+                try:
+                    # Krok po kroku dla pewności
+                    clean_series = df_home[col_att].astype(str) # Na tekst
+                    clean_series = clean_series.str.replace(r'\D', '', regex=True) # Usuń spacje, kropki, litery "ok."
+                    df_home[col_att] = pd.to_numeric(clean_series, errors='coerce').fillna(0).astype(int)
+                except Exception as e:
+                    st.error(f"Błąd przy konwersji liczb: {e}")
+
+                # Usuwamy mecze bez widzów (0)
                 df_home_valid = df_home[df_home[col_att] > 0].copy()
 
-                # --- A. PANEL STEROWANIA ---
+                # --- 4. PANEL STEROWANIA ---
                 c1, c2 = st.columns([1, 1])
                 
                 with c1:
@@ -898,69 +929,118 @@ elif opcja == "Centrum Meczowe":
                         "Minimum": "min",
                         "Suma": "sum"
                     }
-                    sel_metric_name = st.selectbox("Wskaźnik na wykresie:", list(metric_map.keys()), index=0)
+                    sel_metric_name = st.selectbox("Wskaźnik:", list(metric_map.keys()), index=0)
 
-                # --- B. OBLICZENIA ---
+                # --- 5. WYNIKI ---
                 if not df_home_valid.empty:
                     stats = df_home_valid.groupby('sezon')[col_att].agg(['count', 'sum', 'mean', 'median', 'min', 'max']).reset_index()
                     stats.columns = ['Sezon', 'Mecze', 'Suma', 'Średnia', 'Mediana', 'Min', 'Max']
                     
-                    # Zaokrąglanie
                     for c in ['Suma', 'Średnia', 'Mediana', 'Min', 'Max']:
                         stats[c] = stats[c].astype(int)
                     
                     stats = stats.sort_values('Sezon', ascending=True)
 
-                    # --- C. WYKRES ---
                     if HAS_PLOTLY:
-                        y_val = sel_metric_name.split(" ")[0] 
+                        y_val = sel_metric_name.split(" ")[0]
                         map_rev = {"Maksimum": "Max", "Minimum": "Min", "Suma": "Suma", "Średnia": "Średnia", "Mediana": "Mediana"}
                         y_col_df = map_rev.get(y_val, "Średnia")
 
                         fig = px.bar(
-                            stats, 
-                            x='Sezon', 
-                            y=y_col_df, 
+                            stats, x='Sezon', y=y_col_df, 
                             title=f"Frekwencja Domowa ({sel_metric_name})",
-                            text=y_col_df,
-                            color=y_col_df,
-                            color_continuous_scale='Blues'
+                            text=y_col_df, color=y_col_df, color_continuous_scale='Blues'
                         )
                         fig.update_traces(textposition='outside')
-                        fig.update_layout(yaxis_title="Liczba Widzów", showlegend=False)
                         st.plotly_chart(fig, use_container_width=True)
                     else:
                         st.bar_chart(stats.set_index('Sezon'))
 
-                    # --- D. TABELA ---
                     with st.expander("Zobacz szczegółową tabelę"):
                         st.dataframe(stats.sort_values('Sezon', ascending=False), use_container_width=True, hide_index=True)
                     
                     stats_calculated = True
                 else:
-                    st.warning("Brak danych o frekwencji (sprawdź czy w kolumnie Widzów są liczby > 0).")
+                    st.warning(f"Brak danych. Sprawdź debuger powyżej. Czy w kolumnie '{col_att}' są liczby > 0?")
 
         if not stats_calculated:
-            st.info("💡 Porada: Upewnij się, że plik `mecze.csv` ma kolumny **'Miejsce rozgrywania'** oraz **'Widzów'**.")
+            st.info("💡 Jeśli widzisz ten komunikat, rozwiń sekcję 'DEBUG' powyżej.")
 
         st.divider()
         st.caption("Dane archiwalne (frekwencja.csv):")
         df_f = load_data("frekwencja.csv")
         if df_f is not None:
             st.dataframe(df_f, use_container_width=True)
-    # --- TAB 5: WYNIKI ---
+ # --- TAB 5: WYNIKI (DYNAMICZNE) ---
     with tab5:
         st.subheader("🎲 Statystyki Wyników")
-        df_w = load_data("wyniki.csv")
-        if df_w is not None:
-            c1, c2 = st.columns([2, 1])
+        
+        if df_matches is not None and 'wynik' in df_matches.columns:
+            # 1. Przygotowanie danych (standaryzacja usuwa spacje np. "1 : 0" -> "1:0")
+            # Tworzymy kopię, żeby nie psuć głównego dataframe
+            df_scores = df_matches.copy()
+            df_scores['wynik_std'] = df_scores['wynik'].astype(str).str.replace(" ", "").str.strip()
+            
+            # Liczenie wystąpień
+            score_counts = df_scores['wynik_std'].value_counts().reset_index()
+            score_counts.columns = ['Wynik', 'Liczba']
+            score_counts = score_counts.sort_values('Liczba', ascending=False) # Najczęstsze na górze
+
+            # 2. Układ: Wykres po lewej, Szczegóły po prawej
+            c1, c2 = st.columns([1.5, 1])
+            
             with c1:
+                st.markdown("#### 📊 Częstotliwość")
                 if HAS_PLOTLY:
-                    fig = px.bar(df_w, x='wynik', y='częstotliwość', title="Najczęstsze wyniki")
+                    fig = px.bar(
+                        score_counts.head(15), # Top 15 wyników
+                        x='Wynik', 
+                        y='Liczba', 
+                        text='Liczba',
+                        title="Najczęstsze wyniki (Top 15)",
+                        color='Liczba',
+                        color_continuous_scale='Viridis'
+                    )
+                    fig.update_layout(xaxis_title="Wynik", yaxis_title="Ilość meczów")
                     st.plotly_chart(fig, use_container_width=True)
-                else: st.bar_chart(df_w.set_index('wynik')['częstotliwość'])
+                else:
+                    st.bar_chart(score_counts.set_index('Wynik').head(15))
+
             with c2:
-                st.dataframe(df_w, use_container_width=True)
+                st.markdown("#### 🔍 Sprawdź mecze")
+                st.info("Wybierz wynik z listy, aby zobaczyć, kiedy padł.")
+                
+                # Selectbox z wynikami (format: "1:0 (54 mecze)")
+                score_options = score_counts['Wynik'].tolist()
+                def format_func(opt):
+                    count = score_counts[score_counts['Wynik'] == opt]['Liczba'].values[0]
+                    return f"{opt} ({count} x)"
+                
+                selected_score = st.selectbox("Wybierz wynik:", score_options, format_func=format_func)
+                
+                if selected_score:
+                    # Filtrowanie meczów z tym wynikiem
+                    matches_with_score = df_scores[df_scores['wynik_std'] == selected_score].copy()
+                    
+                    # Sortowanie od najnowszych
+                    if 'dt_obj' in matches_with_score.columns:
+                        matches_with_score = matches_with_score.sort_values('dt_obj', ascending=False)
+                    
+                    st.write(f"**Lista meczów z wynikiem {selected_score}:**")
+                    
+                    # Wybór kolumn do wyświetlenia
+                    cols_show = ['Gdzie', 'data meczu', 'rywal', 'rozgrywki', 'Trener']
+                    final_cols = [c for c in cols_show if c in matches_with_score.columns]
+                    
+                    # Wyświetlenie tabeli z kolorowaniem
+                    st.dataframe(
+                        matches_with_score[final_cols].style.map(color_results_logic, subset=['wynik'] if 'wynik' in final_cols else None),
+                        use_container_width=True,
+                        hide_index=True,
+                        height=400 # Ograniczona wysokość z paskiem przewijania
+                    )
+        else:
+            st.warning("Brak danych lub kolumny 'wynik' w pliku mecze.csv.")
     
 elif opcja == "Trenerzy":
     st.header("👔 Trenerzy TSP")
@@ -1170,4 +1250,5 @@ elif opcja == "Trenerzy":
                             st.plotly_chart(fig_line, use_container_width=True)
                     else:
                         st.error("Brak kolumny z datą w mecze.csv.")
+
 
