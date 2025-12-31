@@ -108,7 +108,16 @@ def load_data(filename):
         except: return None
     
     df = df.fillna("-")
+    
+    # Normalizacja nazw kolumn (małe litery, usuwanie spacji)
     df.columns = [c.strip().lower() for c in df.columns]
+    
+    # --- AUTO-ZMIANA NAZWY DLA MECZE.CSV ---
+    # Jeśli plik to mecze.csv i ma kolumnę 'frekwencja', zmieniamy ją na 'widzów'
+    if 'mecze.csv' in filename and 'frekwencja' in df.columns:
+        df.rename(columns={'frekwencja': 'widzów'}, inplace=True)
+    
+    # Usuwanie zduplikowanych kolumn
     df = df.loc[:, ~df.columns.duplicated()]
 
     cols_drop = [c for c in df.columns if 'lp' in c]
@@ -136,7 +145,7 @@ def load_data(filename):
         'asysty', 'żółte kartki', 'czerwone kartki', 'gole samobójcze', 
         'asysta 2. stopnia', 'sprokurowany karny', 'wywalczony karny', 
         'karny', 'niestrzelony karny', 'główka', 'lewa', 'prawa', 
-        'czyste konta', 'obronione karne', 'kanadyjka'
+        'czyste konta', 'obronione karne', 'kanadyjka', 'widzów'
     ]
     for col in df.columns:
         if col in int_candidates:
@@ -273,41 +282,53 @@ if st.session_state.get('username') == 'Djero':
     all_files = [f for f in os.listdir('.') if f.endswith('.csv')]
     
     with st.sidebar.expander("📝 UNIWERSALNY EDYTOR CSV", expanded=False):
+        st.info("💡 Aby dodać wiersz, kliknij w pustą komórkę na dole tabeli.")
         selected_file = st.selectbox("Wybierz plik:", all_files)
+        
         if selected_file:
             try:
-                # Wczytywanie bez cache dla edytora
+                # Wczytujemy plik "na surowo" do edycji
                 try: df_editor = pd.read_csv(selected_file, encoding='utf-8')
                 except: df_editor = pd.read_csv(selected_file, encoding='windows-1250')
                 
-                # Używamy unikalnego klucza (uploader_key) aby wymusić odświeżenie widgetu
+                # --- AUTO-ZMIANA NAZWY PRZY EDYCJI ---
+                # Jeśli edytujemy mecze.csv, normalizujemy nazwę kolumny od razu
+                if selected_file == "mecze.csv":
+                    # Szukamy kolumny 'frekwencja' bez względu na wielkość liter
+                    for col in df_editor.columns:
+                        if col.lower().strip() == 'frekwencja':
+                            df_editor.rename(columns={col: 'Widzów'}, inplace=True)
+                            st.caption("ℹ️ Automatycznie zmieniono nazwę kolumny 'Frekwencja' na 'Widzów'. Zapisz, aby utrwalić.")
+                            break
+
+                # Edytor z obsługą dodawania wierszy (dynamic)
                 edited_df = st.data_editor(
                     df_editor, 
-                    num_rows="dynamic", 
+                    num_rows="dynamic", # TO POZWALA DODAWAĆ I USUWAĆ WIERSZE
                     key=f"editor_{selected_file}_{st.session_state['uploader_key']}", 
-                    height=300
+                    height=400
                 )
                 
                 if st.button(f"💾 Zapisz zmiany w {selected_file}", use_container_width=True):
                     try:
                         edited_df.to_csv(selected_file, index=False)
-                        st.success("✅ Zapisano! Odświeżam...")
+                        st.success("✅ Zapisano pomyślnie! Odświeżam widok...")
                         
-                        # 1. Czyścimy cache aplikacji (dla load_data)
+                        # Czyścimy cache i wymuszamy przeładowanie
                         st.cache_data.clear()
-                        # 2. Inkrementujemy klucz (dla st.data_editor), aby pobrał nowe dane
                         st.session_state['uploader_key'] += 1
-                        
                         time.sleep(1)
                         st.rerun()
                     except PermissionError:
-                        st.error("⚠️ BŁĄD: Plik jest otwarty w Excelu. Zamknij go i spróbuj ponownie.")
+                        st.error("⚠️ Plik jest otwarty w innym programie. Zamknij go i spróbuj ponownie.")
                     except Exception as e:
                         st.error(f"Błąd zapisu: {e}")
                         
-            except Exception as e: st.error(f"Błąd: {e}")
+            except Exception as e: st.error(f"Błąd wczytywania pliku: {e}")
+            
     st.sidebar.divider()
     
+    # Formularze szybkiego dodawania (pozostawiam bez zmian)
     with st.sidebar.expander("➕ Szybkie dodawanie (Piłkarz)"):
         with st.form("add_player_form"):
             a_imie = st.text_input("Imię i Nazwisko")
@@ -1096,4 +1117,3 @@ elif opcja == "Trenerzy":
                             st.plotly_chart(fig_line, use_container_width=True)
                     else:
                         st.error("Brak kolumny z datą w mecze.csv.")
-
