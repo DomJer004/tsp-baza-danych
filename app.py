@@ -1,6 +1,9 @@
 import streamlit as st
 import pandas as pd
 import datetime
+impimport streamlit as st
+import pandas as pd
+import datetime
 import re
 import os
 import time
@@ -12,7 +15,17 @@ st.set_page_config(
     page_icon="⚽"
 )
 
-# --- 2. LOGOWANIE I SESJA ---
+# --- 2. ZARZĄDZANIE SESJĄ (State) ---
+# Inicjalizacja klucza do wymuszania odświeżania edytora
+if 'uploader_key' not in st.session_state:
+    st.session_state['uploader_key'] = 0
+
+if 'logged_in' not in st.session_state:
+    st.session_state['logged_in'] = False
+if 'username' not in st.session_state:
+    st.session_state['username'] = ""
+
+# --- 3. LOGOWANIE ---
 USERS = {
     "Djero": "TSP1995", 
     "KKowalski": "Tsp2025", 
@@ -21,11 +34,6 @@ USERS = {
     "SJaszczurowski": "TSP2025", 
     "guest": "123456789"
 }
-
-if 'logged_in' not in st.session_state:
-    st.session_state['logged_in'] = False
-if 'username' not in st.session_state:
-    st.session_state['username'] = ""
 
 def login():
     st.title("🔒 Panel Logowania TSP")
@@ -229,7 +237,7 @@ def admin_save_csv(filename, new_data_dict):
         new_row = pd.DataFrame([new_data_dict])
         df = pd.concat([df, new_row], ignore_index=True)
         df.to_csv(filename, index=False)
-        st.cache_data.clear()
+        st.cache_data.clear() # Czyścimy cache po dodaniu
         return True
     except Exception as e:
         st.error(f"Błąd zapisu: {e}"); return False
@@ -245,6 +253,7 @@ st.sidebar.header("Nawigacja")
 opcja = st.sidebar.radio("Moduł:", ["Aktualny Sezon (25/26)", "Centrum Zawodników", "Centrum Meczowe", "Trenerzy"])
 st.sidebar.divider()
 
+# --- PANEL ADMINA (DJERO) ---
 if st.session_state.get('username') == 'Djero':
     st.sidebar.markdown("### 🛠️ Panel Admina (Djero)")
     all_files = [f for f in os.listdir('.') if f.endswith('.csv')]
@@ -253,12 +262,35 @@ if st.session_state.get('username') == 'Djero':
         selected_file = st.selectbox("Wybierz plik:", all_files)
         if selected_file:
             try:
+                # Wczytywanie bez cache dla edytora
                 try: df_editor = pd.read_csv(selected_file, encoding='utf-8')
                 except: df_editor = pd.read_csv(selected_file, encoding='windows-1250')
-                edited_df = st.data_editor(df_editor, num_rows="dynamic", key=f"editor_{selected_file}", height=300)
+                
+                # Używamy unikalnego klucza (uploader_key) aby wymusić odświeżenie widgetu
+                edited_df = st.data_editor(
+                    df_editor, 
+                    num_rows="dynamic", 
+                    key=f"editor_{selected_file}_{st.session_state['uploader_key']}", 
+                    height=300
+                )
+                
                 if st.button(f"💾 Zapisz zmiany w {selected_file}", use_container_width=True):
-                    edited_df.to_csv(selected_file, index=False)
-                    st.success("✅ Edycja udana!"); st.cache_data.clear(); time.sleep(1.5); st.rerun()
+                    try:
+                        edited_df.to_csv(selected_file, index=False)
+                        st.success("✅ Zapisano! Odświeżam...")
+                        
+                        # 1. Czyścimy cache aplikacji (dla load_data)
+                        st.cache_data.clear()
+                        # 2. Inkrementujemy klucz (dla st.data_editor), aby pobrał nowe dane
+                        st.session_state['uploader_key'] += 1
+                        
+                        time.sleep(1)
+                        st.rerun()
+                    except PermissionError:
+                        st.error("⚠️ BŁĄD: Plik jest otwarty w Excelu. Zamknij go i spróbuj ponownie.")
+                    except Exception as e:
+                        st.error(f"Błąd zapisu: {e}")
+                        
             except Exception as e: st.error(f"Błąd: {e}")
     st.sidebar.divider()
     
@@ -411,13 +443,11 @@ elif opcja == "Centrum Zawodników":
                 
                 c_p1, c_p2 = st.columns([1, 3])
                 
-                # --- NAPRAWA BŁĘDU LINE 463 ---
                 with c_p1: 
                     if 'Flaga' in row and pd.notna(row['Flaga']) and str(row['Flaga']) != 'nan' and str(row['Flaga']).strip() != '':
                         st.image(row['Flaga'], width=100) 
                     else: 
                         st.markdown("## 👤")
-                # ------------------------------
 
                 with c_p2:
                     st.markdown(f"## {wyb}")
@@ -499,6 +529,7 @@ elif opcja == "Centrum Meczowe":
         st.subheader("Archiwum Meczów")
         df = load_data("mecze.csv")
         if df is not None:
+            # --- Ikonki Dom/Wyjazd ---
             col_dom = next((c for c in df.columns if c in ['dom', 'gospodarz', 'u siebie', 'gdzie']), None)
             if col_dom:
                 df['Gdzie'] = df[col_dom].apply(get_match_icon)
@@ -523,7 +554,14 @@ elif opcja == "Centrum Meczowe":
         df = load_data("mecze.csv")
         if df is not None:
             col_r = next((c for c in df.columns if c in ['rywal', 'przeciwnik']), None)
+            
+            # Próba znalezienia kolumny z datą do sortowania formy
+            col_date_h2h = next((c for c in df.columns if 'data' in c and 'sort' not in c), None)
+            if col_date_h2h:
+                df['dt_temp'] = pd.to_datetime(df[col_date_h2h], dayfirst=True, errors='coerce')
+
             if col_r and 'wynik' in df.columns:
+                # Funkcja pomocnicza dla tabeli zbiorczej
                 def calc(s):
                     m=len(s); w=r=p=0; gs=ga=0
                     for x in s['wynik']:
@@ -535,14 +573,70 @@ elif opcja == "Centrum Meczowe":
                             else: r+=1
                     return pd.Series({'Mecze': m, 'Z': w, 'R': r, 'P': p, 'Bramki': f"{gs}:{ga}", 'Pkt': w*3+r})
                 
-                t_h1, t_h2 = st.tabs(["Analiza Rywala", "Tabela"])
+                t_h1, t_h2 = st.tabs(["🔎 Analiza Rywala (Szczegóły)", "📊 Tabela Wszystkich"])
+                
+                # --- TABELA 1: SZCZEGÓŁY RYWALA ---
                 with t_h1:
-                    sel = st.selectbox("Rywal:", sorted(df[col_r].unique()))
+                    all_rivals = sorted(df[col_r].unique())
+                    sel = st.selectbox("Wybierz rywala:", all_rivals)
+                    
                     if sel:
-                        sub = df[df[col_r]==sel]
-                        st.dataframe(sub.style.map(color_results_logic, subset=['wynik']), use_container_width=True)
+                        # Filtrowanie i sortowanie (najnowsze na górze)
+                        sub = df[df[col_r]==sel].copy()
+                        if 'dt_temp' in sub.columns:
+                            sub = sub.sort_values('dt_temp', ascending=False)
+                        
+                        # Obliczanie statystyk
+                        matches_count = len(sub)
+                        wins, draws, losses = 0, 0, 0
+                        gf, ga = 0, 0
+                        form_badges = [] # Lista na ostatnie 5 meczów
+                        
+                        for idx, row in sub.iterrows():
+                            res = parse_result(row['wynik'])
+                            if res:
+                                s_gf, s_ga = res
+                                gf += s_gf; ga += s_ga
+                                if s_gf > s_ga: 
+                                    wins += 1
+                                    if len(form_badges) < 5: form_badges.append("✅")
+                                elif s_gf < s_ga: 
+                                    losses += 1
+                                    if len(form_badges) < 5: form_badges.append("❌")
+                                else: 
+                                    draws += 1
+                                    if len(form_badges) < 5: form_badges.append("➖")
+                            else:
+                                if len(form_badges) < 5: form_badges.append("❓")
+
+                        # Wyświetlanie metryk
+                        c1, c2, c3, c4 = st.columns(4)
+                        c1.metric("Mecze", matches_count)
+                        c2.metric("Bilans (Z-R-P)", f"{wins} - {draws} - {losses}")
+                        c3.metric("Bramki", f"{gf} : {ga}")
+                        
+                        # Ostatnie 5 meczów
+                        form_str = " ".join(form_badges)
+                        c4.markdown(f"**Forma (ost. 5):**\n\n### {form_str}")
+
+                        st.divider()
+                        st.write(f"**Historia spotkań z: {sel}**")
+                        
+                        # Tabela meczów
+                        cols_view = [c for c in sub.columns if c not in ['dt_temp', 'Gdzie']] # Ukrywamy techniczne
+                        if 'Gdzie' in sub.columns: cols_view.insert(0, 'Gdzie')
+                        
+                        st.dataframe(
+                            sub[cols_view].style.map(color_results_logic, subset=['wynik']), 
+                            use_container_width=True
+                        )
+
+                # --- TABELA 2: ZBIORCZA ---
                 with t_h2:
-                    st.dataframe(df.groupby(col_r).apply(calc).reset_index().sort_values('Pkt', ascending=False), use_container_width=True)
+                    st.dataframe(
+                        df.groupby(col_r).apply(calc).reset_index().sort_values(['Pkt', 'Mecze'], ascending=False), 
+                        use_container_width=True
+                    )
 
     with tab3:
         st.subheader("Frekwencja")
@@ -578,15 +672,18 @@ elif opcja == "Centrum Meczowe":
         st.subheader("Statystyki Wyników")
         df = load_data("wyniki.csv")
         if df is not None: st.bar_chart(df.set_index('wynik')['częstotliwość']); st.dataframe(df, use_container_width=True)
-
+    
 elif opcja == "Trenerzy":
     st.header("👔 Trenerzy TSP")
     df = load_data("trenerzy.csv")
+    
     if df is not None:
+        # --- 1. Przygotowanie danych (Daty) ---
         def smart_date(s):
             d = pd.to_datetime(s, format='%d.%m.%Y', errors='coerce')
             if d.isna().mean() > 0.5: d = pd.to_datetime(s, errors='coerce')
             return d
+
         if 'początek' in df.columns: df['początek_dt'] = smart_date(df['początek'])
         if 'koniec' in df.columns: 
             df['koniec_dt'] = smart_date(df['koniec'])
@@ -596,23 +693,27 @@ elif opcja == "Trenerzy":
         for c in ['mecze', 'punkty', 'z', 'r', 'p']: 
             if c in df.columns: df[c] = pd.to_numeric(df[c], errors='coerce').fillna(0).astype(int)
 
-        t1, t2, t3 = st.tabs(["Lista Trenerów", "Rankingi", "Analiza Szczegółowa"])
+        # --- TABS ---
+        t1, t2, t3, t4 = st.tabs(["Lista Trenerów", "Rankingi", "Analiza Szczegółowa", "⚔️ Porównywarka"])
 
+        # TAB 1: Lista
         with t1:
             v = df.sort_values('początek_dt', ascending=False) if 'początek_dt' in df.columns else df
             cols = [c for c in ['funkcja', 'imię i nazwisko', 'Narodowość', 'Flaga', 'początek', 'koniec', 'mecze', 'punkty'] if c in v.columns]
             st.dataframe(v[cols], use_container_width=True, hide_index=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
 
+        # TAB 2: Rankingi
         with t2:
             if 'punkty' in df.columns and 'mecze' in df.columns:
-                st.markdown("### 🏆 Ranking")
+                st.markdown("### 🏆 Ranking (według danych z pliku trenerzy.csv)")
                 agg = df.groupby(['imię i nazwisko', 'Narodowość', 'Flaga'], as_index=False)[['mecze', 'punkty']].sum()
                 agg['Śr. pkt'] = (agg['punkty'] / agg['mecze']).fillna(0).round(2)
                 agg = agg.sort_values('punkty', ascending=False)
                 st.dataframe(agg, use_container_width=True, hide_index=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small"), "Śr. pkt": st.column_config.NumberColumn("Średnia Pkt", format="%.2f")})
 
+        # TAB 3: Analiza Szczegółowa
         with t3:
-            st.markdown("### 📊 Analiza wyników")
+            st.markdown("### 📊 Analiza indywidualna")
             wybrany_trener = st.selectbox("Wybierz trenera:", sorted(df['imię i nazwisko'].unique()), key="sel_trener_adv")
             
             if wybrany_trener:
@@ -653,13 +754,13 @@ elif opcja == "Trenerzy":
 
                             coach_matches['Punkty'] = pts_list
                             coach_matches['Forma'] = coach_matches['Punkty'].rolling(window=5, min_periods=1).mean()
-                            
-                            # --- ZMIANA OSI X NA NR MECZU ---
                             coach_matches['Nr Meczu'] = range(1, len(coach_matches) + 1)
                             
                             if HAS_PLOTLY:
                                 fig = px.line(coach_matches, x='Nr Meczu', y='Forma', markers=True, title=f"Forma: {wybrany_trener}", hover_data=['rywal', 'wynik'])
-                                fig.add_hline(y=avg_pts, line_dash="dot")
+                                fig.add_hline(y=avg_pts, line_dash="dot", annotation_text="Średnia")
+                                # --- SZTYWNA OŚ Y (0-3) ---
+                                fig.update_yaxes(range=[-0.1, 3.1], title="Średnia pkt (Rolling 5)")
                                 st.plotly_chart(fig, use_container_width=True)
 
                             if scorers_dict:
@@ -672,3 +773,82 @@ elif opcja == "Trenerzy":
                                 st.dataframe(coach_matches.drop(columns=['dt', 'Punkty', 'Forma', 'Nr Meczu'], errors='ignore').style.map(color_results_logic, subset=['wynik']), use_container_width=True)
                         else: st.info("Brak meczów w okresie pracy trenera.")
                     else: st.error("Brak kolumny z datą w mecze.csv")
+
+        # TAB 4: Porównywarka
+        with t4:
+            st.markdown("### ⚔️ Porównanie Trenerów")
+            all_coaches = sorted(df['imię i nazwisko'].unique())
+            sel_compare = st.multiselect("Wybierz trenerów do porównania:", all_coaches, default=all_coaches[:2] if len(all_coaches)>1 else None)
+            
+            if sel_compare:
+                comp_data = []
+                all_series = []
+                mecze_df = load_data("mecze.csv")
+
+                if mecze_df is not None:
+                    col_data_m = next((c for c in mecze_df.columns if 'data' in c and 'sort' not in c), None)
+                    if col_data_m:
+                        mecze_df['dt'] = pd.to_datetime(mecze_df[col_data_m], dayfirst=True, errors='coerce')
+
+                        for coach in sel_compare:
+                            # Logika wyciągania meczów (kopia z analizy szczegółowej)
+                            coach_rows = df[df['imię i nazwisko'] == coach]
+                            mask = pd.Series([False]*len(mecze_df))
+                            for _, row in coach_rows.iterrows():
+                                if pd.notnull(row.get('początek_dt')):
+                                    mask |= (mecze_df['dt'] >= row['początek_dt']) & (mecze_df['dt'] <= row['koniec_dt'])
+                            
+                            cm = mecze_df[mask].sort_values('dt')
+                            if not cm.empty:
+                                pts = []
+                                w, d, l, gf, ga = 0,0,0,0,0
+                                for _, m in cm.iterrows():
+                                    res = parse_result(m['wynik'])
+                                    if res:
+                                        gf += res[0]; ga += res[1]
+                                        if res[0]>res[1]: pts.append(3); w+=1
+                                        elif res[0]==res[1]: pts.append(1); d+=1
+                                        else: pts.append(0); l+=1
+                                    else: pts.append(0)
+                                
+                                avg = sum(pts)/len(pts) if pts else 0
+                                comp_data.append({
+                                    "Trener": coach,
+                                    "Mecze": len(cm),
+                                    "Śr. Pkt": round(avg, 2),
+                                    "Zwycięstwa": w,
+                                    "Remisy": d,
+                                    "Porażki": l,
+                                    "Bramki": f"{gf}:{ga}",
+                                    "% Zwycięstw": f"{(w/len(cm)*100):.1f}%" if len(cm)>0 else "0%"
+                                })
+                                
+                                # Do wykresu
+                                cm['Trener'] = coach
+                                cm['Punkty'] = pts
+                                cm['Forma'] = cm['Punkty'].rolling(window=5, min_periods=1).mean()
+                                cm['Nr Meczu'] = range(1, len(cm) + 1)
+                                all_series.append(cm[['Nr Meczu', 'Forma', 'Trener']])
+
+                        # 1. Tabela porównawcza
+                        if comp_data:
+                            st.markdown("#### 📋 Tabela wyników")
+                            df_comp = pd.DataFrame(comp_data)
+                            st.dataframe(df_comp.style.highlight_max(subset=['Mecze', 'Śr. Pkt', 'Zwycięstwa'], color='#d1fae5', axis=0), use_container_width=True)
+
+                            # 2. Wykres słupkowy (Średnia punktów)
+                            if HAS_PLOTLY:
+                                fig_bar = px.bar(df_comp, x='Trener', y='Śr. Pkt', color='Trener', title="Średnia punktów na mecz", text='Śr. Pkt')
+                                fig_bar.update_traces(textposition='outside')
+                                fig_bar.update_layout(showlegend=False)
+                                st.plotly_chart(fig_bar, use_container_width=True)
+
+                        # 3. Wykres liniowy (Porównanie formy)
+                        if all_series and HAS_PLOTLY:
+                            st.markdown("#### 📈 Porównanie przebiegu formy (od początku kadencji)")
+                            big_df = pd.concat(all_series)
+                            fig_line = px.line(big_df, x='Nr Meczu', y='Forma', color='Trener', markers=False, title="Rolling Avg (5 meczów)")
+                            fig_line.update_yaxes(range=[-0.1, 3.1], title="Średnia pkt")
+                            st.plotly_chart(fig_line, use_container_width=True)
+                    else:
+                        st.error("Brak kolumny z datą w mecze.csv.")
