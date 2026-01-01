@@ -925,62 +925,121 @@ elif opcja == "Centrum Meczowe":
         st.subheader("📢 Statystyki Frekwencji")
         
         if df_matches is not None:
-            col_att = next((c for c in df_matches.columns if c in ['widzów', 'frekwencja', 'kibiców', 'widzow']), None)
-            col_dom = next((c for c in df_matches.columns if c in ['dom', 'gospodarz', 'u siebie']), None)
-            col_liga = next((c for c in df_matches.columns if c in ['rozgrywki', 'liga', 'turniej']), None)
+            # Automatyczne wykrywanie kolumn
+            col_att = next((c for c in df_matches.columns if c.lower() in ['widzów', 'frekwencja', 'kibiców', 'widzow']), None)
+            col_dom = next((c for c in df_matches.columns if c.lower() in ['dom', 'gospodarz', 'u siebie']), None)
+            col_liga = next((c for c in df_matches.columns if c.lower() in ['rozgrywki', 'liga', 'turniej']), None)
+            
+            # Sprawdź też miejsce rozgrywania (opcjonalnie)
+            col_miejsce = next((c for c in df_matches.columns if c.lower() in ['miejsce rozgrywania', 'miejsce', 'stadion']), None)
             
             if col_att and col_dom and 'sezon' in df_matches.columns:
-                # 1. Filtrowanie domowe (z poprawioną logiką dla Rekordu/BKS)
-                # Sprawdź też miejsce rozgrywania
-                col_miejsce = next((c for c in df_matches.columns if c in ['miejsce rozgrywania', 'miejsce']), None)
                 
+                # --- 1. FILTROWANIE MECZÓW DOMOWYCH ---
                 def check_is_home(row):
-                    # Warunek 1: Kolumna Dom == 1
-                    if str(row[col_dom]) in ['1', 'true', 'tak']: return True
-                    # Warunek 2: Miejsce zawiera Bielsko, Rekord lub BKS
-                    if col_miejsce:
+                    # Warunek 1: Kolumna Dom == 1 / tak / true
+                    val_dom = str(row[col_dom]).lower().strip()
+                    if val_dom in ['1', '1.0', 'true', 'tak', 't']: return True
+                    
+                    # Warunek 2: Miejsce zawiera słowa kluczowe (jeśli kolumna istnieje)
+                    if col_miejsce and pd.notna(row[col_miejsce]):
                         s = str(row[col_miejsce]).lower()
+                        # Lista stadionów/miejsc "domowych"
                         if any(x in s for x in ['bielsko', 'rekord', 'bks', 'rychlińskiego']): return True
                     return False
 
                 df_matches['is_home_calc'] = df_matches.apply(check_is_home, axis=1)
                 df_home = df_matches[df_matches['is_home_calc']].copy()
                 
-                # 2. Czyszczenie frekwencji (Bardziej pancerne)
-                # Usuwamy wszystko co nie jest cyfrą, upewniamy się że to int
-                df_home['att_clean'] = pd.to_numeric(df_home[col_att], errors='coerce').fillna(0).astype(int)
+                # --- 2. CZYSZCZENIE DANYCH FREKWENCJI ---
+                # Usuwamy spacje (np. "1 000") i konwertujemy na liczby
+                df_home['att_clean'] = (
+                    df_home[col_att]
+                    .astype(str)
+                    .str.replace(' ', '')
+                    .str.replace(',', '') # na wypadek przecinków
+                )
+                df_home['att_clean'] = pd.to_numeric(df_home['att_clean'], errors='coerce').fillna(0).astype(int)
                 
+                # Bierzemy tylko mecze, gdzie frekwencja > 0
                 df_home_valid = df_home[df_home['att_clean'] > 0].copy()
 
+                # --- 3. FILTRY I WYBÓR METRYK ---
                 c1, c2 = st.columns([1, 1])
                 with c1:
                     if col_liga:
                         all_comps = sorted(df_home_valid[col_liga].astype(str).unique())
-                        sel_comps = st.multiselect("Rozgrywki:", all_comps, default=all_comps)
-                        if sel_comps: df_home_valid = df_home_valid[df_home_valid[col_liga].isin(sel_comps)]
+                        sel_comps = st.multiselect("Filtruj rozgrywki:", all_comps, default=all_comps)
+                        if sel_comps: 
+                            df_home_valid = df_home_valid[df_home_valid[col_liga].isin(sel_comps)]
                 
                 with c2:
-                    metric_map = {"Średnia": "mean", "Mediana": "median", "Rekord (Max)": "max", "Minimum": "min", "Suma": "sum"}
-                    sel_metric = st.selectbox("Wskaźnik:", list(metric_map.keys()), index=0)
+                    metric_map = {
+                        "Średnia": "mean", 
+                        "Mediana": "median", 
+                        "Rekord (Max)": "max", 
+                        "Minimum": "min", 
+                        "Suma": "sum"
+                    }
+                    sel_metric = st.selectbox("Wskaźnik na wykresie:", list(metric_map.keys()), index=0)
 
+                # --- 4. AGREGACJA I WYKRES ---
                 if not df_home_valid.empty:
-                    stats = df_home_valid.groupby('sezon')['att_clean'].agg(['count', 'sum', 'mean', 'median', 'min', 'max']).reset_index()
+                    # Grupowanie po sezonie
+                    stats = df_home_valid.groupby('sezon')['att_clean'].agg(
+                        ['count', 'sum', 'mean', 'median', 'min', 'max']
+                    ).reset_index()
+                    
+                    # Ładne nazwy kolumn
                     stats.columns = ['Sezon', 'Mecze', 'Suma', 'Średnia', 'Mediana', 'Min', 'Max']
-                    for c in ['Suma', 'Średnia', 'Mediana', 'Min', 'Max']: stats[c] = stats[c].astype(int)
+                    
+                    # Zaokrąglenie do liczb całkowitych
+                    for c in ['Suma', 'Średnia', 'Mediana', 'Min', 'Max']: 
+                        stats[c] = stats[c].astype(int)
+                    
                     stats = stats.sort_values('Sezon', ascending=True)
 
-                    if HAS_PLOTLY:
-                        y_col = {"Rekord (Max)": "Max", "Minimum": "Min", "Suma": "Suma", "Średnia": "Średnia", "Mediana": "Mediana"}.get(sel_metric, "Średnia")
-                        fig = px.bar(stats, x='Sezon', y=y_col, text=y_col, title=f"Frekwencja: {sel_metric}", color=y_col, color_continuous_scale='Blues')
+                    # Wykres (Plotly lub standardowy)
+                    try:
+                        import plotly.express as px
+                        y_col = metric_map.get(sel_metric, "mean").capitalize()
+                        # Mapowanie nazw kolumn z metric_map na te w dataframe (Suma, Średnia, etc.)
+                        # Uwaga: klucze w mapie są identyczne jak nazwy kolumn w stats, z wyjątkiem mapowania
+                        col_for_chart = sel_metric if sel_metric in stats.columns else "Średnia"
+                        if sel_metric == "Rekord (Max)": col_for_chart = "Max"
+                        if sel_metric == "Minimum": col_for_chart = "Min"
+
+                        fig = px.bar(
+                            stats, 
+                            x='Sezon', 
+                            y=col_for_chart, 
+                            text=col_for_chart, 
+                            title=f"Frekwencja: {sel_metric}", 
+                            color=col_for_chart, 
+                            color_continuous_scale='Blues'
+                        )
                         fig.update_traces(textposition='outside')
                         st.plotly_chart(fig, use_container_width=True)
-                    else: st.bar_chart(stats.set_index('Sezon'))
+                    except ImportError:
+                        st.bar_chart(stats.set_index('Sezon')[col_for_chart])
                     
-                    with st.expander("Pokaż tabelę"):
-                        st.dataframe(stats.sort_values('Sezon', ascending=False), use_container_width=True)
-                else: st.warning("Brak danych po filtracji (sprawdź czy są wpisani widzowie).")
-            else: st.info("Brak kolumn (widzów/dom) w pliku.")
-
+                    # Tabela danych
+                    with st.expander("Pokaż szczegółową tabelę"):
+                        st.dataframe(
+                            stats.sort_values('Sezon', ascending=False),
+                            use_container_width=True,
+                            hide_index=True,
+                            column_config={
+                                "Sezon": st.column_config.TextColumn("Sezon"), # Żeby nie formatował roku jako liczby (2,024)
+                                "Średnia": st.column_config.NumberColumn(format="%d"),
+                                "Suma": st.column_config.NumberColumn(format="%d"),
+                                "Max": st.column_config.NumberColumn(format="%d")
+                            }
+                        )
+                else:
+                    st.warning("Brak danych o frekwencji dla wybranych filtrów.")
+            else:
+                st.info("Brak wymaganych kolumn (widzów, dom/gospodarz) w pliku CSV.")
     with tab5:
         st.subheader("🎲 Statystyki Wyników")
         if df_matches is not None and 'wynik' in df_matches.columns:
@@ -1125,5 +1184,6 @@ elif opcja == "Trenerzy":
                                 comp_data.append({"Trener": coach, "Mecze": len(cm), "Śr. Pkt": avg, "% Wygranych": f"{(w/len(cm)*100):.1f}%"})
                         
                         st.dataframe(pd.DataFrame(comp_data), use_container_width=True, column_config={"Śr. Pkt": st.column_config.NumberColumn(format="%.2f")})
+
 
 
