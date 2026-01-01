@@ -885,23 +885,44 @@ elif opcja == "Kalendarz":
                     })
                 except: pass
 
-    # --- B. PRZETWARZANIE MECZÓW (HISTORIA) ---
+  # --- B. PRZETWARZANIE MECZÓW (HISTORIA I NADCHODZĄCE) ---
     if df_m is not None:
         col_d = next((c for c in df_m.columns if 'data' in c and 'sort' not in c), None)
         if col_d:
             df_m['dt_obj'] = pd.to_datetime(df_m[col_d], dayfirst=True, errors='coerce')
+            
+            # Iterujemy po meczach z poprawną datą
             for _, row in df_m.dropna(subset=['dt_obj']).iterrows():
-                d = row['dt_obj']
+                d = row['dt_obj'] # To jest Timestamp
+                d_date = d.date() # To jest date (do porównania z today)
                 key = (d.month, d.day)
                 
+                # 1. Logika wyniku i statusu
+                raw_score = str(row.get('wynik', ''))
+                
+                # Czyścimy 'nan' z pandas
+                if raw_score.lower() == 'nan': raw_score = ''
+                
+                # Domyślne wartości (dla meczów historycznych)
+                score_display = f"({raw_score})" if raw_score else ""
+                bg_color = '#343a40' # Ciemny (Standardowy)
+                
+                # 2. Sprawdzanie czy to przyszłość
+                if d_date > today:
+                    score_display = "🔜"
+                    bg_color = '#007bff' # Niebieski (Nadchodzące)
+                elif d_date == today:
+                    score_display = "(DZIŚ)" if not raw_score else f"({raw_score})"
+                    bg_color = '#28a745' # Zielony (Dziś)
+                
+                # 3. Dodanie do mapy zdarzeń
                 events_map.setdefault(key, []).append({
                     'type': 'match',
-                    'text': f"⚽ {d.year}: {row.get('rywal', 'Rywal')} ({row.get('wynik', '-')})",
-                    'color': '#343a40', # Ciemny (Mecz)
-                    'sort_prio': 4, # Na samym dole
+                    'text': f"⚽ {d.year}: {row.get('rywal', 'Rywal')} {score_display}",
+                    'color': bg_color,
+                    'sort_prio': 4, 
                     'year': d.year
                 })
-
     # --- WIDOK 1: TEN TYDZIEŃ ---
     st.subheader("Ten tydzień w historii")
     
@@ -1629,4 +1650,5 @@ elif opcja == "Trenerzy":
                                 comp_data.append({"Trener": coach, "Mecze": len(cm), "Śr. Pkt": avg, "% Wygranych": f"{(w/len(cm)*100):.1f}%"})
                         
                         st.dataframe(pd.DataFrame(comp_data), use_container_width=True, column_config={"Śr. Pkt": st.column_config.NumberColumn(format="%.2f")})
+
 
