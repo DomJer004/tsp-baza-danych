@@ -497,32 +497,38 @@ elif opcja == "Kalendarz":
                         'date': d
                     }
                     events_map.setdefault(d, []).append(entry)
-
-    # b) Urodziny
+# b) Urodziny
     if df_p is not None:
         col_b = next((c for c in df_p.columns if c in ['data urodzenia', 'urodzony', 'data_ur']), None)
         if col_b:
-            for _, row in df_p.iterrows():
+            # --- ZMIANA TUTAJ: Usuwamy duplikaty ---
+            # Tworzymy kopię bazy tylko z unikalnymi nazwiskami, żeby nie powielać urodzin
+            df_unique = df_p.drop_duplicates(subset=['imię i nazwisko'])
+            
+            for _, row in df_unique.iterrows():
                 try:
+                    # Sprawdzamy czy data istnieje i jest poprawna
+                    if pd.isna(row[col_b]) or str(row[col_b]) in ['-', '']: continue
+                    
                     bdate = pd.to_datetime(row[col_b]).date()
                     name = row['imię i nazwisko']
                     name_clean = str(name).lower().strip()
                     
-                    # Kolorowanie
-                    color = "#17a2b8" # Standard (Blue)
+                    # Domyślny kolor (Byli piłkarze - Niebieski)
+                    color = "#17a2b8" 
                     prefix = "🎂"
                     
+                    # Sprawdzanie warunków kolorów
                     if name_clean in current_squad_names:
-                        color = "#28a745" # Current Season (Green) - PRIORYTET
+                        color = "#28a745" # Aktualny sezon (Zielony)
                         prefix = "🟢🎂"
                     elif name_clean in club_100_names:
-                        color = "#ffc107" # Club 100 (Gold)
+                        color = "#ffc107" # Klub 100 (Złoty)
                         prefix = "🟡🎂"
                     
-                    # Dodajemy urodziny na ten rok i przyszły
+                    # Generujemy urodziny na bieżący i przyszły rok
                     for y in [today.year, today.year+1]:
                         try:
-                            # Obsługa 29 lutego
                             evt_date = datetime.date(y, bdate.month, bdate.day)
                             events_map.setdefault(evt_date, []).append({
                                 'type': 'birthday',
@@ -530,8 +536,32 @@ elif opcja == "Kalendarz":
                                 'color': color,
                                 'date': evt_date
                             })
-                        except ValueError: pass # Np. 29 lut w roku nieprzestępnym
+                        except ValueError: pass # Obsługa 29 lutego
                 except: pass
+# --- LEGENDA ---
+    st.markdown("### 📝 Legenda")
+    st.markdown("""
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center;">
+            <div style="width: 20px; height: 20px; background-color: #28a745; border-radius: 4px; margin-right: 8px;"></div>
+            <span><b>Kadra 25/26</b> (Obecni piłkarze)</span>
+        </div>
+        <div style="display: flex; align-items: center;">
+            <div style="width: 20px; height: 20px; background-color: #ffc107; border-radius: 4px; margin-right: 8px;"></div>
+            <span><b>Klub 100</b> (Legendy / >100 meczów)</span>
+        </div>
+        <div style="display: flex; align-items: center;">
+            <div style="width: 20px; height: 20px; background-color: #17a2b8; border-radius: 4px; margin-right: 8px;"></div>
+            <span><b>Byli piłkarze</b> (Pozostali)</span>
+        </div>
+        <div style="display: flex; align-items: center;">
+            <div style="width: 20px; height: 20px; background-color: #343a40; border-radius: 4px; margin-right: 8px;"></div>
+            <span><b>Mecze</b></span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.divider()
 
     # --- WIDOK TYGODNIOWY ---
     st.subheader("Ten tydzień")
@@ -1108,3 +1138,4 @@ elif opcja == "Trenerzy":
                                 comp_data.append({"Trener": coach, "Mecze": len(cm), "Śr. Pkt": avg, "% Wygranych": f"{(w/len(cm)*100):.1f}%"})
                         
                         st.dataframe(pd.DataFrame(comp_data), use_container_width=True, column_config={"Śr. Pkt": st.column_config.NumberColumn(format="%.2f")})
+
