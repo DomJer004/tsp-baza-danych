@@ -4,6 +4,7 @@ import datetime
 import re
 import os
 import time
+import calendar
 
 # --- 1. KONFIGURACJA STRONY ---
 st.set_page_config(
@@ -13,7 +14,6 @@ st.set_page_config(
 )
 
 # --- 2. ZARZĄDZANIE SESJĄ (State) ---
-# Inicjalizacja klucza do wymuszania odświeżania edytora
 if 'uploader_key' not in st.session_state:
     st.session_state['uploader_key'] = 0
 
@@ -64,7 +64,7 @@ try:
 except: 
     HAS_PLOTLY = False
 
-# --- MAPOWANIE KRAJÓW ---
+# --- MAPOWANIE KRAJÓW (BEZ ZMIAN) ---
 COUNTRY_TO_ISO = {
     'polska': 'pl', 'hiszpania': 'es', 'słowacja': 'sk', 'łotwa': 'lv', 
     'chorwacja': 'hr', 'kamerun': 'cm', 'zimbabwe': 'zw', 'finlandia': 'fi', 
@@ -118,20 +118,18 @@ def load_data(filename):
         if 'frekwencja' in df.columns:
             df.rename(columns={'frekwencja': 'widzów'}, inplace=True)
         
-        # 2. AUTOMATYCZNE WYKRYWANIE DOM/WYJAZD
-        # Szukamy kolumny z miejscem
+        # 2. AUTOMATYCZNE WYKRYWANIE DOM/WYJAZD (Poprawione)
         place_col = next((c for c in df.columns if c in ['miejsce rozgrywania', 'miejsce', 'stadion', 'miasto']), None)
         
         if place_col:
-            # Funkcja decydująca: czy to Bielsko?
-            def is_bielsko(val):
+            def is_bielsko_logic(val):
                 s = str(val).lower()
-                return '1' if 'bielsko-biała' in s else '0'
+                # Zmieniona logika: uwzględnia Rekord i BKS w Bielsku
+                keywords = ['bielsko', 'rychlińskiego', 'startowa', 'rekord', 'bks']
+                return '1' if any(k in s for k in keywords) else '0'
             
-            # Nadpisujemy/Tworzymy kolumnę 'dom' automatycznie
-            df['dom'] = df[place_col].apply(is_bielsko)
+            df['dom'] = df[place_col].apply(is_bielsko_logic)
         else:
-            # Fallback: jeśli nie ma kolumny miejsca, a nie ma też dom, tworzymy pustą
             synonyms = ['dom', 'gospodarz', 'u siebie', 'gdzie']
             if not any(col in df.columns for col in synonyms):
                 df['dom'] = "-"
@@ -159,6 +157,7 @@ def load_data(filename):
         if df[col].dtype == object and not df[col].astype(str).str.contains('/').any(): pass 
         else: df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).astype(int)
 
+    # --- KONWERSJA LICZB (Poprawiona dla frekwencji) ---
     int_candidates = [
         'wiek', 'suma', 'liczba', 'mecze', 'gole', 'punkty', 'minuty', 'numer', 
         'asysty', 'żółte kartki', 'czerwone kartki', 'gole samobójcze', 
@@ -169,9 +168,16 @@ def load_data(filename):
     for col in df.columns:
         if col in int_candidates:
             try:
-                temp = df[col].replace('-', 0)
-                temp = pd.to_numeric(temp, errors='coerce').fillna(0)
-                df[col] = temp.astype(int)
+                # Najpierw czyszczenie stringów (usuwanie spacji, kropek tysięcznych)
+                if df[col].dtype == object:
+                    # Zamień '2 000' -> '2000', '1.500' -> '1500' (uwaga na kropki)
+                    # Usuwamy wszystko co nie jest cyfrą, minusem
+                    temp = df[col].astype(str).str.replace(r'[^\d\-]', '', regex=True)
+                    # Zamiana pustych na 0
+                    temp = temp.replace('', '0').replace('-', '0')
+                    df[col] = pd.to_numeric(temp, errors='coerce').fillna(0).astype(int)
+                else:
+                    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0).astype(int)
             except: pass
             
     return df
@@ -194,23 +200,18 @@ def prepare_flags(df, col='narodowość'):
 def parse_result(val):
     if not isinstance(val, str): return None
     
-    # Normalizacja ciągu znaków (małe litery, brak spacji)
     clean_val = val.lower().replace(" ", "")
     
     # 1. SZUKANIE KARNYCH (Priorytet najwyższy)
-    # Szuka wzorców: (k.4:3), k.4-3, karne4:3
-    # Wyciąga dwie liczby następujące po "k" lub "k."
     pen_match = re.search(r'\(?k\.?(\d+)[:\-](\d+)\)?', clean_val)
     if pen_match:
         return int(pen_match.group(1)), int(pen_match.group(2))
 
     # 2. CZYSZCZENIE "pd." (Po dogrywce)
-    # Usuwamy "pd.", "dogr." i nawiasy, żeby został czysty wynik np. 2:1
     clean_val = clean_val.replace("pd.", "").replace("dogr.", "")
-    clean_val = re.sub(r'\(.*?\)', '', clean_val) # Usuwa wszystko w nawiasach jeśli to nie karne
+    clean_val = re.sub(r'\(.*?\)', '', clean_val)
 
     # 3. SZUKANIE STANDARDOWEGO WYNIKU
-    # Szuka patternu CYFRA:CYFRA lub CYFRA-CYFRA
     score_match = re.search(r'(\d+)[:\-](\d+)', clean_val)
     if score_match:
         return int(score_match.group(1)), int(score_match.group(2))
@@ -279,7 +280,7 @@ def admin_save_csv(filename, new_data_dict):
         new_row = pd.DataFrame([new_data_dict])
         df = pd.concat([df, new_row], ignore_index=True)
         df.to_csv(filename, index=False)
-        st.cache_data.clear() # Czyścimy cache po dodaniu
+        st.cache_data.clear() 
         return True
     except Exception as e:
         st.error(f"Błąd zapisu: {e}"); return False
@@ -292,106 +293,62 @@ def get_match_icon(val):
 
 # --- MENU ---
 st.sidebar.header("Nawigacja")
-opcja = st.sidebar.radio("Moduł:", ["Aktualny Sezon (25/26)", "Centrum Zawodników", "Centrum Meczowe", "Trenerzy"])
+opcja = st.sidebar.radio("Moduł:", ["Aktualny Sezon (25/26)", "Kalendarz", "Centrum Zawodników", "Centrum Meczowe", "Trenerzy"])
 st.sidebar.divider()
 
-# --- PANEL ADMINA (DJERO) ---
+# --- PANEL ADMINA (Djero) ---
 if st.session_state.get('username') == 'Djero':
     st.sidebar.markdown("### 🛠️ Panel Admina (Djero)")
     all_files = [f for f in os.listdir('.') if f.endswith('.csv')]
     
-    # --- 1. UNIWERSALNY EDYTOR DANYCH ---
-    with st.sidebar.expander("📝 EDYTOR DANYCH (TABELA)", expanded=True):
-        st.info("💡 Aby dodać wiersz, kliknij w pusty wiersz na samym dole tabeli.")
+    with st.sidebar.expander("📝 EDYTOR DANYCH"):
+        st.info("💡 Kliknij w pusty wiersz na dole tabeli, aby dodać nowy rekord.")
         selected_file = st.selectbox("Wybierz plik do edycji:", all_files)
         
         if selected_file:
             try:
-                # Wczytanie pliku
                 try: df_editor = pd.read_csv(selected_file, encoding='utf-8')
                 except: df_editor = pd.read_csv(selected_file, encoding='windows-1250')
                 
                 # --- AUTO-NAPRAWA DLA MECZE.CSV ---
                 is_changed = False
                 if selected_file == "mecze.csv":
-                    # 1. Frekwencja -> Widzów
-                    cols_lower = [c.lower().strip() for c in df_editor.columns]
                     for col in df_editor.columns:
                         if col.lower().strip() == 'frekwencja':
                             df_editor.rename(columns={col: 'Widzów'}, inplace=True)
-                            st.toast("ℹ️ Zmieniono nazwę 'Frekwencja' na 'Widzów'.")
                             is_changed = True
                             break
                     
-                    # 2. Dodanie kolumny Dom (jeśli brakuje)
                     synonyms_dom = ['dom', 'gospodarz', 'u siebie', 'gdzie']
+                    cols_lower = [c.lower().strip() for c in df_editor.columns]
                     if not any(x in cols_lower for x in synonyms_dom):
-                        df_editor['Dom'] = "-" # Domyślna wartość
-                        st.toast("ℹ️ Dodano brakującą kolumnę 'Dom'.")
+                        df_editor['Dom'] = "-" 
                         is_changed = True
 
-                # Wyświetlenie edytora
                 edited_df = st.data_editor(
                     df_editor, 
-                    num_rows="dynamic", # Pozwala na dodawanie wierszy
+                    num_rows="dynamic", 
                     key=f"editor_{selected_file}_{st.session_state['uploader_key']}", 
                     height=400
                 )
                 
-                # Przycisk Zapisu
                 save_label = "💾 Zapisz zmiany"
-                if is_changed: save_label += " (Wykryto automatyczne zmiany!)"
+                if is_changed: save_label += " (Auto-korekta kolumn)"
                 
                 if st.button(save_label, use_container_width=True):
                     try:
                         edited_df.to_csv(selected_file, index=False)
-                        st.success(f"✅ Zapisano plik {selected_file}!")
+                        st.success(f"✅ Zapisano {selected_file}!")
                         st.cache_data.clear()
                         st.session_state['uploader_key'] += 1
                         time.sleep(1)
                         st.rerun()
-                    except PermissionError:
-                        st.error("⚠️ Zamknij plik w Excelu i spróbuj ponownie.")
-                    except Exception as e:
-                        st.error(f"Błąd zapisu: {e}")
+                    except Exception as e: st.error(f"Błąd zapisu: {e}")
 
             except Exception as e: st.error(f"Błąd pliku: {e}")
 
-    # --- 2. DODAWANIE KOLUMN (NOWOŚĆ) ---
-    with st.sidebar.expander("➕ ZARZĄDZANIE STRUKTURĄ (DODAJ KOLUMNĘ)"):
-        st.caption("Tutaj możesz dodać nową kolumnę do dowolnego pliku.")
-        target_file = st.selectbox("Plik:", all_files, key="col_file_sel")
-        
-        c_col1, c_col2 = st.columns(2)
-        new_col_name = c_col1.text_input("Nazwa nowej kolumny:")
-        default_val = c_col2.text_input("Wartość domyślna:", value="-")
-        
-        if st.button("Dodaj Kolumnę", use_container_width=True):
-            if target_file and new_col_name:
-                try:
-                    try: df_mod = pd.read_csv(target_file, encoding='utf-8')
-                    except: df_mod = pd.read_csv(target_file, encoding='windows-1250')
-                    
-                    if new_col_name in df_mod.columns:
-                        st.warning("Taka kolumna już istnieje!")
-                    else:
-                        df_mod[new_col_name] = default_val
-                        df_mod.to_csv(target_file, index=False)
-                        st.success(f"Dodano kolumnę '{new_col_name}' do {target_file}!")
-                        st.cache_data.clear()
-                        time.sleep(1)
-                        st.rerun()
-                except Exception as e:
-                    st.error(f"Błąd: {e}")
-            else:
-                st.warning("Wpisz nazwę kolumny.")
-
-    st.sidebar.divider()
-    
-    # --- 3. SZYBKIE DODAWANIE (BEZ ZMIAN) ---
-    with st.sidebar.expander("⚡ Szybkie dodawanie (Formularz)"):
+    with st.sidebar.expander("➕ SZYBKIE DODAWANIE"):
         tab_p, tab_m = st.tabs(["Piłkarz", "Mecz"])
-        
         with tab_p:
             with st.form("add_player_form"):
                 a_imie = st.text_input("Imię i Nazwisko")
@@ -402,8 +359,6 @@ if st.session_state.get('username') == 'Djero':
                     if a_imie and os.path.exists("pilkarze.csv"):
                         admin_save_csv("pilkarze.csv", {"imię i nazwisko": a_imie, "kraj": a_kraj, "pozycja": a_poz, "data urodzenia": str(a_data), "suma": 0})
                         st.success(f"Dodano: {a_imie}"); time.sleep(1); st.rerun()
-                    else: st.warning("Brak pliku pilkarze.csv")
-
         with tab_m:
             with st.form("add_result_form"):
                 a_sezon = st.text_input("Sezon", value="2025/26")
@@ -412,15 +367,15 @@ if st.session_state.get('username') == 'Djero':
                 a_data_m = st.date_input("Data meczu")
                 a_dom = st.selectbox("Gdzie?", ["Dom", "Wyjazd"])
                 dom_val = "1" if a_dom == "Dom" else "0"
-                
                 if st.form_submit_button("Zapisz Mecz"):
                     if os.path.exists("mecze.csv"):
                         admin_save_csv("mecze.csv", {"sezon": a_sezon, "rywal": a_rywal, "wynik": a_wynik, "data meczu": str(a_data_m), "Dom": dom_val, "Widzów": 0})
                         st.success("Dodano mecz!"); time.sleep(1); st.rerun()
     st.sidebar.divider()
+    
 if st.sidebar.button("Wyloguj"): logout()
 
-# --- MODUŁY ---
+# --- LOGIKA MODUŁÓW ---
 
 if opcja == "Aktualny Sezon (25/26)":
     st.header("📊 Kadra 2025/2026")
@@ -501,6 +456,155 @@ if opcja == "Aktualny Sezon (25/26)":
                             st.dataframe(sub[[c for c in final if c in sub.columns]], use_container_width=True, hide_index=True, column_config=col_config)
             else: st.dataframe(df_view[final], use_container_width=True, column_config=col_config)
     else: st.error("⚠️ Brak pliku '25_26.csv'.")
+
+# --- MODUŁ KALENDARZ ---
+elif opcja == "Kalendarz":
+    st.header("📅 Kalendarz Klubowy")
+    
+    # Dane wejściowe
+    today = datetime.date.today()
+    
+    # 1. Ładowanie danych
+    df_m = load_data("mecze.csv")
+    df_p = load_data("pilkarze.csv")
+    df_curr = load_data("25_26.csv")
+    
+    # Listy zawodników
+    current_squad_names = []
+    if df_curr is not None:
+        current_squad_names = [str(x).lower().strip() for x in df_curr['imię i nazwisko'].unique()]
+    
+    club_100_names = []
+    if df_p is not None and 'suma' in df_p.columns:
+        club_100_names = [str(r['imię i nazwisko']).lower().strip() for i, r in df_p.iterrows() if r['suma'] >= 100]
+
+    # 2. Przygotowanie zdarzeń (Events)
+    events_map = {} # Key: (Month, Day), Value: List of events
+
+    # a) Mecze
+    if df_m is not None:
+        col_d = next((c for c in df_m.columns if 'data' in c and 'sort' not in c), None)
+        if col_d:
+            df_m['dt_obj'] = pd.to_datetime(df_m[col_d], dayfirst=True, errors='coerce')
+            for _, row in df_m.dropna(subset=['dt_obj']).iterrows():
+                d = row['dt_obj'].date()
+                if d.year == today.year or d.year == today.year + 1: # Pokaż tylko aktualne mecze
+                    k = (d.month, d.day)
+                    entry = {
+                        'type': 'match',
+                        'text': f"⚽ {row.get('rywal', 'Mecz')} ({row.get('wynik', '-')})",
+                        'color': '#343a40', # Ciemny szary
+                        'date': d
+                    }
+                    events_map.setdefault(d, []).append(entry)
+
+    # b) Urodziny
+    if df_p is not None:
+        col_b = next((c for c in df_p.columns if c in ['data urodzenia', 'urodzony', 'data_ur']), None)
+        if col_b:
+            for _, row in df_p.iterrows():
+                try:
+                    bdate = pd.to_datetime(row[col_b]).date()
+                    name = row['imię i nazwisko']
+                    name_clean = str(name).lower().strip()
+                    
+                    # Kolorowanie
+                    color = "#17a2b8" # Standard (Blue)
+                    prefix = "🎂"
+                    
+                    if name_clean in current_squad_names:
+                        color = "#28a745" # Current Season (Green) - PRIORYTET
+                        prefix = "🟢🎂"
+                    elif name_clean in club_100_names:
+                        color = "#ffc107" # Club 100 (Gold)
+                        prefix = "🟡🎂"
+                    
+                    # Dodajemy urodziny na ten rok i przyszły
+                    for y in [today.year, today.year+1]:
+                        try:
+                            # Obsługa 29 lutego
+                            evt_date = datetime.date(y, bdate.month, bdate.day)
+                            events_map.setdefault(evt_date, []).append({
+                                'type': 'birthday',
+                                'text': f"{prefix} {name} ({y - bdate.year})",
+                                'color': color,
+                                'date': evt_date
+                            })
+                        except ValueError: pass # Np. 29 lut w roku nieprzestępnym
+                except: pass
+
+    # --- WIDOK TYGODNIOWY ---
+    st.subheader("Ten tydzień")
+    
+    # Znajdź początek tygodnia (Poniedziałek)
+    start_of_week = today - datetime.timedelta(days=today.weekday())
+    cols = st.columns(7)
+    days_pl = ["Pon", "Wt", "Śr", "Czw", "Pt", "Sob", "Ndz"]
+    
+    for i, col in enumerate(cols):
+        curr_day = start_of_week + datetime.timedelta(days=i)
+        is_today = (curr_day == today)
+        
+        with col:
+            # Nagłówek dnia
+            bg = "#e9ecef" if not is_today else "#ffeeba"
+            st.markdown(f"""
+            <div style="background-color: {bg}; padding: 5px; border-radius: 5px; text-align: center; margin-bottom: 5px;">
+                <strong>{days_pl[i]}</strong><br>{curr_day.strftime('%d.%m')}
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Zdarzenia
+            day_events = events_map.get(curr_day, [])
+            for ev in day_events:
+                txt_col = "black" if ev['color'] == "#ffc107" else "white"
+                st.markdown(f"""
+                <div style="background-color: {ev['color']}; color: {txt_col}; padding: 4px; border-radius: 4px; font-size: 12px; margin-bottom: 2px;">
+                    {ev['text']}
+                </div>
+                """, unsafe_allow_html=True)
+            
+            if not day_events:
+                st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+
+    st.divider()
+
+    # --- WIDOK MIESIĘCZNY (EXPANDER) ---
+    with st.expander("📅 Pełny Kalendarz (Widok Miesięczny)", expanded=False):
+        c_m1, c_m2 = st.columns(2)
+        sel_year = c_m1.number_input("Rok", value=today.year, min_value=1990, max_value=2030)
+        sel_month = c_m2.selectbox("Miesiąc", range(1, 13), index=today.month-1)
+        
+        cal = calendar.monthcalendar(sel_year, sel_month)
+        
+        # Grid 7 kolumn
+        cols_h = st.columns(7)
+        for i, d in enumerate(days_pl):
+            cols_h[i].markdown(f"**{d}**")
+            
+        for week in cal:
+            cols_w = st.columns(7)
+            for i, day_num in enumerate(week):
+                with cols_w[i]:
+                    if day_num == 0:
+                        st.write(" ")
+                    else:
+                        date_obj = datetime.date(sel_year, sel_month, day_num)
+                        is_t = (date_obj == today)
+                        border = "2px solid #0d6efd" if is_t else "1px solid #dee2e6"
+                        
+                        st.markdown(f"**{day_num}**")
+                        evs = events_map.get(date_obj, [])
+                        for ev in evs:
+                            txt_col = "black" if ev['color'] == "#ffc107" else "white"
+                            st.markdown(f"""
+                            <div style="background-color: {ev['color']}; color: {txt_col}; padding: 2px; border-radius: 3px; font-size: 10px; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                {ev['text']}
+                            </div>
+                            """, unsafe_allow_html=True)
+                        st.divider()
+
+    st.caption("Legenda: 🟢 Aktualny Skład | 🟡 Klub 100 | 🔵 Byli piłkarze | ⚫ Mecz")
 
 elif opcja == "Centrum Zawodników":
     st.header("🏃 Centrum Zawodników TSP")
@@ -624,18 +728,14 @@ elif opcja == "Centrum Zawodników":
 elif opcja == "Centrum Meczowe":
     st.header("🏟️ Centrum Meczowe")
     
-    # Ładowanie danych
     df_matches = load_data("mecze.csv")
     df_coaches = load_data("trenerzy.csv")
 
-    # --- PRZYGOTOWANIE DANYCH (GLOBALNE) ---
     if df_matches is not None:
-        # 1. Konwersja dat
         col_date_m = next((c for c in df_matches.columns if 'data' in c and 'sort' not in c), None)
         if col_date_m:
             df_matches['dt_obj'] = pd.to_datetime(df_matches[col_date_m], dayfirst=True, errors='coerce')
         
-        # 2. Dodanie Trenera (jeśli plik trenerzy istnieje)
         if df_coaches is not None:
             def smart_date(s):
                 d = pd.to_datetime(s, format='%d.%m.%Y', errors='coerce')
@@ -655,12 +755,10 @@ elif opcja == "Centrum Meczowe":
                     return "-"
                 df_matches['Trener'] = df_matches['dt_obj'].apply(find_coach)
         
-        # 3. Ikonki Dom/Wyjazd
         col_dom = next((c for c in df_matches.columns if c in ['dom', 'gospodarz', 'u siebie', 'gdzie']), None)
         if col_dom:
             df_matches['Gdzie'] = df_matches[col_dom].apply(get_match_icon)
 
-        # 4. Obliczanie rezultatu (Z/R/P) do kolumny
         def get_outcome(res_str):
             r = parse_result(res_str)
             if not r: return "Nieznany"
@@ -671,15 +769,11 @@ elif opcja == "Centrum Meczowe":
         if 'wynik' in df_matches.columns:
             df_matches['Rezultat'] = df_matches['wynik'].apply(get_outcome)
 
-    # --- ZAKŁADKI ---
     tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Dashboard", "🗂️ Archiwum", "⚔️ H2H (Rywale)", "📢 Frekwencja", "🎲 Wyniki"])
 
-    # --- TAB 1: DASHBOARD (WIZUALIZACJA) ---
     with tab1:
         if df_matches is not None:
             st.markdown("### 📈 Podsumowanie Statystyczne")
-            
-            # Filtry Dashboardu
             c_f1, c_f2 = st.columns(2)
             d_sezony = sorted([str(s) for s in df_matches['sezon'].unique() if len(str(s))>4], reverse=True) if 'sezon' in df_matches.columns else []
             sel_d_sez = c_f1.multiselect("Filtruj Sezon:", d_sezony)
@@ -687,7 +781,6 @@ elif opcja == "Centrum Meczowe":
             df_dash = df_matches.copy()
             if sel_d_sez: df_dash = df_dash[df_dash['sezon'].isin(sel_d_sez)]
 
-            # METRYKI
             wins = len(df_dash[df_dash['Rezultat'] == "Zwycięstwo"])
             draws = len(df_dash[df_dash['Rezultat'] == "Remis"])
             losses = len(df_dash[df_dash['Rezultat'] == "Porażka"])
@@ -701,11 +794,8 @@ elif opcja == "Centrum Meczowe":
 
             st.divider()
 
-            # WYKRESY (2 kolumny)
             col_chart1, col_chart2 = st.columns(2)
-            
             with col_chart1:
-                # Kołowy: Bilans
                 if HAS_PLOTLY:
                     fig_pie = px.pie(
                         names=["Zwycięstwo", "Remis", "Porażka"], 
@@ -717,7 +807,6 @@ elif opcja == "Centrum Meczowe":
                     st.plotly_chart(fig_pie, use_container_width=True)
 
             with col_chart2:
-                # Słupkowy: Bramki
                 gf_tot = 0
                 ga_tot = 0
                 for r in df_dash['wynik']:
@@ -736,31 +825,10 @@ elif opcja == "Centrum Meczowe":
                     )
                     st.plotly_chart(fig_bar, use_container_width=True)
 
-            # OŚ CZASU (SCATTER)
-            if 'dt_obj' in df_dash.columns and HAS_PLOTLY:
-                st.markdown("### 🗓️ Oś Czasu (Wyniki)")
-                df_dash = df_dash.sort_values('dt_obj')
-                
-                # Mapowanie wyniku na oś Y (1=P, 2=R, 3=Z) dla wizualizacji
-                res_map = {"Zwycięstwo": 3, "Remis": 2, "Porażka": 1, "Nieznany": 0}
-                df_dash['Y_Val'] = df_dash['Rezultat'].map(res_map)
-                
-                fig_time = px.scatter(
-                    df_dash, x='dt_obj', y='Y_Val', color='Rezultat',
-                    color_discrete_map={"Zwycięstwo": "#2ecc71", "Remis": "#95a5a6", "Porażka": "#e74c3c", "Nieznany": "black"},
-                    hover_data=['rywal', 'wynik', 'Trener'],
-                    title="Przebieg wyników w czasie"
-                )
-                fig_time.update_yaxes(tickvals=[1, 2, 3], ticktext=["Porażka", "Remis", "Zwycięstwo"])
-                st.plotly_chart(fig_time, use_container_width=True)
-
-    # --- TAB 2: ARCHIWUM (TABELA) ---
     with tab2:
         st.subheader("🗂️ Pełne Archiwum")
         if df_matches is not None:
             df = df_matches.copy()
-            
-            # Filtry
             c1, c2 = st.columns([1, 2])
             sezony = sorted([s for s in df['sezon'].astype(str).unique() if len(s)>4], reverse=True) if 'sezon' in df.columns else []
             sel_sez = c1.selectbox("Sezon:", ["Wszystkie"] + sezony, key="arch_sez")
@@ -769,9 +837,7 @@ elif opcja == "Centrum Meczowe":
             filt = c2.text_input("Szukaj (Rywal/Trener):", key="arch_filt")
             if filt: df = df[df.astype(str).apply(lambda x: x.str.contains(filt, case=False)).any(axis=1)]
 
-            # Podział na ligi
             col_liga = next((c for c in df.columns if c in ['rozgrywki', 'liga', 'turniej']), None)
-            
             if col_liga:
                 ligues = sorted(df[col_liga].astype(str).unique())
                 if not ligues: st.warning("Brak meczów.")
@@ -781,16 +847,13 @@ elif opcja == "Centrum Meczowe":
                         with t:
                             sub = df[df[col_liga] == liga_name].copy()
                             if 'dt_obj' in sub.columns: sub = sub.sort_values('dt_obj', ascending=False)
-
-                            # Ładne kolorowanie wierszy
                             def style_row(row):
                                 res = parse_result(row['wynik'])
                                 if not res: return [''] * len(row)
-                                if res[0] > res[1]: return ['background-color: #d1fae5; color: black'] * len(row) # Zielony
-                                if res[0] < res[1]: return ['background-color: #fee2e2; color: black'] * len(row) # Czerwony
-                                return ['background-color: #f3f4f6; color: black'] * len(row) # Szary
+                                if res[0] > res[1]: return ['background-color: #d1fae5; color: black'] * len(row)
+                                if res[0] < res[1]: return ['background-color: #fee2e2; color: black'] * len(row)
+                                return ['background-color: #f3f4f6; color: black'] * len(row)
 
-                            # Wybór kolumn
                             cols_order = ['Gdzie', 'data meczu', 'rywal', 'wynik', 'Trener', 'strzelcy']
                             final_cols = [c for c in cols_order if c in sub.columns]
                             
@@ -799,10 +862,8 @@ elif opcja == "Centrum Meczowe":
                                 use_container_width=True,
                                 hide_index=True
                             )
-            else:
-                st.dataframe(df, use_container_width=True)
+            else: st.dataframe(df, use_container_width=True)
 
-    # --- TAB 3: H2H (RYWALE) ---
     with tab3:
         st.subheader("⚔️ Bilans z Rywalami")
         if df_matches is not None:
@@ -826,10 +887,7 @@ elif opcja == "Centrum Meczowe":
                 if sel_rival:
                     sub = df_matches[df_matches[col_r] == sel_rival].copy()
                     if 'dt_obj' in sub.columns: sub = sub.sort_values('dt_obj', ascending=False)
-                    
                     stats = calc_h2h(sub)
-                    
-                    # Wizualizacja formy (ostatnie 5)
                     badges = []
                     for _, row in sub.head(5).iterrows():
                         res = parse_result(row['wynik'])
@@ -846,189 +904,94 @@ elif opcja == "Centrum Meczowe":
                     
                     st.dataframe(sub[['data meczu', 'rozgrywki', 'wynik', 'Trener']].style.map(color_results_logic, subset=['wynik']), use_container_width=True, hide_index=True)
 
-# --- TAB 4: FREKWENCJA (WERSJA PANCERNA) ---
     with tab4:
         st.subheader("📢 Statystyki Frekwencji")
         
         if df_matches is not None:
-            # 1. Identyfikacja kolumn
             col_att = next((c for c in df_matches.columns if c in ['widzów', 'frekwencja', 'kibiców', 'widzow']), None)
             col_dom = next((c for c in df_matches.columns if c in ['dom', 'gospodarz', 'u siebie']), None)
             col_liga = next((c for c in df_matches.columns if c in ['rozgrywki', 'liga', 'turniej']), None)
             
-            # --- DEBUGGER (Rozwiń, jeśli nie działa) ---
-            with st.expander("🕵️‍♂️ DEBUG: Sprawdź jak czytam liczby"):
-                if col_att:
-                    st.write(f"Kolumna z widzami: **{col_att}**")
-                    # Pokazujemy 5 przykładowych wartości przed i po konwersji
-                    sample = df_matches[[col_att]].head(10).copy()
-                    sample['Po czyszczeniu'] = sample[col_att].astype(str).str.replace(r'\D', '', regex=True)
-                    st.dataframe(sample)
-                else:
-                    st.error("Nie znaleziono kolumny 'widzów'!")
-
-            # Główna logika
             if col_att and col_dom and 'sezon' in df_matches.columns:
-                
-                # A. Filtrowanie meczów domowych
-                # Używamy kolumny 'dom' (1/0) lub szukamy 'bielsko' w miejscu
-                df_matches[col_dom] = df_matches[col_dom].astype(str).str.lower()
-                
-                # Definicja meczu domowego: albo 1 w kolumnie dom, albo 'bielsko' w miejscu
+                # 1. Filtrowanie domowe (z poprawioną logiką dla Rekordu/BKS)
+                # Sprawdź też miejsce rozgrywania
                 col_miejsce = next((c for c in df_matches.columns if c in ['miejsce rozgrywania', 'miejsce']), None)
-                if col_miejsce:
-                    mask_home = (df_matches[col_dom].str.contains('1')) | (df_matches[col_miejsce].astype(str).str.lower().str.contains('bielsko'))
-                else:
-                    mask_home = df_matches[col_dom].str.contains('1')
                 
-                df_home = df_matches[mask_home].copy()
+                def check_is_home(row):
+                    # Warunek 1: Kolumna Dom == 1
+                    if str(row[col_dom]) in ['1', 'true', 'tak']: return True
+                    # Warunek 2: Miejsce zawiera Bielsko, Rekord lub BKS
+                    if col_miejsce:
+                        s = str(row[col_miejsce]).lower()
+                        if any(x in s for x in ['bielsko', 'rekord', 'bks', 'rychlińskiego']): return True
+                    return False
 
-                # B. CZYSZCZENIE DANYCH (KLUCZOWE!)
-                # 1. Na tekst
-                s_att = df_home[col_att].astype(str)
-                # 2. Usuwamy spacje (także twarde \xa0) i wszystko co nie jest cyfrą
-                # Najpierw usuwamy wszelkie białe znaki (\s+), potem resztę śmieci (\D)
-                s_att = s_att.str.replace(r'\s+', '', regex=True).str.replace(r'\D', '', regex=True)
+                df_matches['is_home_calc'] = df_matches.apply(check_is_home, axis=1)
+                df_home = df_matches[df_matches['is_home_calc']].copy()
                 
-                # 3. Konwersja na liczby
-                df_home[col_att] = pd.to_numeric(s_att, errors='coerce').fillna(0).astype(int)
+                # 2. Czyszczenie frekwencji (Bardziej pancerne)
+                # Usuwamy wszystko co nie jest cyfrą, upewniamy się że to int
+                df_home['att_clean'] = pd.to_numeric(df_home[col_att], errors='coerce').fillna(0).astype(int)
                 
-                # 4. Usuwamy zera (brak danych)
-                df_home_valid = df_home[df_home[col_att] > 0].copy()
+                df_home_valid = df_home[df_home['att_clean'] > 0].copy()
 
-                # --- C. WYŚWIETLANIE ---
                 c1, c2 = st.columns([1, 1])
-                
                 with c1:
-                    # Filtr rozgrywek
                     if col_liga:
                         all_comps = sorted(df_home_valid[col_liga].astype(str).unique())
                         sel_comps = st.multiselect("Rozgrywki:", all_comps, default=all_comps)
-                        if sel_comps:
-                            df_home_valid = df_home_valid[df_home_valid[col_liga].isin(sel_comps)]
-                    else:
-                        st.caption("Wszystkie rozgrywki")
-
+                        if sel_comps: df_home_valid = df_home_valid[df_home_valid[col_liga].isin(sel_comps)]
+                
                 with c2:
-                    # Wybór wskaźnika
                     metric_map = {"Średnia": "mean", "Mediana": "median", "Rekord (Max)": "max", "Minimum": "min", "Suma": "sum"}
                     sel_metric = st.selectbox("Wskaźnik:", list(metric_map.keys()), index=0)
 
                 if not df_home_valid.empty:
-                    # Obliczenia
-                    stats = df_home_valid.groupby('sezon')[col_att].agg(['count', 'sum', 'mean', 'median', 'min', 'max']).reset_index()
+                    stats = df_home_valid.groupby('sezon')['att_clean'].agg(['count', 'sum', 'mean', 'median', 'min', 'max']).reset_index()
                     stats.columns = ['Sezon', 'Mecze', 'Suma', 'Średnia', 'Mediana', 'Min', 'Max']
-                    
-                    # Formatowanie
-                    for c in ['Suma', 'Średnia', 'Mediana', 'Min', 'Max']:
-                        stats[c] = stats[c].astype(int)
-                    
+                    for c in ['Suma', 'Średnia', 'Mediana', 'Min', 'Max']: stats[c] = stats[c].astype(int)
                     stats = stats.sort_values('Sezon', ascending=True)
 
-                    # Wykres
                     if HAS_PLOTLY:
                         y_col = {"Rekord (Max)": "Max", "Minimum": "Min", "Suma": "Suma", "Średnia": "Średnia", "Mediana": "Mediana"}.get(sel_metric, "Średnia")
-                        
-                        fig = px.bar(
-                            stats, x='Sezon', y=y_col, 
-                            text=y_col, title=f"Frekwencja: {sel_metric}",
-                            color=y_col, color_continuous_scale='Blues'
-                        )
+                        fig = px.bar(stats, x='Sezon', y=y_col, text=y_col, title=f"Frekwencja: {sel_metric}", color=y_col, color_continuous_scale='Blues')
                         fig.update_traces(textposition='outside')
-                        fig.update_layout(yaxis_title="Liczba widzów", xaxis_title="Sezon")
                         st.plotly_chart(fig, use_container_width=True)
-                    else:
-                        st.bar_chart(stats.set_index('Sezon'))
-
+                    else: st.bar_chart(stats.set_index('Sezon'))
+                    
                     with st.expander("Pokaż tabelę"):
                         st.dataframe(stats.sort_values('Sezon', ascending=False), use_container_width=True)
-                else:
-                    st.warning("Brak danych po przefiltrowaniu (sprawdź czy są mecze domowe z wpisaną frekwencją > 0).")
-            else:
-                st.info("Brak wymaganych kolumn w pliku.")
+                else: st.warning("Brak danych po filtracji (sprawdź czy są wpisani widzowie).")
+            else: st.info("Brak kolumn (widzów/dom) w pliku.")
 
-        st.divider()
-        st.caption("Archiwum (z pliku frekwencja.csv):")
-        df_f = load_data("frekwencja.csv")
-        if df_f is not None:
-            st.dataframe(df_f, use_container_width=True)
- # --- TAB 5: WYNIKI (DYNAMICZNE) ---
     with tab5:
         st.subheader("🎲 Statystyki Wyników")
-        
         if df_matches is not None and 'wynik' in df_matches.columns:
-            # 1. Przygotowanie danych (standaryzacja usuwa spacje np. "1 : 0" -> "1:0")
-            # Tworzymy kopię, żeby nie psuć głównego dataframe
             df_scores = df_matches.copy()
             df_scores['wynik_std'] = df_scores['wynik'].astype(str).str.replace(" ", "").str.strip()
-            
-            # Liczenie wystąpień
             score_counts = df_scores['wynik_std'].value_counts().reset_index()
             score_counts.columns = ['Wynik', 'Liczba']
-            score_counts = score_counts.sort_values('Liczba', ascending=False) # Najczęstsze na górze
+            score_counts = score_counts.sort_values('Liczba', ascending=False)
 
-            # 2. Układ: Wykres po lewej, Szczegóły po prawej
             c1, c2 = st.columns([1.5, 1])
-            
             with c1:
-                st.markdown("#### 📊 Częstotliwość")
                 if HAS_PLOTLY:
-                    fig = px.bar(
-                        score_counts.head(15), # Top 15 wyników
-                        x='Wynik', 
-                        y='Liczba', 
-                        text='Liczba',
-                        title="Najczęstsze wyniki (Top 15)",
-                        color='Liczba',
-                        color_continuous_scale='Viridis'
-                    )
-                    fig.update_layout(xaxis_title="Wynik", yaxis_title="Ilość meczów")
+                    fig = px.bar(score_counts.head(15), x='Wynik', y='Liczba', text='Liczba', title="Najczęstsze wyniki", color='Liczba', color_continuous_scale='Viridis')
                     st.plotly_chart(fig, use_container_width=True)
-                else:
-                    st.bar_chart(score_counts.set_index('Wynik').head(15))
-
+                else: st.bar_chart(score_counts.set_index('Wynik').head(15))
             with c2:
-                st.markdown("#### 🔍 Sprawdź mecze")
-                st.info("Wybierz wynik z listy, aby zobaczyć, kiedy padł.")
-                
-                # Selectbox z wynikami (format: "1:0 (54 mecze)")
                 score_options = score_counts['Wynik'].tolist()
-                def format_func(opt):
-                    count = score_counts[score_counts['Wynik'] == opt]['Liczba'].values[0]
-                    return f"{opt} ({count} x)"
-                
+                def format_func(opt): return f"{opt} ({score_counts[score_counts['Wynik'] == opt]['Liczba'].values[0]} x)"
                 selected_score = st.selectbox("Wybierz wynik:", score_options, format_func=format_func)
-                
                 if selected_score:
-                    # Filtrowanie meczów z tym wynikiem
                     matches_with_score = df_scores[df_scores['wynik_std'] == selected_score].copy()
-                    
-                    # Sortowanie od najnowszych
-                    if 'dt_obj' in matches_with_score.columns:
-                        matches_with_score = matches_with_score.sort_values('dt_obj', ascending=False)
-                    
-                    st.write(f"**Lista meczów z wynikiem {selected_score}:**")
-                    
-                    # Wybór kolumn do wyświetlenia
-                    cols_show = ['Gdzie', 'data meczu', 'rywal', 'rozgrywki', 'Trener']
-                    final_cols = [c for c in cols_show if c in matches_with_score.columns]
-                    
-                    # Wyświetlenie tabeli z kolorowaniem
-                    st.dataframe(
-                        matches_with_score[final_cols].style.map(color_results_logic, subset=['wynik'] if 'wynik' in final_cols else None),
-                        use_container_width=True,
-                        hide_index=True,
-                        height=400 # Ograniczona wysokość z paskiem przewijania
-                    )
-        else:
-            st.warning("Brak danych lub kolumny 'wynik' w pliku mecze.csv.")
-    
+                    if 'dt_obj' in matches_with_score.columns: matches_with_score = matches_with_score.sort_values('dt_obj', ascending=False)
+                    st.dataframe(matches_with_score[['data meczu', 'rywal', 'rozgrywki']].style.map(color_results_logic, subset=['wynik'] if 'wynik' in matches_with_score else None), use_container_width=True, hide_index=True, height=400)
+
 elif opcja == "Trenerzy":
     st.header("👔 Trenerzy TSP")
     df = load_data("trenerzy.csv")
-    
     if df is not None:
-        # --- 1. Przygotowanie danych (Daty) ---
         def smart_date(s):
             d = pd.to_datetime(s, format='%d.%m.%Y', errors='coerce')
             if d.isna().mean() > 0.5: d = pd.to_datetime(s, errors='coerce')
@@ -1040,50 +1003,28 @@ elif opcja == "Trenerzy":
             df['koniec_dt'] = df['koniec_dt'].fillna(pd.Timestamp.today())
 
         df = prepare_flags(df)
-        
-        # --- TABS ---
         t1, t2, t3, t4 = st.tabs(["Lista Trenerów", "Rankingi", "Analiza Szczegółowa", "⚔️ Porównywarka"])
 
-        # TAB 1: Lista
         with t1:
             v = df.sort_values('początek_dt', ascending=False) if 'początek_dt' in df.columns else df
             cols = [c for c in ['funkcja', 'imię i nazwisko', 'Narodowość', 'Flaga', 'początek', 'koniec', 'mecze', 'punkty'] if c in v.columns]
             st.dataframe(v[cols], use_container_width=True, hide_index=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
 
-        # TAB 2: Rankingi (Ogólne z pliku trenerzy.csv)
         with t2:
             if 'punkty' in df.columns and 'mecze' in df.columns:
-                # Konwersja na liczby dla pewności
                 df['punkty'] = pd.to_numeric(df['punkty'], errors='coerce').fillna(0)
                 df['mecze'] = pd.to_numeric(df['mecze'], errors='coerce').fillna(0)
-                
-                st.markdown("### 🏆 Ranking (według danych z pliku trenerzy.csv)")
+                st.markdown("### 🏆 Ranking")
                 agg = df.groupby(['imię i nazwisko', 'Narodowość', 'Flaga'], as_index=False)[['mecze', 'punkty']].sum()
-                
-                # Obliczanie średniej
                 agg['Śr. Pkt'] = (agg['punkty'] / agg['mecze']).fillna(0)
-                
                 agg = agg.sort_values('punkty', ascending=False)
-                
-                st.dataframe(
-                    agg, 
-                    use_container_width=True, 
-                    hide_index=True, 
-                    column_config={
-                        "Flaga": st.column_config.ImageColumn("Flaga", width="small"),
-                        "Śr. Pkt": st.column_config.NumberColumn("Średnia Pkt", format="%.2f") # Formatowanie do 2 miejsc
-                    }
-                )
+                st.dataframe(agg, use_container_width=True, hide_index=True, column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small"), "Śr. Pkt": st.column_config.NumberColumn("Średnia Pkt", format="%.2f")})
 
-        # TAB 3: Analiza Szczegółowa (Indywidualna)
         with t3:
-            st.markdown("### 📊 Analiza indywidualna")
             wybrany_trener = st.selectbox("Wybierz trenera:", sorted(df['imię i nazwisko'].unique()), key="sel_trener_adv")
-            
             if wybrany_trener:
                 coach_rows = df[df['imię i nazwisko'] == wybrany_trener]
                 mecze_df = load_data("mecze.csv")
-                
                 if mecze_df is not None:
                     col_data_m = next((c for c in mecze_df.columns if 'data' in c and 'sort' not in c), None)
                     if col_data_m:
@@ -1099,7 +1040,6 @@ elif opcja == "Trenerzy":
                             scorers_dict = {}
 
                             for _, m in coach_matches.iterrows():
-                                # Używamy globalnego parse_result (uwzględnia karne!)
                                 res = parse_result(m['wynik'])
                                 if res:
                                     matches_count += 1; gf += res[0]; ga += res[1]
@@ -1112,7 +1052,7 @@ elif opcja == "Trenerzy":
                             
                             c1, c2, c3, c4 = st.columns(4)
                             c1.metric("Mecze", matches_count)
-                            c2.metric("Bilans (Z-R-P)", f"{wins}-{draws}-{losses}")
+                            c2.metric("Bilans", f"{wins}-{draws}-{losses}")
                             c3.metric("Bramki", f"{gf}:{ga}")
                             avg_pts = sum(pts_list)/len(pts_list) if pts_list else 0
                             c4.metric("Średnia pkt", f"{avg_pts:.2f}")
@@ -1122,112 +1062,49 @@ elif opcja == "Trenerzy":
                             coach_matches['Nr Meczu'] = range(1, len(coach_matches) + 1)
                             
                             if HAS_PLOTLY:
-                                fig = px.line(coach_matches, x='Nr Meczu', y='Forma', markers=True, title=f"Forma: {wybrany_trener}", hover_data=['rywal', 'wynik'])
+                                fig = px.line(coach_matches, x='Nr Meczu', y='Forma', markers=True, title=f"Forma: {wybrany_trener}")
                                 fig.add_hline(y=avg_pts, line_dash="dot", annotation_text=f"Średnia: {avg_pts:.2f}")
-                                # Sztywna oś Y od 0 do 3
-                                fig.update_yaxes(range=[-0.1, 3.1], title="Średnia pkt (Rolling 5)")
+                                fig.update_yaxes(range=[-0.1, 3.1])
                                 st.plotly_chart(fig, use_container_width=True)
 
                             if scorers_dict:
                                 st.markdown(f"**⚽ Strzelcy:**")
                                 df_s = pd.DataFrame(list(scorers_dict.items()), columns=['Zawodnik', 'Gole']).sort_values('Gole', ascending=False)
-                                def highlight_own(val): return 'color: red;' if 'samobój' in str(val).lower() else ''
-                                st.dataframe(df_s.style.map(highlight_own, subset=['Zawodnik']), use_container_width=True)
-
+                                st.dataframe(df_s, use_container_width=True)
+                            
                             with st.expander("Lista meczów"):
-                                view_cols = ['data meczu', 'rywal', 'wynik', 'sezon']
-                                final_view = [c for c in view_cols if c in coach_matches.columns]
-                                st.dataframe(coach_matches[final_view].style.map(color_results_logic, subset=['wynik']), use_container_width=True)
-                        else: st.info("Brak meczów w bazie dla okresu pracy tego trenera.")
-                    else: st.error("Brak kolumny z datą w mecze.csv")
+                                st.dataframe(coach_matches[['data meczu', 'rywal', 'wynik']].style.map(color_results_logic, subset=['wynik']), use_container_width=True)
+                        else: st.info("Brak meczów w bazie dla tego trenera.")
 
-        # TAB 4: Porównywarka
         with t4:
-            st.markdown("### ⚔️ Porównanie Trenerów")
             all_coaches = sorted(df['imię i nazwisko'].unique())
-            sel_compare = st.multiselect("Wybierz trenerów do porównania:", all_coaches, default=all_coaches[:2] if len(all_coaches)>1 else None)
-            
+            sel_compare = st.multiselect("Porównaj:", all_coaches, default=all_coaches[:2] if len(all_coaches)>1 else None)
             if sel_compare:
                 comp_data = []
-                all_series = []
                 mecze_df = load_data("mecze.csv")
-
                 if mecze_df is not None:
                     col_data_m = next((c for c in mecze_df.columns if 'data' in c and 'sort' not in c), None)
                     if col_data_m:
                         mecze_df['dt'] = pd.to_datetime(mecze_df[col_data_m], dayfirst=True, errors='coerce')
-
                         for coach in sel_compare:
-                            # Filtrowanie datami
                             coach_rows = df[df['imię i nazwisko'] == coach]
                             mask = pd.Series([False]*len(mecze_df))
                             for _, row in coach_rows.iterrows():
                                 if pd.notnull(row.get('początek_dt')):
                                     mask |= (mecze_df['dt'] >= row['początek_dt']) & (mecze_df['dt'] <= row['koniec_dt'])
                             
-                            cm = mecze_df[mask].sort_values('dt')
+                            cm = mecze_df[mask]
                             if not cm.empty:
                                 pts = []
-                                w, d, l, gf, ga = 0,0,0,0,0
+                                w=0
                                 for _, m in cm.iterrows():
-                                    # Użycie globalnego parse_result (uwzględnia karne)
                                     res = parse_result(m['wynik'])
                                     if res:
-                                        gf += res[0]; ga += res[1]
                                         if res[0]>res[1]: pts.append(3); w+=1
-                                        elif res[0]==res[1]: pts.append(1); d+=1
-                                        else: pts.append(0); l+=1
+                                        elif res[0]==res[1]: pts.append(1)
+                                        else: pts.append(0)
                                     else: pts.append(0)
-                                
                                 avg = sum(pts)/len(pts) if pts else 0
-                                
-                                comp_data.append({
-                                    "Trener": coach,
-                                    "Mecze": len(cm),
-                                    "Śr. Pkt": avg, # Przekazujemy liczbę, formatujemy w dataframe
-                                    "Zwycięstwa": w,
-                                    "Remisy": d,
-                                    "Porażki": l,
-                                    "Bramki": f"{gf}:{ga}",
-                                    "% Zwycięstw": f"{(w/len(cm)*100):.1f}%" if len(cm)>0 else "0%"
-                                })
-                                
-                                # Do wykresu
-                                cm['Trener'] = coach
-                                cm['Punkty'] = pts
-                                cm['Forma'] = cm['Punkty'].rolling(window=5, min_periods=1).mean()
-                                cm['Nr Meczu'] = range(1, len(cm) + 1)
-                                all_series.append(cm[['Nr Meczu', 'Forma', 'Trener']])
-
-                        # 1. Tabela porównawcza
-                        if comp_data:
-                            st.markdown("#### 📋 Tabela wyników")
-                            df_comp = pd.DataFrame(comp_data)
-                            
-                            st.dataframe(
-                                df_comp, 
-                                use_container_width=True,
-                                column_config={
-                                    "Śr. Pkt": st.column_config.NumberColumn(
-                                        "Średnia Pkt",
-                                        format="%.2f", # OGRANICZENIE DO 2 MIEJSC PO PRZECINKU
-                                        help="Średnia punktów na mecz"
-                                    )
-                                }
-                            )
-
-                            # 2. Wykres słupkowy (Średnia punktów)
-                            if HAS_PLOTLY:
-                                fig_bar = px.bar(df_comp, x='Trener', y='Śr. Pkt', color='Trener', title="Średnia punktów na mecz", text_auto='.2f')
-                                fig_bar.update_layout(showlegend=False)
-                                st.plotly_chart(fig_bar, use_container_width=True)
-
-                        # 3. Wykres liniowy (Porównanie formy)
-                        if all_series and HAS_PLOTLY:
-                            st.markdown("#### 📈 Porównanie przebiegu formy")
-                            big_df = pd.concat(all_series)
-                            fig_line = px.line(big_df, x='Nr Meczu', y='Forma', color='Trener', markers=False, title="Forma (Rolling Avg 5)")
-                            fig_line.update_yaxes(range=[-0.1, 3.1], title="Średnia pkt")
-                            st.plotly_chart(fig_line, use_container_width=True)
-                    else:
-                        st.error("Brak kolumny z datą w mecze.csv.")
+                                comp_data.append({"Trener": coach, "Mecze": len(cm), "Śr. Pkt": avg, "% Wygranych": f"{(w/len(cm)*100):.1f}%"})
+                        
+                        st.dataframe(pd.DataFrame(comp_data), use_container_width=True, column_config={"Śr. Pkt": st.column_config.NumberColumn(format="%.2f")})
