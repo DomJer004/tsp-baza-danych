@@ -331,6 +331,145 @@ def render_player_profile(player_name):
             st.info("Brak szczegółowych danych historycznych.")
     else:
         st.warning("Nie wczytano pliku wystepy.csv")
+        def render_coach_profile(coach_name):
+    """Generuje pełny profil trenera ze statystykami i historią."""
+    
+    # 1. Ładowanie danych
+    df_t = load_data("trenerzy.csv")
+    df_m = load_data("mecze.csv")
+    
+    if df_t is None: 
+        st.error("Brak pliku trenerzy.csv")
+        return
+    
+    # 2. Znalezienie trenera
+    coach_row = df_t[df_t['imię i nazwisko'] == coach_name]
+    if coach_row.empty:
+        st.warning(f"Nie znaleziono trenera: {coach_name}")
+        return
+    
+    coach_row = coach_row.iloc[0]
+
+    # 3. Przetwarzanie dat (Początek - Koniec)
+    def smart_date(s):
+        if pd.isna(s) or str(s).strip() == '-': return pd.NaT
+        # Próba parsowania
+        for fmt in ['%d.%m.%Y', '%Y-%m-%d', '%Y/%m/%d']:
+            try: return pd.to_datetime(s, format=fmt)
+            except: continue
+        return pd.to_datetime(s, errors='coerce')
+
+    start_date = smart_date(coach_row.get('początek'))
+    end_date = smart_date(coach_row.get('koniec'))
+    
+    # Jeśli brak daty końcowej, zakładamy, że pracuje do dzisiaj (lub do teraz)
+    is_active = False
+    if pd.isna(end_date): 
+        end_date = pd.Timestamp.today()
+        is_active = True
+    
+    # 4. Pobieranie meczów dla trenera (filtrowanie po datach)
+    coach_matches = pd.DataFrame()
+    if df_m is not None:
+        col_d = next((c for c in df_m.columns if 'data' in c and 'sort' not in c), None)
+        if col_d:
+            df_m['dt_temp'] = pd.to_datetime(df_m[col_d], dayfirst=True, errors='coerce')
+            if pd.notna(start_date):
+                # Filtrujemy mecze w zakresie dat
+                coach_matches = df_m[
+                    (df_m['dt_temp'] >= start_date) & 
+                    (df_m['dt_temp'] <= end_date)
+                ].sort_values('dt_temp', ascending=False)
+
+    # --- WIDOK PROFILU ---
+
+    # A. Nagłówek
+    st.markdown(f"## 👔 {coach_name}")
+    nat = coach_row.get('Narodowość', '-')
+    flag_url = get_flag_url(nat)
+    
+    c1, c2 = st.columns([1, 4])
+    with c1:
+        if flag_url: st.image(flag_url, width=100)
+        else: st.markdown("### 🏳️")
+        
+    with c2:
+        # Wiek
+        age_info = ""
+        col_b = next((c for c in coach_row.index if c in ['data urodzenia', 'urodzony', 'data_ur']), None)
+        if col_b:
+            age, is_bday = get_age_and_birthday(coach_row[col_b])
+            if is_bday: 
+                st.balloons()
+                st.success(f"🎉🎂 Wszystkiego najlepszego Trenerze! ({age} lat)")
+            if age: age_info = f"| **Wiek:** {age} lat"
+        
+        st.markdown(f"**Narodowość:** {nat} {age_info}")
+        
+        # Daty pracy
+        s_txt = start_date.strftime('%d.%m.%Y') if pd.notna(start_date) else "?"
+        e_txt = "obecnie" if is_active else (end_date.strftime('%d.%m.%Y') if pd.notna(coach_row.get('koniec')) else "?")
+        st.info(f"📅 **Kadencja:** {s_txt} — {e_txt}")
+
+    st.divider()
+
+    # B. Statystyki i Wykresy
+    if not coach_matches.empty:
+        wins = 0; draws = 0; losses = 0; gf = 0; ga = 0
+        
+        # Obliczanie bilansu
+        for _, m in coach_matches.iterrows():
+            res = parse_result(m.get('wynik'))
+            if res:
+                gf += res[0]; ga += res[1]
+                if res[0] > res[1]: wins += 1
+                elif res[0] == res[1]: draws += 1
+                else: losses += 1
+        
+        total = wins + draws + losses
+        
+        if total > 0:
+            pts = (wins * 3) + draws
+            ppg = pts / total
+            
+            # Kafelki ze statystykami
+            k1, k2, k3, k4 = st.columns(4)
+            k1.metric("Mecze", total)
+            k2.metric("Z - R - P", f"{wins} - {draws} - {losses}")
+            k3.metric("Średnia pkt", f"{ppg:.2f}")
+            k4.metric("Bramki", f"{gf}:{ga}")
+            
+            # Wykres kołowy (jeśli jest Plotly)
+            if HAS_PLOTLY:
+                labels = ['Zwycięstwa', 'Remisy', 'Porażki']
+                values = [wins, draws, losses]
+                colors = ['#2ecc71', '#95a5a6', '#e74c3c'] # Zielony, Szary, Czerwony
+                
+                fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.5, marker_colors=colors)])
+                fig.update_layout(height=250, margin=dict(t=30, b=0, l=0, r=0), title_text="Bilans Meczy")
+                st.plotly_chart(fig, use_container_width=True)
+
+            # C. Lista Meczów
+            st.subheader("📜 Historia Meczów")
+            
+            display_df = coach_matches.copy()
+            if 'dt_temp' in display_df.columns:
+                display_df['Data'] = display_df['dt_temp']
+            
+            cols_needed = ['Data', 'rywal', 'wynik', 'rozgrywki', 'dom']
+            final_cols = [c for c in cols_needed if c in display_df.columns]
+            
+            st.dataframe(
+                display_df[final_cols].style.map(color_results_logic, subset=['wynik'] if 'wynik' in display_df.columns else None),
+                use_container_width=True,
+                hide_index=True,
+                column_config={
+                    "Data": st.column_config.DatetimeColumn("Data", format="DD.MM.YYYY"),
+                    "dom": st.column_config.TextColumn("Gdzie?", width="small")
+                }
+            )
+    else:
+        st.info("Brak zarejestrowanych meczów w bazie dla tego trenera w podanym okresie.")
 @st.cache_data
 def load_details(filename="wystepy.csv"):
     if not os.path.exists(filename): 
@@ -770,10 +909,10 @@ if opcja == "Aktualny Sezon (25/26)":
     else: st.error("⚠️ Brak pliku '25_26.csv'.")
 
 # =========================================================
-# MODUŁ: KALENDARZ (Z WIDOKIEM MIESIĘCZNYM)
+# MODUŁ: KALENDARZ (ZINTEGROWANY Z PROFILAMI TRENERÓW)
 # =========================================================
 elif opcja == "Kalendarz":
-    # --- A. LOGIKA WIDOKU SZCZEGÓŁOWEGO (OVERLAY) ---
+    # --- A. ZARZĄDZANIE STANEM WIDOKU (ROUTER) ---
     if 'cal_view_mode' not in st.session_state: st.session_state['cal_view_mode'] = 'list'
     if 'cal_selected_item' not in st.session_state: st.session_state['cal_selected_item'] = None
 
@@ -785,7 +924,15 @@ elif opcja == "Kalendarz":
         st.divider()
         render_player_profile(st.session_state['cal_selected_item'])
 
-    # 2. WIDOK MECZU
+    # 2. WIDOK PROFILU TRENERA (NOWOŚĆ - Wywołanie funkcji z Kroku 1)
+    elif st.session_state['cal_view_mode'] == 'coach_profile':
+        if st.button("⬅️ Wróć do Kalendarza"):
+            st.session_state['cal_view_mode'] = 'list'
+            st.rerun()
+        st.divider()
+        render_coach_profile(st.session_state['cal_selected_item'])
+
+    # 3. WIDOK SZCZEGÓŁÓW MECZU
     elif st.session_state['cal_view_mode'] == 'match':
         if st.button("⬅️ Wróć do Kalendarza"):
             st.session_state['cal_view_mode'] = 'list'
@@ -824,13 +971,14 @@ elif opcja == "Kalendarz":
                 else:
                     st.caption("Brak szczegółowego składu w bazie występów.")
 
-    # 3. WIDOK GŁÓWNY KALENDARZA
+    # 4. GŁÓWNY WIDOK KALENDARZA (Siatka i Tydzień)
     else:
         st.header("📅 Kalendarz Klubowy")
         
+        # Symulacja daty
         if st.session_state.get('simulated_today'):
             today = st.session_state['simulated_today']
-            st.warning(f"⚠️ TRYB SYMULACJI: Wyświetlasz kalendarz dla dnia: {today.strftime('%d.%m.%Y')}")
+            st.warning(f"⚠️ TRYB SYMULACJI: {today.strftime('%d.%m.%Y')}")
         else:
             today = datetime.date.today()
         
@@ -840,12 +988,13 @@ elif opcja == "Kalendarz":
         df_curr = load_data("25_26.csv")
         df_t = load_data("trenerzy.csv")
         
-        # Logika Dnia Meczowego (Alert)
+        # --- ALERT DNIA MECZOWEGO ---
         match_today_alert = None
         if df_m is not None:
             col_date_m = next((c for c in df_m.columns if 'data' in c and 'sort' not in c), None)
             if col_date_m:
                 df_m['dt_obj'] = pd.to_datetime(df_m[col_date_m], dayfirst=True, errors='coerce')
+                # Sprawdzenie dokładnej daty (Dzień + Miesiąc + ROK)
                 matches_today = df_m[df_m['dt_obj'].dt.date == today]
                 if not matches_today.empty:
                     row_t = matches_today.iloc[0]
@@ -863,6 +1012,7 @@ elif opcja == "Kalendarz":
             """, unsafe_allow_html=True)
             st.toast(f"⚽ Dziś mecz: {match_today_alert}!", icon="🏟️")
 
+        # --- BUDOWANIE MAPY ZDARZEŃ ---
         events_map = {} 
         current_squad_names = [str(x).lower().strip() for x in df_curr['imię i nazwisko'].unique()] if df_curr is not None else []
 
@@ -871,7 +1021,6 @@ elif opcja == "Kalendarz":
             df_p['id_name'] = df_p['imię i nazwisko'].astype(str).str.lower().str.strip()
             df_unique = df_p.drop_duplicates(subset=['id_name'], keep='first')
             col_b = next((c for c in df_unique.columns if c in ['data urodzenia', 'urodzony', 'data_ur']), None)
-            
             if col_b:
                 for _, row in df_unique.iterrows():
                     try:
@@ -882,13 +1031,7 @@ elif opcja == "Kalendarz":
                         is_curr = row['id_name'] in current_squad_names
                         prefix = "🟢🎂" if is_curr else "🎂"
                         age = today.year - bdate.year
-                        
-                        events_map.setdefault(key, []).append({
-                            'type': 'birthday',
-                            'label': f"{prefix} {name} ({age})",
-                            'name': name,
-                            'sort': 1 if is_curr else 2
-                        })
+                        events_map.setdefault(key, []).append({'type': 'birthday', 'label': f"{prefix} {name} ({age})", 'name': name, 'sort': 1 if is_curr else 2})
                     except: pass
         
         # B. Urodziny Trenerów
@@ -902,58 +1045,29 @@ elif opcja == "Kalendarz":
                         key = (bdate.month, bdate.day)
                         name = row.get('imię i nazwisko', 'Trener')
                         age = today.year - bdate.year
-                        
-                        events_map.setdefault(key, []).append({
-                            'type': 'coach_birthday',
-                            'label': f"👔🎂 {name} ({age})",
-                            'name': name,
-                            'sort': 2 
-                        })
+                        # Typ: 'coach_birthday'
+                        events_map.setdefault(key, []).append({'type': 'coach_birthday', 'label': f"👔🎂 {name} ({age})", 'name': name, 'sort': 2})
                     except: pass
 
         # C. Mecze
         if df_m is not None and 'dt_obj' in df_m.columns:
             for _, row in df_m.dropna(subset=['dt_obj']).iterrows():
-                d = row['dt_obj']
-                d_date = d.date()
-                key = (d.month, d.day)
+                d = row['dt_obj']; d_date = d.date(); key = (d.month, d.day)
                 
                 raw_score = str(row.get('wynik', ''))
                 if raw_score.lower() == 'nan': raw_score = ''
                 
-                if d_date > today:
-                    icon = "🔜"
-                    info = "Coming Soon"
-                    sort_prio = 0 
-                elif d_date == today:
-                    icon = "🔥"
-                    info = raw_score if raw_score else "DZIŚ"
-                    sort_prio = 0
-                else:
-                    icon = "⚽"
-                    info = raw_score if raw_score else "?"
-                    sort_prio = 3
+                # Ustalanie statusu meczu
+                if d_date > today: icon = "🔜"; info = "Coming Soon"; sort_prio = 0 
+                elif d_date == today: icon = "🔥"; info = raw_score if raw_score else "DZIŚ"; sort_prio = 0
+                else: icon = "⚽"; info = raw_score; sort_prio = 3
 
                 rywal = row.get('rywal', 'Rywal')
-                match_details = {
-                    'Rywal': rywal,
-                    'Data_Txt': d.strftime('%d.%m.%Y'),
-                    'Data_Obj': d,
-                    'Wynik': f"{info}",
-                    'Strzelcy': row.get('strzelcy', '-'),
-                    'Widzów': row.get('widzów', '-'),
-                    'Dom': row.get('dom', '0')
-                }
+                match_details = {'Rywal': rywal, 'Data_Txt': d.strftime('%d.%m.%Y'), 'Data_Obj': d, 'Wynik': f"{info}", 'Strzelcy': row.get('strzelcy', '-'), 'Widzów': row.get('widzów', '-'), 'Dom': row.get('dom', '0')}
                 
-                events_map.setdefault(key, []).append({
-                    'type': 'match',
-                    'label': f"{icon} {rywal} {info}",
-                    'match_data': match_details,
-                    'sort': sort_prio,
-                    'year': d.year # Potrzebne do filtrowania w widoku miesięcznym
-                })
+                events_map.setdefault(key, []).append({'type': 'match', 'label': f"{icon} {rywal} {info}", 'match_data': match_details, 'sort': sort_prio, 'year': d.year})
 
-        # --- WIDOK 1: TEN TYDZIEŃ ---
+        # --- WIDOK 1: TYGODNIOWY ---
         st.subheader("Ten tydzień")
         start_of_week = today - datetime.timedelta(days=today.weekday())
         cols = st.columns(7)
@@ -964,114 +1078,102 @@ elif opcja == "Kalendarz":
             is_today = (curr_day == today)
             lookup_key = (curr_day.month, curr_day.day)
             
-            day_events = events_map.get(lookup_key, [])
-            day_events.sort(key=lambda x: (x.get('sort', 5), -x.get('year', 0)))
+            # Pobieranie i filtrowanie
+            raw_events = events_map.get(lookup_key, [])
+            day_events = []
+            for ev in raw_events:
+                # Mecze pokazujemy tylko z TEGO ROKU
+                if ev['type'] == 'match':
+                    if ev.get('year') == curr_day.year: day_events.append(ev)
+                else:
+                    # Urodziny zawsze
+                    day_events.append(ev)
+            day_events.sort(key=lambda x: (x.get('sort', 5)))
             
             with col:
-                border_color = "#28a745" if is_today else "#dee2e6"
-                bg_color = "#e9ecef" if not is_today else "#d4edda"
+                bg = "#d4edda" if is_today else "#e9ecef"; border = "#28a745" if is_today else "#dee2e6"
+                st.markdown(f"<div style='background-color: {bg}; border: 2px solid {border}; border-radius: 5px; text-align: center; padding: 5px; margin-bottom: 5px;'><small>{days_pl[i]}</small><br><strong>{curr_day.strftime('%d.%m')}</strong></div>", unsafe_allow_html=True)
                 
-                st.markdown(f"""
-                <div style="background-color: {bg_color}; border: 2px solid {border_color}; border-radius: 5px; text-align: center; padding: 5px; margin-bottom: 5px;">
-                    <small>{days_pl[i]}</small><br><strong>{curr_day.strftime('%d.%m')}</strong>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                if not day_events:
-                    st.markdown("<div style='text-align: center; opacity: 0.3; font-size: 10px;'>Brak</div>", unsafe_allow_html=True)
+                if not day_events: st.markdown("<div style='text-align: center; opacity: 0.3; font-size: 10px;'>Brak</div>", unsafe_allow_html=True)
                 
                 for idx, ev in enumerate(day_events):
                     btn_key = f"ev_w_{i}_{idx}_{ev['label']}"
                     
+                    # Logika Przycisków
                     if ev['type'] == 'birthday':
-                        if st.button(ev['label'], key=btn_key, help="Profil zawodnika", use_container_width=True):
+                        if st.button(ev['label'], key=btn_key, use_container_width=True):
                             st.session_state['cal_selected_item'] = ev['name']
                             st.session_state['cal_view_mode'] = 'profile'
                             st.rerun()
+                    
                     elif ev['type'] == 'coach_birthday':
-                         if st.button(ev['label'], key=btn_key, help="Trener", use_container_width=True):
-                            st.toast(f"🎉 100 lat Trenerze: {ev['name']}!", icon="🥂")
+                        # PRZYCISK TRENERA -> PROFIL TRENERA
+                        if st.button(ev['label'], key=btn_key, use_container_width=True):
+                            st.session_state['cal_selected_item'] = ev['name']
+                            st.session_state['cal_view_mode'] = 'coach_profile'
+                            st.rerun()
+                    
                     elif ev['type'] == 'match':
                         b_type = "primary" if "🔜" in ev['label'] or "🔥" in ev['label'] else "secondary"
-                        if st.button(ev['label'], key=btn_key, type=b_type, help="Raport meczowy", use_container_width=True):
+                        if st.button(ev['label'], key=btn_key, type=b_type, use_container_width=True):
                             st.session_state['cal_selected_item'] = ev['match_data']
                             st.session_state['cal_view_mode'] = 'match'
                             st.rerun()
 
         st.divider()
 
-        # --- WIDOK 2: PEŁNY KALENDARZ MIESIĘCZNY (NOWOŚĆ) ---
+        # --- WIDOK 2: MIESIĘCZNY ---
         with st.expander("📅 Pełny Kalendarz (Widok Miesięczny)", expanded=False):
             c_m1, c_m2 = st.columns(2)
             sel_year = c_m1.number_input("Rok", value=today.year, min_value=1990, max_value=2030)
-            
-            # Polskie nazwy miesięcy
-            pl_months = ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", 
-                         "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"]
+            pl_months = ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"]
             sel_month_name = c_m2.selectbox("Miesiąc", pl_months, index=today.month-1)
             sel_month = pl_months.index(sel_month_name) + 1
             
-            # Nagłówki dni
             cols_h = st.columns(7)
-            for i, d in enumerate(days_pl):
-                cols_h[i].markdown(f"**{d}**")
+            for i, d in enumerate(days_pl): cols_h[i].markdown(f"**{d}**")
             
-            # Generowanie siatki
             cal_data = calendar.monthcalendar(sel_year, sel_month)
-            
             for week in cal_data:
                 cols_w = st.columns(7)
                 for i, day_num in enumerate(week):
                     with cols_w[i]:
-                        if day_num == 0:
-                            st.write(" ")
+                        if day_num == 0: st.write(" ")
                         else:
-                            # Czy to dziś? (uwzględniając rok)
                             is_today_cell = (day_num == today.day and sel_month == today.month and sel_year == today.year)
-                            bg = "#d4edda" if is_today_cell else "#f8f9fa"
-                            border = "2px solid #28a745" if is_today_cell else "1px solid #dee2e6"
+                            bg = "#d4edda" if is_today_cell else "#f8f9fa"; border = "2px solid #28a745" if is_today_cell else "1px solid #dee2e6"
+                            st.markdown(f"<div style='background-color: {bg}; border: {border}; border-radius: 5px; text-align: center; padding: 2px; margin-bottom: 2px;'><strong>{day_num}</strong></div>", unsafe_allow_html=True)
                             
-                            st.markdown(f"""
-                            <div style="background-color: {bg}; border: {border}; border-radius: 5px; text-align: center; padding: 2px; margin-bottom: 2px;">
-                                <strong>{day_num}</strong>
-                            </div>
-                            """, unsafe_allow_html=True)
-                            
-                            # Pobieramy zdarzenia dla dnia
                             raw_events = events_map.get((sel_month, day_num), [])
-                            
-                            # FILTROWANIE ROCZNIKA DLA MECZÓW
-                            # Urodziny pokazujemy zawsze. Mecze tylko te z wybranego roku.
                             valid_events = []
                             for ev in raw_events:
+                                # Filtrowanie meczów po wybranym roku
                                 if ev['type'] == 'match':
-                                    if ev.get('year') == sel_year:
-                                        valid_events.append(ev)
-                                else:
-                                    valid_events.append(ev) # Urodziny
-                            
+                                    if ev.get('year') == sel_year: valid_events.append(ev)
+                                else: valid_events.append(ev)
                             valid_events.sort(key=lambda x: (x.get('sort', 5)))
 
                             for idx, ev in enumerate(valid_events):
-                                # Klucz musi być unikalny dla widoku miesięcznego
-                                btn_key = f"ev_m_{sel_year}_{sel_month}_{day_num}_{idx}_{ev['label']}"
+                                btn_key = f"ev_month_{sel_year}_{sel_month}_{day_num}_{idx}_{ev['label']}"
                                 
                                 if ev['type'] == 'birthday':
-                                    if st.button(ev['label'], key=btn_key, help="Profil", use_container_width=True):
+                                    if st.button(ev['label'], key=btn_key, use_container_width=True):
                                         st.session_state['cal_selected_item'] = ev['name']
                                         st.session_state['cal_view_mode'] = 'profile'
                                         st.rerun()
                                 elif ev['type'] == 'coach_birthday':
-                                    if st.button(ev['label'], key=btn_key, help="Trener", use_container_width=True):
-                                        st.toast(f"🎉 100 lat Trenerze: {ev['name']}!", icon="🥂")
+                                    if st.button(ev['label'], key=btn_key, use_container_width=True):
+                                        st.session_state['cal_selected_item'] = ev['name']
+                                        st.session_state['cal_view_mode'] = 'coach_profile'
+                                        st.rerun()
                                 elif ev['type'] == 'match':
                                     b_type = "primary" if "🔜" in ev['label'] or "🔥" in ev['label'] else "secondary"
-                                    if st.button(ev['label'], key=btn_key, type=b_type, help="Raport", use_container_width=True):
+                                    if st.button(ev['label'], key=btn_key, type=b_type, use_container_width=True):
                                         st.session_state['cal_selected_item'] = ev['match_data']
                                         st.session_state['cal_view_mode'] = 'match'
                                         st.rerun()
 
-    st.caption("Legenda: 🔥 Dzień Meczowy | 🔜 Nadchodzące | 🟢 Kadra | 👔 Trenerzy | ⚽ Archiwum")
+    st.caption("Legenda: 🔥 Dzień Meczowy | 🔜 Nadchodzące | 🟢 Kadra | 👔 Trenerzy | ⚽ Mecze (Wybrany Rok)")
 elif opcja == "Centrum Zawodników":
     st.header("🏃 Centrum Zawodników TSP")
     tab1, tab2, tab3, tab4, tab5 = st.tabs(["Baza Zawodników", "Strzelcy", "Klub 100", "Transfery", "Młoda Ekstraklasa"])
@@ -1717,6 +1819,7 @@ elif opcja == "Trenerzy":
                                 comp_data.append({"Trener": coach, "Mecze": len(cm), "Śr. Pkt": avg, "% Wygranych": f"{(w/len(cm)*100):.1f}%"})
                         
                         st.dataframe(pd.DataFrame(comp_data), use_container_width=True, column_config={"Śr. Pkt": st.column_config.NumberColumn(format="%.2f")})
+
 
 
 
