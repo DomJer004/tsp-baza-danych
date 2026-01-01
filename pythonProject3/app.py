@@ -909,7 +909,7 @@ elif opcja == "Kalendarz":
                 
                 # 2. Sprawdzanie czy to przyszłość
                 if d_date > today:
-                    score_display = "(Coming Soon)"
+                    score_display = "🔜"
                     bg_color = '#007bff' # Niebieski (Nadchodzące)
                 elif d_date == today:
                     score_display = "(DZIŚ)" if not raw_score else f"({raw_score})"
@@ -1650,6 +1650,7 @@ elif opcja == "Trenerzy":
                                 comp_data.append({"Trener": coach, "Mecze": len(cm), "Śr. Pkt": avg, "% Wygranych": f"{(w/len(cm)*100):.1f}%"})
                         
                         st.dataframe(pd.DataFrame(comp_data), use_container_width=True, column_config={"Śr. Pkt": st.column_config.NumberColumn(format="%.2f")})
+
 
 
 
