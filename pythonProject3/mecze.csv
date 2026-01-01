@@ -82,7 +82,7 @@ kolejka,sezon,data meczu,miejsce rozgrywania,tsp,rywal,wynik,strzelcy,rozgrywki,
 17,1999/00,11.11.1999,Jaworzno,Podbeskidzie Bielsko-Biała,Szczakowianka Jaworzno,1-0,Sokołowski 81,III liga,
 18,1999/00,14.11.1999,Siersza,Podbeskidzie Bielsko-Biała,Górnik Siersza,3-0,"Lazar 22, Woźniak 70, Moskała 85",III liga,
 19,1999/00,01.04.2000,Bielsko-Biała,Podbeskidzie Bielsko-Biała,Rymer Niedobczyce,1-0,Moskała 44,III liga,
-20,1999/00,08.04.2000,Bielsko-Biała,Podbeskidzie Bielsko-Biała,BKS Stal,5-0,"Bujok 20, 59, 85, Moskała 27, Sokołowski 56",III liga,
+20,1999/00,08.04.2000,Bielsko-Biała (bks),Podbeskidzie Bielsko-Biała,BKS Stal,5-0,"Bujok 20, 59, 85, Moskała 27, Sokołowski 56",III liga,
 21,1999/00,12.04.2000,Bielsko-Biała,Podbeskidzie Bielsko-Biała,VIctoria Jaworzno,3-0,"Moskała 27, Sokołowski 29, Więzik 61",III liga,
 22,1999/00,15.04.2000,Libiąż,Podbeskidzie Bielsko-Biała,Janina Libiąż,3-0,"Moskała 10, 57, Dziarmaga 79",III liga,
 23,1999/00,22.04.2000,Bielsko-Biała,Podbeskidzie Bielsko-Biała,Unia Bieruń Stary,2-0,"Więzik 26, Młynarczyk 69",III liga,
@@ -571,7 +571,7 @@ I runda,2012/13,11.08.2012,Poznań,Podbeskidzie Bielsko-Biała,Warta Poznań,0-1
 02,2013/14,27.07.2013,Bielsko-Biała,Podbeskidzie Bielsko-Biała,Górnik Zabrze,1-2,Łukasz Żegleń 70,Ekstraklasa,2 800
 03,2013/14,03.08.2013,Warszawa,Podbeskidzie Bielsko-Biała,Legia Warszawa,0-4,,Ekstraklasa,11 926
 04,2013/14,09.08.2013,Bielsko-Biała,Podbeskidzie Bielsko-Biała,Zagłębie Lubin,0-0,,Ekstraklasa,2 617
-1/16 finału,2013/14,16.08.2013,Katowice,Podbeskidzie Bielsko-Biała,GKS Katowice,,Błażej Telichowski 77,Puchar Polski,2 500
+1/16 finału,2013/14,16.08.2013,Katowice,Podbeskidzie Bielsko-Biała,GKS Katowice,1-2 pd.,Błażej Telichowski 77,Puchar Polski,2 500
 05,2013/14,24.08.2013,Bydgoszcz,Podbeskidzie Bielsko-Biała,Zawisza Bydgoszcz,2-2,"Marek Sokołowski 78, Marcin Wodecki 89",Ekstraklasa,4 863
 06,2013/14,02.09.2013,Bielsko-Biała,Podbeskidzie Bielsko-Biała,Korona Kielce,1-0,Piotr Malarczyk 62 (s),Ekstraklasa,2 700
 07,2013/14,13.09.2013,Łódź,Podbeskidzie Bielsko-Biała,Widzew Łódź,1-1,Rudolf Urban 55,Ekstraklasa,5 049
@@ -998,7 +998,7 @@ I runda,2024/25,26.09.2024,Bielsko-Biała,Podbeskidzie Bielsko-Biała,Zagłębie
 26,2024/25,11.04.2025,Bielsko-Biała,Podbeskidzie Bielsko-Biała,Chojniczanka Chojnice,1-1,Linus Rönnberg 77,II liga,1 379
 27,2024/25,19.04.2025,Sosnowiec,Podbeskidzie Bielsko-Biała,Zagłębie Sosnowiec,0-0,,II liga,6 256
 28,2024/25,26.04.2025,Bielsko-Biała,Podbeskidzie Bielsko-Biała,Olimpia Grudziądz,2-1,"Wojciech Szumilas 30, 85",II liga,1 718
-29,2024/25,04.05.2025,Bielsko-Biała,Podbeskidzie Bielsko-Biała,Rekord Bielsko-Biała,2-0,"Matej Mršić 4, Marcin Biernat 16",II liga,4 181
+29,2024/25,04.05.2025,Bielsko-Biała (rekord),Podbeskidzie Bielsko-Biała,Rekord Bielsko-Biała,2-0,"Matej Mršić 4, Marcin Biernat 16",II liga,4 181
 30,2024/25,10.05.2025,Bielsko-Biała,Podbeskidzie Bielsko-Biała,Resovia,1-1,Bartosz Florek 79,II liga,1 538
 31,2024/25,17.05.2025,Lubin,Podbeskidzie Bielsko-Biała,Zagłębie II Lubin,4-1,"Bartosz Florek 18, Marcin Biernat 58, 90, Alexander Abrahamsson 81 (s)",II liga,248
 32,2024/25,23.05.2025,Bielsko-Biała,Podbeskidzie Bielsko-Biała,ŁKS II Łódź,3-0,"Lucjan Klisiewicz 17, 24, Jan Majsterek 38",II liga,1 714
@@ -1032,7 +1032,7 @@ I runda,2025/26,24.09.2025,Wikielec,Podbeskidzie Bielsko-Biała,GKS Wikielec,1-2
 24,2025/26,21.03.2026,Bielsko-Biała,Podbeskidzie Bielsko-Biała,Olimpia Grudziądz,,,II liga,
 25,2025/26,28.03.2026,Bielsko-Biała,Podbeskidzie Bielsko-Biała,KKS 1925 Kalisz,,,II liga,
 26,2025/26,04.04.2026,Skierniewice,Podbeskidzie Bielsko-Biała,Unia Skierniewice,,,II liga,
-27,2025/26,11.04.2026,Bielsko-Biała,Podbeskidzie Bielsko-Biała,Rekord Bielsko-Biała,,,II liga,
+27,2025/26,11.04.2026,Bielsko-Biała (rekord),Podbeskidzie Bielsko-Biała,Rekord Bielsko-Biała,,,II liga,
 28,2025/26,18.04.2026,Poznań,Podbeskidzie Bielsko-Biała,Warta Poznań,,,II liga,
 29,2025/26,25.04.2026,Bielsko-Biała,Podbeskidzie Bielsko-Biała,Zagłębie Sosnowiec,,,II liga,
 30,2025/26,02.05.2026,Szczecin,Podbeskidzie Bielsko-Biała,Świt Szczecin,,,II liga,
