@@ -376,7 +376,7 @@ def render_player_profile(player_name):
     else:
         st.warning("Nie wczytano pliku wystepy.csv")
     
-    def render_coach_profile(coach_name):
+def render_coach_profile(coach_name):
     """Generuje pełny profil trenera ze statystykami i historią."""
     
     # 1. Ładowanie danych
@@ -1864,6 +1864,7 @@ elif opcja == "Trenerzy":
                                 comp_data.append({"Trener": coach, "Mecze": len(cm), "Śr. Pkt": avg, "% Wygranych": f"{(w/len(cm)*100):.1f}%"})
                         
                         st.dataframe(pd.DataFrame(comp_data), use_container_width=True, column_config={"Śr. Pkt": st.column_config.NumberColumn(format="%.2f")})
+
 
 
 
