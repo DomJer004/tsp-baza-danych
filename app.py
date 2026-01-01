@@ -100,12 +100,25 @@ def get_flag_url(name):
 
 @st.cache_data
 def load_data(filename):
-    if not os.path.exists(filename):
+    try:
+        df = pd.read_csv(filename)
+        
+        # --- AUTOMATYCZNA NAPRAWA FREKWENCJI ---
+        # Usuwa spacje (np. "1 200" -> 1200) i zamienia na liczby
+        if 'frekwencja' in df.columns:
+            df['frekwencja'] = (
+                df['frekwencja']
+                .astype(str)
+                .str.replace(r'\s+', '', regex=True) # Usuwa wszystkie spacje
+                .str.replace(',', '') 
+                .str.replace('nan', '')
+            )
+            # Konwersja na liczby całkowite (Int64 obsługuje puste pola)
+            df['frekwencja'] = pd.to_numeric(df['frekwencja'], errors='coerce').astype('Int64')
+
+        return df
+    except FileNotFoundError:
         return None
-    try: df = pd.read_csv(filename, encoding='utf-8')
-    except: 
-        try: df = pd.read_csv(filename, encoding='windows-1250')
-        except: return None
     
     df = df.fillna("-")
     
@@ -1195,4 +1208,4 @@ elif opcja == "Trenerzy":
                                 avg = sum(pts)/len(pts) if pts else 0
                                 comp_data.append({"Trener": coach, "Mecze": len(cm), "Śr. Pkt": avg, "% Wygranych": f"{(w/len(cm)*100):.1f}%"})
                         
-                        st.dataframe(pd.DataFrame(comp_data), use_container_width=True, column_config={"Śr. Pkt": st.column_config.NumberColumn(format="%.2f")})
+                        st.dataframe(pd.DataFrame(comp_data), use_container_width=True, column_config={"Śr. Pkt": st.column_config.NumberColumn(format="%.2f")}
