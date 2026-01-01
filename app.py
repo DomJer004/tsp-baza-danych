@@ -457,19 +457,22 @@ if opcja == "Aktualny Sezon (25/26)":
             else: st.dataframe(df_view[final], use_container_width=True, column_config=col_config)
     else: st.error("⚠️ Brak pliku '25_26.csv'.")
 
-# --- MODUŁ KALENDARZ ---
+# =========================================================
+# MODUŁ: KALENDARZ UNIWERSALNY (ALMANACH)
+# =========================================================
 elif opcja == "Kalendarz":
-    st.header("📅 Kalendarz Klubowy")
-    
-    # Dane wejściowe
+    st.header("📅 Almanach Klubowy")
+    st.caption("Wydarzenia cykliczne i historia klubu 'dzień po dniu'.")
+
+    # --- 1. DANE I KONFIGURACJA ---
     today = datetime.date.today()
     
-    # 1. Ładowanie danych
+    # Ładowanie danych
     df_m = load_data("mecze.csv")
     df_p = load_data("pilkarze.csv")
     df_curr = load_data("25_26.csv")
     
-    # Listy zawodników
+    # Listy do kolorowania (pomocnicze)
     current_squad_names = []
     if df_curr is not None:
         current_squad_names = [str(x).lower().strip() for x in df_curr['imię i nazwisko'].unique()]
@@ -478,164 +481,147 @@ elif opcja == "Kalendarz":
     if df_p is not None and 'suma' in df_p.columns:
         club_100_names = [str(r['imię i nazwisko']).lower().strip() for i, r in df_p.iterrows() if r['suma'] >= 100]
 
-    # 2. Przygotowanie zdarzeń (Events)
-    events_map = {} # Key: (Month, Day), Value: List of events
+    # Słownik zdarzeń: KLUCZ to krotka (miesiąc, dzień), a nie pełna data z rokiem
+    # events_map[(month, day)] = list of events
+    events_map = {} 
 
-    # a) Mecze
+    # --- 2. PRZETWARZANIE MECZÓW (Tego dnia w historii) ---
     if df_m is not None:
         col_d = next((c for c in df_m.columns if 'data' in c and 'sort' not in c), None)
         if col_d:
+            # Konwersja całej kolumny
             df_m['dt_obj'] = pd.to_datetime(df_m[col_d], dayfirst=True, errors='coerce')
+            
             for _, row in df_m.dropna(subset=['dt_obj']).iterrows():
-                d = row['dt_obj'].date()
-                if d.year == today.year or d.year == today.year + 1: # Pokaż tylko aktualne mecze
-                    k = (d.month, d.day)
-                    entry = {
-                        'type': 'match',
-                        'text': f"⚽ {row.get('rywal', 'Mecz')} ({row.get('wynik', '-')})",
-                        'color': '#343a40', # Ciemny szary
-                        'date': d
-                    }
-                    events_map.setdefault(d, []).append(entry)
+                d = row['dt_obj']
+                key = (d.month, d.day) # Klucz bez roku
+                
+                # Format: "1998: Rywal (Wynik)"
+                entry = {
+                    'type': 'match',
+                    'text': f"⚽ {d.year}: {row.get('rywal', 'Mecz')} ({row.get('wynik', 'b.d.')})",
+                    'color': '#343a40', # Ciemny szary
+                    'sort_year': d.year # Do sortowania chronologicznego
+                }
+                events_map.setdefault(key, []).append(entry)
 
-   # b) Urodziny
+    # --- 3. PRZETWARZANIE URODZIN (Święto stałe) ---
     if df_p is not None:
         col_b = next((c for c in df_p.columns if c in ['data urodzenia', 'urodzony', 'data_ur']), None)
         if col_b:
-            # --- ZMIANA TUTAJ: Usuwamy duplikaty ---
-            # Tworzymy kopię bazy tylko z unikalnymi nazwiskami, żeby nie powielać urodzin
-            df_unique = df_p.drop_duplicates(subset=['imię i nazwisko'])
-            
-            for _, row in df_unique.iterrows():
+            for _, row in df_p.iterrows():
                 try:
-                    # Sprawdzamy czy data istnieje i jest poprawna
-                    if pd.isna(row[col_b]) or str(row[col_b]) in ['-', '']: continue
+                    # Parsujemy datę urodzenia
+                    bdate = pd.to_datetime(row[col_b], errors='coerce')
+                    if pd.isna(bdate): continue
                     
-                    bdate = pd.to_datetime(row[col_b]).date()
+                    key = (bdate.month, bdate.day)
                     name = row['imię i nazwisko']
                     name_clean = str(name).lower().strip()
                     
-                    # Domyślny kolor (Byli piłkarze - Niebieski)
-                    color = "#17a2b8" 
+                    # Logika kolorów
+                    color = "#17a2b8" # Byli piłkarze (Niebieski)
                     prefix = "🎂"
+                    importance = 1 # Do sortowania ważności
                     
-                    # Sprawdzanie warunków kolorów
                     if name_clean in current_squad_names:
-                        color = "#28a745" # Aktualny sezon (Zielony)
+                        color = "#28a745" # Aktualny skład (Zielony)
                         prefix = "🟢🎂"
+                        importance = 3
                     elif name_clean in club_100_names:
                         color = "#ffc107" # Klub 100 (Złoty)
                         prefix = "🟡🎂"
+                        importance = 2
                     
-                    # Generujemy urodziny na bieżący i przyszły rok
-                    for y in [today.year, today.year+1]:
-                        try:
-                            evt_date = datetime.date(y, bdate.month, bdate.day)
-                            events_map.setdefault(evt_date, []).append({
-                                'type': 'birthday',
-                                'text': f"{prefix} {name} ({y - bdate.year})",
-                                'color': color,
-                                'date': evt_date
-                            })
-                        except ValueError: pass # Obsługa 29 lutego
+                    entry = {
+                        'type': 'birthday',
+                        'text': f"{prefix} {name} (ur. {bdate.year})",
+                        'color': color,
+                        'sort_imp': importance,
+                        'sort_year': bdate.year
+                    }
+                    events_map.setdefault(key, []).append(entry)
                 except: pass
-   # --- LEGENDA ---
-    st.markdown("### 📝 Legenda")
-    st.markdown("""
-    <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
-        <div style="display: flex; align-items: center;">
-            <div style="width: 20px; height: 20px; background-color: #28a745; border-radius: 4px; margin-right: 8px;"></div>
-            <span><b>Kadra 25/26</b> (Obecni piłkarze)</span>
-        </div>
-        <div style="display: flex; align-items: center;">
-            <div style="width: 20px; height: 20px; background-color: #ffc107; border-radius: 4px; margin-right: 8px;"></div>
-            <span><b>Klub 100</b> (Legendy / >100 meczów)</span>
-        </div>
-        <div style="display: flex; align-items: center;">
-            <div style="width: 20px; height: 20px; background-color: #17a2b8; border-radius: 4px; margin-right: 8px;"></div>
-            <span><b>Byli piłkarze</b> (Pozostali)</span>
-        </div>
-        <div style="display: flex; align-items: center;">
-            <div style="width: 20px; height: 20px; background-color: #343a40; border-radius: 4px; margin-right: 8px;"></div>
-            <span><b>Mecze</b></span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.divider()
 
-    # --- WIDOK TYGODNIOWY ---
-    st.subheader("Ten tydzień")
+    # --- 4. INTERFEJS UŻYTKOWNIKA ---
 
-    # Znajdź początek tygodnia (Poniedziałek)
-    start_of_week = today - datetime.timedelta(days=today.weekday())
-    cols = st.columns(7)
-    days_pl = ["Pon", "Wt", "Śr", "Czw", "Pt", "Sob", "Ndz"]
+    # A. WIDOK "NA DZIŚ" (Szybki podgląd)
+    today_key = (today.month, today.day)
+    today_events = events_map.get(today_key, [])
     
-    for i, col in enumerate(cols):
-        curr_day = start_of_week + datetime.timedelta(days=i)
-        is_today = (curr_day == today)
-        
-        with col:
-            # Nagłówek dnia
-            bg = "#e9ecef" if not is_today else "#ffeeba"
-            st.markdown(f"""
-            <div style="background-color: {bg}; padding: 5px; border-radius: 5px; text-align: center; margin-bottom: 5px;">
-                <strong>{days_pl[i]}</strong><br>{curr_day.strftime('%d.%m')}
-            </div>
-            """, unsafe_allow_html=True)
-            
-            # Zdarzenia
-            day_events = events_map.get(curr_day, [])
-            for ev in day_events:
-                txt_col = "black" if ev['color'] == "#ffc107" else "white"
-                st.markdown(f"""
-                <div style="background-color: {ev['color']}; color: {txt_col}; padding: 4px; border-radius: 4px; font-size: 12px; margin-bottom: 2px;">
-                    {ev['text']}
-                </div>
-                """, unsafe_allow_html=True)
-            
-            if not day_events:
-                st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+    if today_events:
+        st.info(f"📅 **DZIŚ ({today.strftime('%d.%m')})** mamy wydarzenia:")
+        for ev in today_events:
+             st.markdown(f"- {ev['text']}")
+    else:
+        st.caption(f"Dziś ({today.strftime('%d.%m')}) w historii klubu cisza.")
 
     st.divider()
 
-    # --- WIDOK MIESIĘCZNY (EXPANDER) ---
-    with st.expander("📅 Pełny Kalendarz (Widok Miesięczny)", expanded=False):
-        c_m1, c_m2 = st.columns(2)
-        sel_year = c_m1.number_input("Rok", value=today.year, min_value=1990, max_value=2030)
-        sel_month = c_m2.selectbox("Miesiąc", range(1, 13), index=today.month-1)
-        
-        cal = calendar.monthcalendar(sel_year, sel_month)
-        
-        # Grid 7 kolumn
-        cols_h = st.columns(7)
-        for i, d in enumerate(days_pl):
-            cols_h[i].markdown(f"**{d}**")
-            
-        for week in cal:
-            cols_w = st.columns(7)
-            for i, day_num in enumerate(week):
-                with cols_w[i]:
-                    if day_num == 0:
-                        st.write(" ")
-                    else:
-                        date_obj = datetime.date(sel_year, sel_month, day_num)
-                        is_t = (date_obj == today)
-                        border = "2px solid #0d6efd" if is_t else "1px solid #dee2e6"
-                        
-                        st.markdown(f"**{day_num}**")
-                        evs = events_map.get(date_obj, [])
-                        for ev in evs:
-                            txt_col = "black" if ev['color'] == "#ffc107" else "white"
-                            st.markdown(f"""
-                            <div style="background-color: {ev['color']}; color: {txt_col}; padding: 2px; border-radius: 3px; font-size: 10px; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                {ev['text']}
-                            </div>
-                            """, unsafe_allow_html=True)
-                        st.divider()
+    # B. WIDOK MIESIĘCZNY (UNIWERSALNY)
+    col_sel, col_info = st.columns([1, 3])
+    
+    with col_sel:
+        polskie_miesiace = [
+            "Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", 
+            "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"
+        ]
+        # Domyślnie obecny miesiąc
+        selected_month_idx = st.selectbox(
+            "Wybierz miesiąc", 
+            range(len(polskie_miesiace)), 
+            index=today.month-1,
+            format_func=lambda x: polskie_miesiace[x]
+        )
+        selected_month_num = selected_month_idx + 1
 
-    st.caption("Legenda: 🟢 Aktualny Skład | 🟡 Klub 100 | 🔵 Byli piłkarze | ⚫ Mecz")
+    # Generowanie listy dni dla wybranego miesiąca
+    # Używamy roku przestępnego (np. 2024), żeby luty miał 29 dni w kalendarzu uniwersalnym
+    days_in_month = calendar.monthrange(2024, selected_month_num)[1]
+    
+    st.subheader(f"🗓️ {polskie_miesiace[selected_month_idx]}")
+    
+    # Iteracja po dniach miesiąca
+    found_any = False
+    
+    for day in range(1, days_in_month + 1):
+        key = (selected_month_num, day)
+        events = events_map.get(key, [])
+        
+        if events:
+            found_any = True
+            # Kontener dnia
+            with st.container():
+                c1, c2 = st.columns([1, 8])
+                with c1:
+                    # Numer dnia
+                    is_today = (selected_month_num == today.month and day == today.day)
+                    bg_color = "#ffeeba" if is_today else "#f8f9fa"
+                    st.markdown(f"""
+                        <div style="background-color: {bg_color}; padding: 10px; border-radius: 5px; text-align: center; border: 1px solid #dee2e6;">
+                            <span style="font-size: 18px; font-weight: bold; color: #495057;">{day}</span>
+                        </div>
+                    """, unsafe_allow_html=True)
+                
+                with c2:
+                    # Sortowanie: Najpierw ważne urodziny, potem mecze (od najnowszych)
+                    # Urodziny mają sort_imp, mecze nie (traktujemy jako 0)
+                    events.sort(key=lambda x: (x.get('sort_imp', 0), x.get('sort_year', 0)), reverse=True)
+                    
+                    for ev in events:
+                        txt_col = "black" if ev['color'] == "#ffc107" else "white"
+                        st.markdown(f"""
+                        <div style="background-color: {ev['color']}; color: {txt_col}; padding: 5px 10px; border-radius: 4px; margin-bottom: 4px; font-size: 14px;">
+                            {ev['text']}
+                        </div>
+                        """, unsafe_allow_html=True)
+            st.markdown("---") # Linia oddzielająca dni
+
+    if not found_any:
+        st.info("Brak zapisanych wydarzeń w tym miesiącu.")
+    
+    # Legenda na dole
+    st.caption("Legenda: 🟢 Aktualny Skład | 🟡 Klub 100 | 🔵 Byli piłkarze | ⚫ Mecze historyczne")
 
 elif opcja == "Centrum Zawodników":
     st.header("🏃 Centrum Zawodników TSP")
