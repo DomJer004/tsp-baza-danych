@@ -13,6 +13,50 @@ st.set_page_config(
     page_icon="⚽"
 )
 
+# ==========================================
+# [NOWOŚĆ] GLOBALNE STYLE CSS (DARK MODE FIX)
+# ==========================================
+def apply_custom_css():
+    st.markdown("""
+        <style>
+        /* 1. Kafelki w Kalendarzu */
+        .cal-card {
+            background-color: var(--secondary-background-color); /* Szary w light, Ciemny w dark */
+            border: 1px solid var(--text-color);
+            border-radius: 8px;
+            padding: 5px;
+            text-align: center;
+            margin-bottom: 5px;
+            color: var(--text-color);
+            opacity: 0.9;
+        }
+        
+        /* 2. Dzień dzisiejszy */
+        .cal-card.today {
+            border: 2px solid #28a745; /* Zielona ramka */
+            background-color: rgba(40, 167, 69, 0.15); /* Półprzezroczysta zieleń - działa na czarnym i białym */
+        }
+
+        /* 3. Baner Dnia Meczowego */
+        .match-banner {
+            background-color: rgba(40, 167, 69, 0.2); /* Półprzezroczyste tło */
+            border: 2px solid #28a745;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--text-color); /* Tekst dopasowuje się do trybu */
+        }
+        
+        /* 4. Poprawa widoczności metryk */
+        [data-testid="stMetricValue"] {
+            font-weight: bold;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+apply_custom_css() # <--- Uruchomienie stylów
+
 # --- 2. ZARZĄDZANIE SESJĄ (State) ---
 if 'uploader_key' not in st.session_state:
     st.session_state['uploader_key'] = 0
@@ -1820,6 +1864,7 @@ elif opcja == "Trenerzy":
                                 comp_data.append({"Trener": coach, "Mecze": len(cm), "Śr. Pkt": avg, "% Wygranych": f"{(w/len(cm)*100):.1f}%"})
                         
                         st.dataframe(pd.DataFrame(comp_data), use_container_width=True, column_config={"Śr. Pkt": st.column_config.NumberColumn(format="%.2f")})
+
 
 
 
