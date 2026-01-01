@@ -1049,10 +1049,10 @@ elif opcja == "Kalendarz":
 
         if match_today_alert:
             st.markdown(f"""
-            <div style="background-color: #d4edda; border: 2px solid #28a745; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 20px;">
-                <h2 style="color: #155724; margin:0;">🔥 DZIEŃ MECZOWY! 🔥</h2>
-                <h3 style="color: #155724; margin:5px 0;">TSP vs {match_today_alert.split('(')[0]}</h3>
-                <p style="margin:0; font-weight:bold;">{match_today_alert.split('(')[1].replace(')', '')}</p>
+            <div class="match-banner">
+                <h2 style="margin:0; color: #28a745;">🔥 DZIEŃ MECZOWY! 🔥</h2>
+                <h3 style="margin:5px 0;">TSP vs {match_today_alert.split('(')[0]}</h3>
+                <p style="margin:0; font-weight:bold; opacity: 0.8;">{match_today_alert.split('(')[1].replace(')', '')}</p>
             </div>
             """, unsafe_allow_html=True)
             st.toast(f"⚽ Dziś mecz: {match_today_alert}!", icon="🏟️")
@@ -1864,6 +1864,7 @@ elif opcja == "Trenerzy":
                                 comp_data.append({"Trener": coach, "Mecze": len(cm), "Śr. Pkt": avg, "% Wygranych": f"{(w/len(cm)*100):.1f}%"})
                         
                         st.dataframe(pd.DataFrame(comp_data), use_container_width=True, column_config={"Śr. Pkt": st.column_config.NumberColumn(format="%.2f")})
+
 
 
 
