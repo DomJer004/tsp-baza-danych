@@ -74,7 +74,8 @@ USERS = {
     "MCzerniak": "TSP2025", 
     "SJaszczurowski": "TSP2025", 
     "guest": "123456789",
-    "Gabrielba": "TSP2026"
+    "Gabrielba": "TSP2026",
+    "BKawalec": "TSP1997"
 }
 
 def login():
@@ -1864,6 +1865,7 @@ elif opcja == "Trenerzy":
                                 comp_data.append({"Trener": coach, "Mecze": len(cm), "Śr. Pkt": avg, "% Wygranych": f"{(w/len(cm)*100):.1f}%"})
                         
                         st.dataframe(pd.DataFrame(comp_data), use_container_width=True, column_config={"Śr. Pkt": st.column_config.NumberColumn(format="%.2f")})
+
 
 
 
