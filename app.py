@@ -376,7 +376,7 @@ def render_player_profile(player_name):
     else:
         st.warning("Nie wczytano pliku wystepy.csv")
     
-    def render_coach_profile(coach_name):
+def render_coach_profile(coach_name):
     """Generuje pełny profil trenera ze statystykami i historią."""
     
     # 1. Ładowanie danych
