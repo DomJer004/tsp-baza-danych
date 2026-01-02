@@ -2402,5 +2402,4 @@ elif opcja == "Trenerzy":
                             else:
                                 st.warning("Nie znaleziono meczów.")
                         else:
-
                             st.error("Brak kolumny z datą w mecze.csv")
