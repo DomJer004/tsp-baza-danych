@@ -1990,3 +1990,4 @@ elif opcja == "Trenerzy":
         else:
             st.error("Brak pliku 'trenerzy.csv'.")
 
+
