@@ -1,4 +1,4 @@
-imimport streamlit as st
+import streamlit as st
 import pandas as pd
 import datetime
 import re
@@ -2403,4 +2403,5 @@ elif opcja == "Trenerzy":
                                 st.warning("Nie znaleziono meczów.")
                         else:
                             st.error("Brak kolumny z datą w mecze.csv")
+
 
