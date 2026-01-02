@@ -52,6 +52,36 @@ def apply_custom_css():
         [data-testid="stMetricValue"] {
             font-weight: bold;
         }
+        /* --- MOBILE TWEAKS --- */
+@media (max-width: 640px) {
+    /* Zmniejszenie paddingu głównego bloku na telefonach */
+    .block-container {
+        padding-top: 2rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+    
+    /* Zmniejszenie czcionki w metrykach, żeby nie ucinało liczb */
+    [data-testid="stMetricValue"] {
+        font-size: 1.5rem !important;
+    }
+    
+    /* Ukrywanie indeksów w tabelach na siłę, jeśli st.dataframe pominie config */
+    [data-testid="stDataFrame"] th:first-child {
+        display: none;
+    }
+    
+    /* Poprawa kafelków w kalendarzu */
+    .cal-card {
+        font-size: 0.8rem;
+        padding: 2px;
+    }
+    
+    /* Zmniejszenie nagłówków */
+    h1 { font-size: 1.8rem !important; }
+    h2 { font-size: 1.5rem !important; }
+    h3 { font-size: 1.3rem !important; }
+}
         </style>
     """, unsafe_allow_html=True)
 
@@ -1959,3 +1989,4 @@ elif opcja == "Trenerzy":
                                 st.warning("Brak meczów w bazie dla wybranych trenerów.")
         else:
             st.error("Brak pliku 'trenerzy.csv'.")
+
