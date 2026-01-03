@@ -1901,69 +1901,43 @@ elif opcja == "Centrum Zawodników":
             st.dataframe(grp[['imię i nazwisko', 'Flaga', 'Narodowość', 'gole']], use_container_width=True,
                          column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
 
-    with tab3:
-        st.subheader("Klub 100")
-        df = load_data("pilkarze.csv")
+with tab3:
+        st.subheader("Klub 100 👑")
+        
+        # 1. Wczytujemy dedykowany plik
+        df = load_data("klub_100.csv")
 
         if df is not None:
-            # 1. Ustalamy nazwę kolumny z meczami (zazwyczaj 'suma')
-            col_s = 'SUMA'
-            if 'SUMA' not in df.columns:
-                if 'mecze' in df.columns:
-                    col_s = 'mecze'
-                elif 'liczba' in df.columns:
-                    col_s = 'liczba'
+            # 2. Dodajemy flagi (automatycznie wykrywa kolumnę kraju)
+            df = prepare_flags(df)
 
-            if col_s in df.columns:
-                # 2. Czyszczenie danych (konwersja na liczby)
-                if isinstance(df[col_s], pd.DataFrame): df[col_s] = df[col_s].iloc[:, 0]
-                df[col_s] = pd.to_numeric(df[col_s], errors='coerce').fillna(0).astype(int)
+            # 3. Szukamy kolumny z liczbą meczów (mecze, liczba, suma itp.)
+            sort_col = next((c for c in df.columns if c in ['mecze', 'liczba', 'występy', 'suma']), None)
 
-                # 3. KLUCZOWE: Najpierw sortujemy (najwięcej meczów na górze), potem usuwamy duplikaty
-                # Dzięki temu dla każdego nazwiska zostaje tylko rekord z największą liczbą meczów
-                k100 = df.sort_values(col_s, ascending=False).drop_duplicates(subset=['imię i nazwisko'], keep='first')
-
-                # 4. Filtrujemy tylko tych, co mają 100 lub więcej meczów
-                k100 = k100[k100[col_s] >= 100]
-
-                # 5. Dodajemy flagi i wyświetlamy
-                k100 = prepare_flags(k100)
-
-                # Wybieramy tylko potrzebne kolumny do wyświetlenia
-                cols_show = ['imię i nazwisko', 'Flaga', 'Narodowość', col_s]
-                # Zabezpieczenie na wypadek braku którejś kolumny (np. Narodowość)
-                cols_show = [c for c in cols_show if c in k100.columns]
-
+            if sort_col:
+                # Upewniamy się, że to liczby i sortujemy malejąco
+                df[sort_col] = pd.to_numeric(df[sort_col], errors='coerce').fillna(0).astype(int)
+                df = df.sort_values(sort_col, ascending=False)
+                
                 st.dataframe(
-                    k100[cols_show],
-                    use_container_width=True,
-                else:
-                st.error("Nie znaleziono pliku pilkarze.csv")
-
-                with tab4:
-                    st.subheader("Transfery")
-                df = load_data("transfery.csv")
-                if df is not None:
-                    df = prepare_flags(df)
-                st.dataframe(df.drop(columns=['kwota pln', 'val'], errors='ignore'), use_container_width=True,
-                             column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
-
-                with tab5:
-                    st.subheader("Młoda Ekstraklasa")
-                df = load_data("me.csv")
-                if df is not None:
-                    df = prepare_flags(df)
-                st.dataframe(df, use_container_width=True,
-                             column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
-                hide_index=True,
+                    df, 
+                    use_container_width=True, 
+                    hide_index=True,
                     column_config={
                         "Flaga": st.column_config.ImageColumn("Flaga", width="small"),
-                        col_s: st.column_config.NumberColumn("Liczba Meczów", format="%d 👕")
+                        sort_col: st.column_config.NumberColumn("Liczba Meczów", format="%d 👕")
                     }
                 )
             else:
-                st.warning("W pliku pilkarze.csv brakuje kolumny 'SUMA' (lub 'mecze'/'liczba').")
-     
+                # Jeśli nie uda się znaleźć kolumny z liczbą meczów, wyświetlamy tabelę bez sortowania
+                st.dataframe(
+                    df, 
+                    use_container_width=True, 
+                    hide_index=True,
+                    column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")}
+                )
+        else:
+            st.error("⚠️ Nie znaleziono pliku 'klub_100.csv'. Upewnij się, że plik jest wgrany do folderu.")
 
 # =========================================================
 # MODUŁ 6: CENTRUM MECZOWE (PEŁNY, POPRAWIONY)
@@ -2810,6 +2784,7 @@ elif opcja == "Trenerzy":
                                 st.warning("Nie znaleziono meczów.")
                         else:
                             st.error("Brak kolumny z datą w mecze.csv")
+
 
 
 
