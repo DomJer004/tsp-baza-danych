@@ -1940,21 +1940,21 @@ with tab3:
                 )
         else:
             st.error("⚠️ Nie znaleziono pliku 'klub_100.csv'. Upewnij się, że plik jest wgrany.")
-    with tab4:
-        st.subheader("Transfery")
-        df = load_data("transfery.csv")
-        if df is not None:
-            df = prepare_flags(df)
-            st.dataframe(df.drop(columns=['kwota pln', 'val'], errors='ignore'), use_container_width=True,
-                         column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
+with tab4:
+    st.subheader("Transfery")
+    df = load_data("transfery.csv")
+    if df is not None:
+        df = prepare_flags(df)
+        st.dataframe(df.drop(columns=['kwota pln', 'val'], errors='ignore'), use_container_width=True,
+                     column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
 
-    with tab5:
-        st.subheader("Młoda Ekstraklasa")
-        df = load_data("me.csv")
-        if df is not None:
-            df = prepare_flags(df)
-            st.dataframe(df, use_container_width=True,
-                         column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
+with tab5:
+    st.subheader("Młoda Ekstraklasa")
+    df = load_data("me.csv")
+    if df is not None:
+        df = prepare_flags(df)
+        st.dataframe(df, use_container_width=True,
+                     column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
 
 # =========================================================
 # MODUŁ 6: CENTRUM MECZOWE (PEŁNY, POPRAWIONY)
@@ -2801,6 +2801,7 @@ elif opcja == "Trenerzy":
                                 st.warning("Nie znaleziono meczów.")
                         else:
                             st.error("Brak kolumny z datą w mecze.csv")
+
 
 
 
