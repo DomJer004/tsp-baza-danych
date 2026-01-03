@@ -262,7 +262,6 @@ def render_player_profile(player_name):
     st.markdown("---")
 
     # B. WYKRES I STATYSTYKI (NAPRAWIONE - AGREGACJA Z WYSTĘPÓW)
-    # Zamiast brać dane z pilkarze.csv/strzelcy.csv, liczymy je z występy.csv
     if not player_history.empty:
         # Konwersja goli na liczby
         if 'Gole' in player_history.columns:
@@ -276,13 +275,12 @@ def render_player_profile(player_name):
             Gole=('Gole_Calc', 'sum')
         ).reset_index()
 
-        # Sortowanie sezonów (malejąco/rosnąco - do wykresu rosnąco lepiej)
+        # Sortowanie sezonów
         stats_per_season = stats_per_season.sort_values('Sezon')
 
         try:
             import plotly.graph_objects as go
             fig = go.Figure()
-            # Dodajemy ślady tylko jeśli są dane
             fig.add_trace(go.Bar(
                 x=stats_per_season['Sezon'], 
                 y=stats_per_season['Mecze'], 
@@ -312,7 +310,6 @@ def render_player_profile(player_name):
             st.error(f"Błąd generowania wykresu: {e}")
     else:
         st.info("Brak danych meczowych do wygenerowania wykresu.")
-
 
     # C. LISTA GOLI (DOKŁADNA)
     if not player_history.empty and 'Gole_Calc' in player_history.columns:
@@ -346,7 +343,8 @@ def render_player_profile(player_name):
 
         if is_goalkeeper:
             def analyze_gk_row(r):
-                conceded = 0; clean_sheet_icon = ""
+                conceded = 0
+                clean_sheet_icon = ""
                 w_str = str(r.get('Wynik', ''))
                 w_clean = w_str.split('(')[0].strip()
                 parts = re.split(r'[:\-]', w_clean)
@@ -390,10 +388,11 @@ def render_player_profile(player_name):
         if is_goalkeeper and 'Czyste konto' in player_history.columns:
             clean_sheets_total = len(player_history[player_history['Czyste konto'] == "🧱"])
             c_d4.metric("🧤 Czyste konta", clean_sheets_total)
+
     else:
         st.info("Brak szczegółowych danych historycznych.")
-    else:
-        st.warning("Nie wczytano pliku wystepy.csv")
+else:
+    st.warning("Nie wczytano pliku wystepy.csv")
 
 
 def render_coach_profile(coach_name):
