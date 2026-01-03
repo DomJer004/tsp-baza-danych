@@ -1871,7 +1871,7 @@ elif opcja == "Centrum Zawodników":
                     k100[cols_show],
                     use_container_width=True,
                 else:
-                st.error("Nie znaleziono pliku pilkarze.csv")
+                    st.error("Nie znaleziono pliku pilkarze.csv")
 
                 with tab4:
                     st.subheader("Transfery")
@@ -2687,4 +2687,5 @@ elif opcja == "Trenerzy":
                             else:
                                 st.warning("Nie znaleziono meczów.")
                         else:
+
                             st.error("Brak kolumny z datą w mecze.csv")
