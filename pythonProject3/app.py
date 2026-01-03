@@ -398,12 +398,12 @@ def render_player_profile(player_name):
             c_d3.metric("Z ławki", sub_cnt)
         if is_goalkeeper and 'Czyste konto' in player_history.columns:
             clean_sheets_total = len(player_history[player_history['Czyste konto'] == "🧱"])
-                c_d4.metric("🧤 Czyste konta", clean_sheets_total)
+            c_d4.metric("🧤 Czyste konta", clean_sheets_total)
 
-        else:
-            st.info("Brak szczegółowych danych historycznych.")
     else:
-        st.warning("Nie wczytano pliku wystepy.csv")
+        st.info("Brak szczegółowych danych historycznych.")
+else:
+    st.warning("Nie wczytano pliku wystepy.csv")
 
 
 def render_coach_profile(coach_name):
@@ -2834,6 +2834,7 @@ elif opcja == "Trenerzy":
                                 st.warning("Nie znaleziono meczów.")
                         else:
                             st.error("Brak kolumny z datą w mecze.csv")
+
 
 
 
