@@ -1871,7 +1871,6 @@ with tab3:
                 )
         else:
             st.error("⚠️ Nie znaleziono pliku 'klub_100.csv'. Upewnij się, że plik jest wgrany do folderu.")
-     
 
 # =========================================================
 # MODUŁ 6: CENTRUM MECZOWE (PEŁNY, POPRAWIONY)
@@ -2664,4 +2663,5 @@ elif opcja == "Trenerzy":
                         else:
 
                             st.error("Brak kolumny z datą w mecze.csv")
+
 
