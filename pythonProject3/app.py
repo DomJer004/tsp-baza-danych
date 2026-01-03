@@ -1869,36 +1869,49 @@ elif opcja == "Centrum Zawodników":
     # =========================================================
     with tab3:
         st.subheader("🏛️ Klub 100 (Najwięcej występów)")
+        
+        # 1. Ładujemy oba pliki: bazę i historię występów
         df_k100 = load_data("pilkarze.csv")
+        df_det_k100 = load_details("wystepy.csv")
 
         if df_k100 is not None:
-            # 1. Ustalamy nazwę kolumny z meczami
+            # A. Pobieramy policzone mecze z historii (wystepy.csv)
+            matches_real_dict = {}
+            if df_det_k100 is not None and 'Zawodnik_Clean' in df_det_k100.columns:
+                matches_real_dict = df_det_k100['Zawodnik_Clean'].value_counts().to_dict()
+
+            # B. Ustalamy kolumnę z meczami w pliku bazowym
             col_s = 'SUMA'
             if 'SUMA' not in df_k100.columns:
-                if 'mecze' in df_k100.columns:
-                    col_s = 'mecze'
-                elif 'liczba' in df_k100.columns:
-                    col_s = 'liczba'
+                if 'mecze' in df_k100.columns: col_s = 'mecze'
+                elif 'liczba' in df_k100.columns: col_s = 'liczba'
 
             if col_s in df_k100.columns:
-                # 2. Czyszczenie danych
-                if isinstance(df_k100[col_s], pd.DataFrame):
+                # Czyszczenie danych z pliku bazowego
+                if isinstance(df_k100[col_s], pd.DataFrame): 
                     df_k100[col_s] = df_k100[col_s].iloc[:, 0]
-
                 df_k100[col_s] = pd.to_numeric(df_k100[col_s], errors='coerce').fillna(0).astype(int)
 
-                # 3. Sortowanie i usuwanie duplikatów (zostawiamy rekord z największą liczbą meczów dla danego nazwiska)
-                k100 = df_k100.sort_values(col_s, ascending=False).drop_duplicates(subset=['imię i nazwisko'],
-                                                                                   keep='first')
+                # C. [KLUCZOWE] Dodajemy kolumnę z wyliczoną liczbą meczów z historii
+                df_k100['Mecze_Calc'] = df_k100['imię i nazwisko'].map(matches_real_dict).fillna(0).astype(int)
 
-                # 4. Filtr 100+
+                # D. Aktualizujemy główną liczbę meczów (Bierzemy MAX z Bazy lub Historii)
+                df_k100[col_s] = df_k100[[col_s, 'Mecze_Calc']].max(axis=1)
+
+                # E. Sortowanie i usuwanie duplikatów (Zostawiamy rekord z największą liczbą meczów)
+                # Najpierw sortujemy malejąco, żeby drop_duplicates zostawił ten "lepszy" rekord
+                k100 = df_k100.sort_values(col_s, ascending=False).drop_duplicates(subset=['imię i nazwisko'], keep='first')
+
+                # F. Filtr: Tylko zawodnicy z >= 100 meczami
                 k100 = k100[k100[col_s] >= 100]
 
-                # 5. Flagi i wyświetlanie
+                # G. Flagi i Wyświetlanie
                 k100 = prepare_flags(k100)
 
                 cols_show = ['imię i nazwisko', 'Flaga', 'Narodowość', col_s]
                 cols_show = [c for c in cols_show if c in k100.columns]
+
+                st.caption(f"Znaleziono {len(k100)} zawodników w Klubie 100.")
 
                 st.dataframe(
                     k100[cols_show],
@@ -1906,7 +1919,7 @@ elif opcja == "Centrum Zawodników":
                     hide_index=True,
                     column_config={
                         "Flaga": st.column_config.ImageColumn("Flaga", width="small"),
-                        col_s: st.column_config.NumberColumn("Liczba Meczów", format="%d 👕")
+                        col_s: st.column_config.NumberColumn("Liczba Meczów", format="%d 👕", help="Dane połączone z historią występów")
                     }
                 )
             else:
@@ -2703,4 +2716,5 @@ elif opcja == "Trenerzy":
                             else:
                                 st.warning("Nie znaleziono meczów.")
                         else:
+
                             st.error("Brak kolumny z datą w mecze.csv")
