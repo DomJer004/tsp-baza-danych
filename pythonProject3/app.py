@@ -1901,71 +1901,45 @@ elif opcja == "Centrum Zawodników":
             st.dataframe(grp[['imię i nazwisko', 'Flaga', 'Narodowość', 'gole']], use_container_width=True,
                          column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")})
 
-    with tab3:
+with tab3:
         st.subheader("Klub 100 👑")
-        df = load_data("pilkarze.csv")
+        
+        # 1. Wczytujemy dedykowany plik
+        df = load_data("klub_100.csv")
 
         if df is not None:
-            # 1. Szukamy kolumny z meczami (priorytet: suma -> mecze -> liczba)
-            # Funkcja load_data zamienia wszystko na małe litery, więc szukamy małych liter.
-            col_s = 'suma'
-            if 'suma' not in df.columns:
-                if 'mecze' in df.columns:
-                    col_s = 'mecze'
-                elif 'liczba' in df.columns:
-                    col_s = 'liczba'
-            
-            # 2. Szukamy kolumny z narodowością (żeby jej nie zgubić przy grupowaniu)
-            col_nat = None
-            if 'narodowość' in df.columns:
-                col_nat = 'narodowość'
-            elif 'kraj' in df.columns:
-                col_nat = 'kraj'
+            # 2. Dodajemy flagi (funkcja sama znajdzie kolumnę 'kraj' lub 'narodowość')
+            df = prepare_flags(df)
 
-            # 3. Jeśli mamy kolumnę z meczami, lecimy z tematem
-            if col_s in df.columns:
-                # Konwersja na liczby
-                df[col_s] = pd.to_numeric(df[col_s], errors='coerce').fillna(0).astype(int)
+            # 3. Szukamy kolumny z liczbą meczów, żeby ładnie posortować (opcjonalne, ale wygląda lepiej)
+            # Szukamy typowych nazw: mecze, liczba, suma, występy
+            sort_col = next((c for c in df.columns if c in ['mecze', 'liczba', 'występy', 'suma']), None)
 
-                # Przygotowanie zasad grupowania (Sumujemy mecze, zachowujemy pierwszy napotkany kraj)
-                agg_rules = {col_s: 'sum'}
-                if col_nat:
-                    agg_rules[col_nat] = 'first'
-
-                # Agregacja (grupowanie po nazwisku)
-                k100 = df.groupby('imię i nazwisko', as_index=False).agg(agg_rules)
-
-                # Filtracja: 100 lub więcej
-                k100 = k100[k100[col_s] >= 100]
-
-                # Sortowanie
-                k100 = k100.sort_values(col_s, ascending=False)
-
-                # Dodanie flag (funkcja prepare_flags poradzi sobie, bo zachowaliśmy kolumnę kraju)
-                k100 = prepare_flags(k100)
-
-                # Wybór kolumn do wyświetlenia (zabezpieczenie, gdyby którejś nie było)
-                cols_show = ['imię i nazwisko', 'Flaga', 'Narodowość', col_s]
-                cols_final = [c for c in cols_show if c in k100.columns]
-
+            if sort_col:
+                # Upewniamy się, że to liczby i sortujemy malejąco
+                df[sort_col] = pd.to_numeric(df[sort_col], errors='coerce').fillna(0).astype(int)
+                df = df.sort_values(sort_col, ascending=False)
+                
+                # Wyświetlamy z ładnym formatowaniem liczb
                 st.dataframe(
-                    k100[cols_final],
-                    use_container_width=True,
+                    df, 
+                    use_container_width=True, 
                     hide_index=True,
-                    height=(len(k100) + 1) * 35 + 3,
                     column_config={
                         "Flaga": st.column_config.ImageColumn("Flaga", width="small"),
-                        col_s: st.column_config.NumberColumn("Liczba Meczów", format="%d 👕"),
-                        "imię i nazwisko": st.column_config.TextColumn("Zawodnik", width="medium")
+                        sort_col: st.column_config.NumberColumn("Liczba Meczów", format="%d 👕")
                     }
                 )
-                
-                if k100.empty:
-                    st.info("Brak zawodników z liczbą meczów >= 100.")
             else:
-                st.warning("W pliku pilkarze.csv brakuje kolumny 'suma', 'mecze' lub 'liczba'.")
+                # Jeśli nie uda się znaleźć kolumny z liczbą meczów, wyświetlamy tabelę tak jak jest w pliku
+                st.dataframe(
+                    df, 
+                    use_container_width=True, 
+                    hide_index=True,
+                    column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small")}
+                )
         else:
-            st.error("Brak pliku pilkarze.csv")
+            st.error("⚠️ Nie znaleziono pliku 'klub_100.csv'. Upewnij się, że plik jest wgrany.")
     with tab4:
         st.subheader("Transfery")
         df = load_data("transfery.csv")
@@ -2827,6 +2801,7 @@ elif opcja == "Trenerzy":
                                 st.warning("Nie znaleziono meczów.")
                         else:
                             st.error("Brak kolumny z datą w mecze.csv")
+
 
 
 
