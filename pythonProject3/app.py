@@ -174,15 +174,20 @@ COUNTRY_TO_ISO = {
 def render_player_profile(player_name):
     # 1. Ładowanie danych
     df_uv = load_data("pilkarze.csv")
-    df_det = load_details("wystepy.csv")  # Wczytujemy szczegóły do wszystkiego
+    df_long = load_data("pilkarze.csv")
+    df_strzelcy = load_data("strzelcy.csv")
+    df_det_goals = load_details("wystepy.csv")
 
     if df_uv is None:
         st.error("Brak pliku pilkarze.csv")
         return
 
-    # Przygotowanie danych (unikamy duplikatów)
+    # Przygotowanie danych (unikamy duplikatów przy wyświetlaniu profilu)
+    # POPRAWA SORTOWANIA (KeyError fix)
     sort_col = 'suma' if 'suma' in df_uv.columns else ('mecze' if 'mecze' in df_uv.columns else None)
+
     if sort_col:
+        # Konwersja na liczby dla bezpieczeństwa
         df_uv[sort_col] = pd.to_numeric(df_uv[sort_col], errors='coerce').fillna(0)
         df_uv_sorted = df_uv.sort_values(sort_col, ascending=False).drop_duplicates(subset=['imię i nazwisko'])
     else:
@@ -208,41 +213,37 @@ def render_player_profile(player_name):
 
     if is_bday: st.balloons(); st.success(f"🎉🎂 {player_name} kończy dzisiaj {age_info}! 🎂🎉")
 
-    # --- ODZNAKI ---
+    # --- NOWOŚĆ: ODZNAKI / REKORDY ---
     badges = get_player_record_badges(player_name)
     if badges:
-        badges_list = "\n".join([f"• {b}" for b in badges])
-        st.success(f"🏆 **Osiągnięcia Klubowe:**\n\n{badges_list}")
+        st.success("🏆 **Osiągnięcia Klubowe:** " + " | ".join(badges))
 
-    # --- PRZYGOTOWANIE HISTORII ZAWODNIKA (z wystepy.csv) ---
-    player_history = pd.DataFrame()
-    if df_det is not None and 'Zawodnik_Clean' in df_det.columns:
-        player_history = df_det[df_det['Zawodnik_Clean'] == player_name].copy()
-
-    # --- OBLICZANIE DAT DEBIUTU I OSTATNIEGO MECZU ---
+    # --- DATY DEBIUTU I OSTATNIEGO MECZU ---
     debut_txt = "-"
     last_txt = "-"
 
-    if not player_history.empty and 'Data_Sort' in player_history.columns:
-        p_hist_sorted = player_history.sort_values('Data_Sort', ascending=True)
+    if df_det_goals is not None:
+        p_hist = df_det_goals[df_det_goals['Zawodnik_Clean'] == player_name]
+        if not p_hist.empty and 'Data_Sort' in p_hist.columns:
+            p_hist = p_hist.sort_values('Data_Sort', ascending=True)  # Od najstarszego
 
-        # Debiut
-        first_match = p_hist_sorted.iloc[0]
-        d_date_obj = first_match['Data_Sort']
-        d_date = d_date_obj.strftime('%d.%m.%Y') if pd.notna(d_date_obj) else "-"
-        d_opp = first_match.get('Przeciwnik', '')
-        d_age = calculate_exact_age_str(birth_date, d_date_obj) if birth_date is not None else ""
-        debut_txt = f"{d_date} vs {d_opp}\n{d_age}"
+            # Debiut
+            first_match = p_hist.iloc[0]
+            d_date_obj = first_match['Data_Sort']
+            d_date = d_date_obj.strftime('%d.%m.%Y') if pd.notna(d_date_obj) else "-"
+            d_opp = first_match.get('Przeciwnik', '')
+            d_age = calculate_exact_age_str(birth_date, d_date_obj) if birth_date is not None else ""
+            debut_txt = f"{d_date} vs {d_opp}\n{d_age}"
 
-        # Ostatni mecz
-        last_match = p_hist_sorted.iloc[-1]
-        l_date_obj = last_match['Data_Sort']
-        l_date = l_date_obj.strftime('%d.%m.%Y') if pd.notna(l_date_obj) else "-"
-        l_opp = last_match.get('Przeciwnik', '')
-        l_age = calculate_exact_age_str(birth_date, l_date_obj) if birth_date is not None else ""
-        last_txt = f"{l_date} vs {l_opp}\n{l_age}"
+            # Ostatni mecz
+            last_match = p_hist.iloc[-1]
+            l_date_obj = last_match['Data_Sort']
+            l_date = l_date_obj.strftime('%d.%m.%Y') if pd.notna(l_date_obj) else "-"
+            l_opp = last_match.get('Przeciwnik', '')
+            l_age = calculate_exact_age_str(birth_date, l_date_obj) if birth_date is not None else ""
+            last_txt = f"{l_date} vs {l_opp}\n{l_age}"
 
-    # A. NAGŁÓWEK WIZUALNY
+    # A. NAGŁÓWEK
     c_p1, c_p2 = st.columns([1, 3])
     with c_p1:
         if 'Flaga' in row and pd.notna(row['Flaga']) and str(row['Flaga']) != 'nan':
@@ -261,68 +262,43 @@ def render_player_profile(player_name):
 
     st.markdown("---")
 
-    # B. WYKRES I STATYSTYKI (NAPRAWIONE - AGREGACJA Z WYSTĘPÓW)
-    if not player_history.empty:
-        # Konwersja goli na liczby
-        if 'Gole' in player_history.columns:
-            player_history['Gole_Calc'] = pd.to_numeric(player_history['Gole'], errors='coerce').fillna(0).astype(int)
-        else:
-            player_history['Gole_Calc'] = 0
+    # B. Wykres i Statystyki
+    p_stats = df_long[df_long['imię i nazwisko'] == player_name].copy()
+    if 'sezon' in p_stats.columns: p_stats = p_stats.sort_values('sezon')
 
-        # Agregacja sezonami
-        stats_per_season = player_history.groupby('Sezon').agg(
-            Mecze=('Data_Sort', 'count'),
-            Gole=('Gole_Calc', 'sum')
-        ).reset_index()
+    gole_l = []
+    if df_strzelcy is not None:
+        gm = df_strzelcy.set_index(['imię i nazwisko', 'sezon'])['gole'].to_dict()
+        for _, r in p_stats.iterrows():
+            gole_l.append(gm.get((player_name, r.get('sezon', '-')), 0))
+    else:
+        gole_l = [0] * len(p_stats)
+    p_stats['Gole'] = gole_l
 
-        # Sortowanie sezonów
-        stats_per_season = stats_per_season.sort_values('Sezon')
-
+    if 'sezon' in p_stats.columns:
         try:
             import plotly.graph_objects as go
             fig = go.Figure()
-            fig.add_trace(go.Bar(
-                x=stats_per_season['Sezon'],
-                y=stats_per_season['Mecze'],
-                name='Mecze',
-                marker_color='#3498db',
-                text=stats_per_season['Mecze'],
-                textposition='auto'
-            ))
-            fig.add_trace(go.Bar(
-                x=stats_per_season['Sezon'],
-                y=stats_per_season['Gole'],
-                name='Gole',
-                marker_color='#2ecc71',
-                text=stats_per_season['Gole'],
-                textposition='auto'
-            ))
+            if not p_stats.empty and p_stats['liczba'].sum() > 0:
+                fig.add_trace(go.Bar(x=p_stats['sezon'], y=p_stats['liczba'], name='Mecze', marker_color='#3498db'))
+                fig.add_trace(go.Bar(x=p_stats['sezon'], y=p_stats['Gole'], name='Gole', marker_color='#2ecc71'))
+                fig.update_layout(title=f"Statystyki: {player_name}", barmode='group', height=350,
+                                  margin=dict(l=20, r=20, t=40, b=20))
+                st.plotly_chart(fig, use_container_width=True, key=f"chart_{player_name}")
+        except:
+            pass
 
-            fig.update_layout(
-                title=f"Statystyki: {player_name}",
-                barmode='group',
-                height=350,
-                margin=dict(l=20, r=20, t=40, b=20),
-                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
-            )
-            st.plotly_chart(fig, use_container_width=True, key=f"chart_{player_name}")
-        except Exception as e:
-            st.error(f"Błąd generowania wykresu: {e}")
-    else:
-        st.info("Brak danych meczowych do wygenerowania wykresu.")
-
-    # C. LISTA GOLI (DOKŁADNA)
-    if not player_history.empty and 'Gole_Calc' in player_history.columns:
-        goals_df = player_history[player_history['Gole_Calc'] > 0].copy()
+    # C. LISTA GOLI
+    if df_det_goals is not None and 'Gole' in df_det_goals.columns:
+        df_det_goals['Gole'] = pd.to_numeric(df_det_goals['Gole'], errors='coerce').fillna(0).astype(int)
+        goals_df = df_det_goals[(df_det_goals['Zawodnik_Clean'] == player_name) & (df_det_goals['Gole'] > 0)].copy()
 
         if not goals_df.empty:
             if 'Data_Sort' in goals_df.columns: goals_df = goals_df.sort_values('Data_Sort', ascending=False)
-
-            # Wybieramy kolumny
-            cols_needed = ['Sezon', 'Data_Sort', 'Przeciwnik', 'Wynik', 'Gole_Calc']
+            cols_needed = ['Sezon', 'Data_Sort', 'Przeciwnik', 'Wynik', 'Gole']
             cols_final = [c for c in cols_needed if c in goals_df.columns]
-
-            df_display = goals_df[cols_final].rename(columns={'Data_Sort': 'Data', 'Gole_Calc': 'Gole'})
+            df_display = goals_df[cols_final].copy()
+            if 'Data_Sort' in df_display.columns: df_display.rename(columns={'Data_Sort': 'Data'}, inplace=True)
 
             st.markdown("**Mecze z bramkami:**")
             st.dataframe(df_display, use_container_width=True, hide_index=True, column_config={
@@ -330,81 +306,80 @@ def render_player_profile(player_name):
                 "Gole": st.column_config.NumberColumn("Gole", format="%d ⚽")
             })
 
-    # D. SZCZEGÓŁOWA HISTORIA (TABELA) - NAPRAWIONA LOGIKA KOŃCOWA
+    # D. SZCZEGÓŁOWA HISTORIA
     st.markdown("---")
     st.subheader("📜 Szczegółowa historia meczowa")
 
-    # Sprawdzamy sytuacje w kolejności priorytetów
-    if df_det is None:
-        st.warning("Nie wczytano pliku wystepy.csv")
-    elif player_history.empty:
-        st.info("Brak szczegółowych danych historycznych.")
-    else:
-        # Tu wchodzimy tylko, gdy mamy plik I mamy historię gracza
-        if 'Data_Sort' in player_history.columns:
-            player_history = player_history.sort_values('Data_Sort', ascending=False)
-
-        pos_str = str(row.get('pozycja', '')).lower().strip()
-        is_goalkeeper = (pos_str == 'bramkarz')
-
-        if is_goalkeeper:
-            def analyze_gk_row(r):
-                conceded = 0
-                clean_sheet_icon = ""
-                w_str = str(r.get('Wynik', ''))
-                w_clean = w_str.split('(')[0].strip()
-                parts = re.split(r'[:\-]', w_clean)
-                if len(parts) >= 2:
-                    try:
-                        conceded = int(parts[1].strip())
-                    except:
-                        pass
-                mins = pd.to_numeric(r.get('Minuty'), errors='coerce')
-                if pd.isna(mins): mins = 0
-                if mins >= 46 and conceded == 0:
-                    clean_sheet_icon = "🧱"
-                elif mins > 0:
-                    clean_sheet_icon = "➖"
-                return pd.Series([conceded, clean_sheet_icon])
-
-            player_history[['Wpuszczone', 'Czyste konto']] = player_history.apply(analyze_gk_row, axis=1)
-
-        cols_base = ['Sezon', 'Data_Sort', 'Przeciwnik', 'Wynik', 'Rola', 'Status', 'Minuty']
-        cols_end = ['Żółte', 'Czerwone']
-        target_cols = cols_base + (['Wpuszczone', 'Czyste konto'] if is_goalkeeper else ['Gole']) + cols_end
-        cols_show = [c for c in target_cols if c in player_history.columns]
-
-        st.dataframe(player_history[cols_show].reset_index(drop=True), use_container_width=True, hide_index=True,
-                     column_config={
-                         "Data_Sort": st.column_config.DatetimeColumn("Data", format="DD.MM.YYYY, HH:mm"),
-                         "Gole": st.column_config.NumberColumn("Gole", format="%d ⚽"),
-                         "Wpuszczone": st.column_config.NumberColumn("Wpuszczone", format="%d ❌"),
-                         "Minuty": st.column_config.NumberColumn("Minuty", format="%d'"),
-                         "Żółte": st.column_config.NumberColumn("Żółte", format="%d 🟨"),
-                         "Czerwone": st.column_config.NumberColumn("Czerwone", format="%d 🟥")
-                     })
-
-        if is_goalkeeper:
-            c_d1, c_d2, c_d3, c_d4 = st.columns(4)
+    if df_det_goals is not None:
+        if 'Zawodnik_Clean' in df_det_goals.columns:
+            player_history = df_det_goals[df_det_goals['Zawodnik_Clean'] == player_name].copy()
         else:
-            c_d1, c_d2, c_d3 = st.columns(3)
+            player_history = pd.DataFrame()
 
-        c_d1.metric("Łącznie minut", int(player_history['Minuty'].fillna(0).sum()))
-        if 'Status' in player_history.columns:
-            starter_cnt = len(
-                player_history[player_history['Status'].isin(['Cały mecz', 'Zszedł', 'Czerwona kartka', 'Grał'])])
-            sub_cnt = len(player_history[player_history['Status'] == 'Wszedł'])
-            c_d2.metric("Pierwszy skład", starter_cnt)
-            c_d3.metric("Z ławki", sub_cnt)
-        if is_goalkeeper and 'Czyste konto' in player_history.columns:
-            clean_sheets_total = len(player_history[player_history['Czyste konto'] == "🧱"])
-            c_d4.metric("🧤 Czyste konta", clean_sheets_total)
+        if not player_history.empty:
+            if 'Data_Sort' in player_history.columns: player_history = player_history.sort_values('Data_Sort',
+                                                                                                  ascending=False)
 
+            pos_str = str(row.get('pozycja', '')).lower().strip()
+            is_goalkeeper = (pos_str == 'bramkarz')
+
+            if is_goalkeeper:
+                def analyze_gk_row(r):
+                    conceded = 0;
+                    clean_sheet_icon = ""
+                    w_str = str(r.get('Wynik', ''))
+                    w_clean = w_str.split('(')[0].strip()
+                    parts = re.split(r'[:\-]', w_clean)
+                    if len(parts) >= 2:
+                        try:
+                            conceded = int(parts[1].strip())
+                        except:
+                            pass
+                    mins = pd.to_numeric(r.get('Minuty'), errors='coerce')
+                    if pd.isna(mins): mins = 0
+                    if mins >= 46 and conceded == 0:
+                        clean_sheet_icon = "🧱"
+                    elif mins > 0:
+                        clean_sheet_icon = "➖"
+                    return pd.Series([conceded, clean_sheet_icon])
+
+                player_history[['Wpuszczone', 'Czyste konto']] = player_history.apply(analyze_gk_row, axis=1)
+
+            cols_base = ['Sezon', 'Data_Sort', 'Przeciwnik', 'Wynik', 'Rola', 'Status', 'Minuty']
+            cols_end = ['Żółte', 'Czerwone']
+            target_cols = cols_base + (['Wpuszczone', 'Czyste konto'] if is_goalkeeper else ['Gole']) + cols_end
+            cols_show = [c for c in target_cols if c in player_history.columns]
+
+            st.dataframe(player_history[cols_show].reset_index(drop=True), use_container_width=True, hide_index=True,
+                         column_config={
+                             "Data_Sort": st.column_config.DatetimeColumn("Data", format="DD.MM.YYYY, HH:mm"),
+                             "Gole": st.column_config.NumberColumn("Gole", format="%d ⚽"),
+                             "Wpuszczone": st.column_config.NumberColumn("Wpuszczone", format="%d ❌"),
+                             "Minuty": st.column_config.NumberColumn("Minuty", format="%d'"),
+                             "Żółte": st.column_config.NumberColumn("Żółte", format="%d 🟨"),
+                             "Czerwone": st.column_config.NumberColumn("Czerwone", format="%d 🟥")
+                         })
+
+            if is_goalkeeper:
+                c_d1, c_d2, c_d3, c_d4 = st.columns(4)
+            else:
+                c_d1, c_d2, c_d3 = st.columns(3)
+
+            c_d1.metric("Łącznie minut", int(player_history['Minuty'].fillna(0).sum()))
+            if 'Status' in player_history.columns:
+                starter_cnt = len(
+                    player_history[player_history['Status'].isin(['Cały mecz', 'Zszedł', 'Czerwona kartka', 'Grał'])])
+                sub_cnt = len(player_history[player_history['Status'] == 'Wszedł'])
+                c_d2.metric("Pierwszy skład", starter_cnt)
+                c_d3.metric("Z ławki", sub_cnt)
+            if is_goalkeeper and 'Czyste konto' in player_history.columns:
+                clean_sheets_total = len(player_history[player_history['Czyste konto'] == "🧱"])
+                c_d4.metric("🧤 Czyste konta", clean_sheets_total)
+
+        else:
+            st.info("Brak szczegółowych danych historycznych.")
     else:
-        st.info("Brak szczegółowych danych historycznych.")
-else:
-    st.warning("Nie wczytano pliku wystepy.csv")
-
+        st.warning("Nie wczytano pliku wystepy.csv")
 
 def render_coach_profile(coach_name):
     """Generuje pełny profil trenera obsługujący WIELE KADENCJI + FLAGI."""
@@ -2834,6 +2809,7 @@ elif opcja == "Trenerzy":
                                 st.warning("Nie znaleziono meczów.")
                         else:
                             st.error("Brak kolumny z datą w mecze.csv")
+
 
 
 
