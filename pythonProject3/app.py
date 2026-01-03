@@ -1580,19 +1580,18 @@ elif opcja == "Składy Historyczne":
         }).reset_index()
         agg.rename(columns={'Mecz_Label': 'Mecze'}, inplace=True)
 
-        # Łączenie z bazą piłkarzy (żeby pobrać pozycję i flagę)
+        # Łączenie z bazą piłkarzy
         df_bio_unique = df_bio.drop_duplicates(subset=['imię i nazwisko']).copy()
         df_bio_unique['join_key'] = df_bio_unique['imię i nazwisko'].astype(str).str.strip()
         df_bio_unique = prepare_flags(df_bio_unique)
 
         merged = pd.merge(agg, df_bio_unique, left_on='Zawodnik_Clean', right_on='join_key', how='left')
 
-        # Obliczanie wieku w danym sezonie
+        # Obliczanie wieku
         try:
             season_start_year = int(sel_season.split('/')[0])
         except:
             season_start_year = 2025
-
 
         def calc_season_age(dob_val):
             if pd.isna(dob_val): return None
@@ -1601,19 +1600,22 @@ elif opcja == "Składy Historyczne":
             except:
                 return None
 
-
         merged['Wiek_w_Sezonie'] = merged['data urodzenia'].apply(calc_season_age)
 
-        # Wybór kolumn
-        cols_show = ['Flaga', 'Zawodnik_Clean', 'pozycja', 'Wiek_w_Sezonie', 'Mecze', 'Minuty', 'Gole', 'Żółte',
-                     'Czerwone']
-        final_cols = [c for c in cols_show if c in merged.columns]
-        final_df = merged[final_cols]
+        # --- NORMALIZACJA POZYCJI (TO NAPRAWIA "POZOSTAŁYCH") ---
+        def normalize_pos(val):
+            s = str(val).lower().strip()
+            if 'bram' in s or 'gk' in s: return 'Bramkarz'
+            if 'obr' in s or 'def' in s: return 'Obrońca'
+            if 'pom' in s or 'mid' in s: return 'Pomocnik'
+            if 'nap' in s or 'for' in s or 'att' in s: return 'Napastnik'
+            return 'Inne'
+
+        merged['Pozycja_Norm'] = merged['pozycja'].apply(normalize_pos)
 
         # --- WIDOK Z PODZIAŁEM NA FORMACJE ---
         st.subheader(f"Kadra {sel_season}")
 
-        # Definicja kolejności i nagłówków
         formations_map = {
             "Bramkarz": "🧤 Bramkarze",
             "Obrońca": "🛡️ Obrońcy",
@@ -1621,45 +1623,47 @@ elif opcja == "Składy Historyczne":
             "Napastnik": "⚽ Napastnicy"
         }
 
-        # Konfiguracja kolumn (wspólna dla wszystkich tabel)
         common_config = {
             "Flaga": st.column_config.ImageColumn("Kraj", width="small"),
-            "Minuty": st.column_config.ProgressColumn("Minuty", format="%d'",
-                                                      max_value=int(final_df['Minuty'].max() or 100)),
+            "Minuty": st.column_config.ProgressColumn("Minuty", format="%d'", max_value=int(merged['Minuty'].max() or 100)),
             "Gole": st.column_config.NumberColumn("Gole", format="%d ⚽"),
             "Żółte": st.column_config.NumberColumn("Żółte", format="%d 🟨"),
             "Czerwone": st.column_config.NumberColumn("Czerwone", format="%d 🟥"),
-            "Wiek_w_Sezonie": st.column_config.NumberColumn("Wiek", format="%d lat")
+            "Wiek_w_Sezonie": st.column_config.NumberColumn("Wiek", format="%d lat"),
+            "pozycja": st.column_config.TextColumn("Wpisana Pozycja") # Żebyś widział błędy
         }
+        
+        # Kolumny do wyświetlenia
+        base_cols = ['Flaga', 'Zawodnik_Clean', 'Wiek_w_Sezonie', 'Mecze', 'Minuty', 'Gole', 'Żółte', 'Czerwone']
 
-        # 1. Pętla po głównych formacjach
+        # 1. Główne formacje
         for pos_key, header_txt in formations_map.items():
-            # Filtrujemy po pozycji
-            df_pos = final_df[final_df['pozycja'] == pos_key].sort_values(['Minuty', 'Mecze'], ascending=False)
-
+            df_pos = merged[merged['Pozycja_Norm'] == pos_key].sort_values(['Minuty', 'Mecze'], ascending=False)
+            
             if not df_pos.empty:
                 st.markdown(f"#### {header_txt}")
                 st.dataframe(
-                    df_pos,
-                    use_container_width=True,
-                    hide_index=True,
+                    df_pos[base_cols], 
+                    use_container_width=True, 
+                    hide_index=True, 
                     column_config=common_config
                 )
 
-        # 2. Obsługa zawodników z nieznaną/inną pozycją (zabezpieczenie)
-        known_pos = list(formations_map.keys())
-        df_other = final_df[~final_df['pozycja'].isin(known_pos)].sort_values(['Minuty', 'Mecze'], ascending=False)
-
+        # 2. Nieznana pozycja (Debug)
+        df_other = merged[merged['Pozycja_Norm'] == 'Inne'].sort_values(['Minuty', 'Mecze'], ascending=False)
+        
         if not df_other.empty:
             st.markdown("#### ❓ Pozostali / Nieznana pozycja")
+            st.warning("Ci zawodnicy mają dziwnie wpisaną pozycję w pilkarze.csv. Sprawdź kolumnę 'Wpisana Pozycja'.")
+            # Tu dodajemy kolumnę 'pozycja', żebyś widział co jest źle wpisane
             st.dataframe(
-                df_other,
-                use_container_width=True,
-                hide_index=True,
+                df_other[base_cols + ['pozycja']], 
+                use_container_width=True, 
+                hide_index=True, 
                 column_config=common_config
             )
 
-        # --- TABELA 2: RUCHY KADROWE ---
+        # --- RUCHY KADROWE ---
         st.divider()
         st.subheader("🔄 Ruchy Kadrowe")
 
@@ -1680,21 +1684,17 @@ elif opcja == "Składy Historyczne":
                 st.markdown(f"**🟢 Przybyli (Nowi względem {prev_season_str})**")
                 if new_players:
                     df_new = pd.DataFrame(new_players, columns=['Zawodnik'])
-                    df_new = pd.merge(df_new, df_bio_unique[['join_key', 'Flaga', 'pozycja']], left_on='Zawodnik',
-                                      right_on='join_key', how='left')
-                    st.dataframe(df_new[['Flaga', 'Zawodnik', 'pozycja']], hide_index=True, use_container_width=True,
-                                 column_config={"Flaga": st.column_config.ImageColumn("", width="small")})
+                    df_new = pd.merge(df_new, df_bio_unique[['join_key', 'Flaga', 'pozycja']], left_on='Zawodnik', right_on='join_key', how='left')
+                    st.dataframe(df_new[['Flaga', 'Zawodnik', 'pozycja']], hide_index=True, use_container_width=True, column_config={"Flaga": st.column_config.ImageColumn("", width="small")})
                 else:
-                    st.info("Brak debiutantów względem poprzedniego sezonu.")
+                    st.info("Brak debiutantów.")
 
             with c_left:
                 st.markdown(f"**🔴 Ubyli (Grali w {prev_season_str}, brak w tym)**")
                 if left_players:
                     df_left = pd.DataFrame(left_players, columns=['Zawodnik'])
-                    df_left = pd.merge(df_left, df_bio_unique[['join_key', 'Flaga', 'pozycja']], left_on='Zawodnik',
-                                       right_on='join_key', how='left')
-                    st.dataframe(df_left[['Flaga', 'Zawodnik', 'pozycja']], hide_index=True, use_container_width=True,
-                                 column_config={"Flaga": st.column_config.ImageColumn("", width="small")})
+                    df_left = pd.merge(df_left, df_bio_unique[['join_key', 'Flaga', 'pozycja']], left_on='Zawodnik', right_on='join_key', how='left')
+                    st.dataframe(df_left[['Flaga', 'Zawodnik', 'pozycja']], hide_index=True, use_container_width=True, column_config={"Flaga": st.column_config.ImageColumn("", width="small")})
                 else:
                     st.info("Nikt nie odszedł.")
         else:
@@ -2411,68 +2411,80 @@ elif opcja == "🏆 Rekordy & TOP":
     if df_p is None or df_w is None:
         st.error("Brak plików danych (pilkarze.csv lub wystepy.csv).")
     else:
-        # --- FIX: BEZPIECZNE SORTOWANIE (unika KeyError: 'SUMA') ---
+        # --- FIX: BEZPIECZNE SORTOWANIE ---
         sort_col = None
-        # Szukamy kolumny, która wygląda jak suma meczów
-        possible_cols = ['suma', 'mecze', 'liczba', 'total']
+        possible_cols = ['suma', 'mecze', 'liczba', 'total', 'SUMA']
         for c in possible_cols:
             if c in df_p.columns:
                 sort_col = c
                 break
 
         if sort_col:
-            # Upewniamy się, że to liczby
             df_p[sort_col] = pd.to_numeric(df_p[sort_col], errors='coerce').fillna(0)
             df_p_uniq = df_p.sort_values(sort_col, ascending=False).drop_duplicates(subset=['imię i nazwisko'])
         else:
-            # Jeśli nie ma kolumny sumującej, po prostu usuwamy duplikaty
             df_p_uniq = df_p.drop_duplicates(subset=['imię i nazwisko'])
 
         df_p_uniq = prepare_flags(df_p_uniq)
-        # -------------------------------------------------------------
 
         tab1, tab2, tab3 = st.tabs(["👶 Najmłodsi / 👴 Najstarsi", "⚽ Najlepsze Występy", "👑 Królowie Sezonów"])
 
         with tab1:
             if 'Data_Sort' in df_w.columns:
-
-                # Funkcja obliczająca wiek
+                
+                # --- POPRAWIONA FUNKCJA OBLICZANIA WIEKU ---
                 def calc_age_at_event(row):
                     try:
-                        born = pd.to_datetime(row['data urodzenia'])
+                        # [KLUCZOWE] dayfirst=True naprawia błąd 10.05 (maj vs październik)
+                        born = pd.to_datetime(row['data urodzenia'], dayfirst=True)
                         event = row['Data_Sort']
+
                         if pd.isna(born) or pd.isna(event):
                             return 99999, ""
+                        
+                        # 1. Obliczamy pełne lata
+                        years = event.year - born.year - ((event.month, event.day) < (born.month, born.day))
+                        
+                        # 2. Obliczamy dni od ostatnich urodzin
+                        # Ustawiamy datę urodzin w roku meczu
+                        try:
+                            last_birthday = born.replace(year=event.year)
+                        except ValueError:
+                            # Obsługa 29 lutego w roku nieprzestępnym -> 1 marca
+                            last_birthday = born.replace(year=event.year, month=3, day=1)
 
-                        age_days = (event - born).days
+                        # Jeśli urodziny w roku meczu jeszcze nie nastąpiły, cofamy się do roku poprzedniego
+                        if last_birthday > event:
+                            try:
+                                last_birthday = born.replace(year=event.year - 1)
+                            except ValueError:
+                                last_birthday = born.replace(year=event.year - 1, month=3, day=1)
 
-                        # Zabezpieczenie przed ujemnym wiekiem (błąd w dacie)
-                        if age_days < 0: return 99999, ""
+                        days = (event - last_birthday).days
+                        
+                        # Całkowita liczba dni do sortowania
+                        total_days_alive = (event - born).days
 
-                        years = age_days // 365
-                        days = age_days % 365
-                        return age_days, f"{years} lat, {days} dni"
-                    except:
+                        if total_days_alive < 0: return 99999, ""
+
+                        return total_days_alive, f"{years} lat, {days} dni"
+                    except Exception as e:
                         return 99999, ""
-
 
                 # 1. NAJMŁODSI
                 debuts = df_w.groupby('Zawodnik_Clean')['Data_Sort'].min().reset_index()
                 debuts = pd.merge(debuts, df_p_uniq, left_on='Zawodnik_Clean', right_on='imię i nazwisko', how='inner')
                 debuts[['Age_Num', 'Wiek_Txt']] = debuts.apply(calc_age_at_event, axis=1, result_type='expand')
-
-                # Sortujemy rosnąco - najmłodsi na górze
+                
                 top_young = debuts.sort_values('Age_Num').head(10)
 
                 # 2. NAJSTARSI
                 lasts = df_w.groupby('Zawodnik_Clean')['Data_Sort'].max().reset_index()
                 lasts = pd.merge(lasts, df_p_uniq, left_on='Zawodnik_Clean', right_on='imię i nazwisko', how='inner')
                 lasts[['Age_Num', 'Wiek_Txt']] = lasts.apply(calc_age_at_event, axis=1, result_type='expand')
-
-                # --- [POPRAWKA] FILTR DLA NAJSTARSZYCH ---
-                # Odrzucamy wyniki > 60 lat (ok. 21900 dni) oraz błędy (99999)
-                # To eliminuje "125 lat" wynikające z dat typu 1900-01-01
-                lasts_clean = lasts[lasts['Age_Num'] < 21900]
+                
+                # Filtr błędnych danych (> 60 lat)
+                lasts_clean = lasts[lasts['Age_Num'] < 21900] 
 
                 top_old = lasts_clean.sort_values('Age_Num', ascending=False).head(10)
 
@@ -2519,7 +2531,6 @@ elif opcja == "🏆 Rekordy & TOP":
                                             "gole": st.column_config.NumberColumn("Gole", format="%d ⚽")})
             else:
                 st.warning("Brak pliku strzelcy.csv")
-
 # =========================================================
 # MODUŁ: TRENERZY (ODDZIELNA SEKCJA)
 # =========================================================
@@ -2687,3 +2698,4 @@ elif opcja == "Trenerzy":
                                 st.warning("Nie znaleziono meczów.")
                         else:
                             st.error("Brak kolumny z datą w mecze.csv")
+
