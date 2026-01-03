@@ -1,5 +1,5 @@
 numer,imię i nazwisko,status,pozycja,narodowość,flaga,data urodzenia,wiek,mecze,minuty,gole,asysty,żółte kartki,czerwone kartki,kanadyjka,gole samobójcze,asysta 2. stopnia,sprokurowany karny,wywalczony karny,karny,niestrzelony karny,główka,lewa,prawa,czyste konta,obronione karne
-1,Konrad Forenc,,bramkarz,Polska,https://flagcdn.com/w40/pl.png,17.07.1992,33,10,867,0,0,,,0,,,,,,,,,,3.63,
+1,Konrad Forenc,,bramkarz,Polska,https://flagcdn.com/w40/pl.png,17.07.1992,33,10,867,0,0,,,0,,,,,,,,,,4,
 2,Łukasz Kabaj,(M),obrońca,Polska,https://flagcdn.com/w40/pl.png,13.02.2006,19,2,95,0,0,,,0,,,,,,,,,,,
 3,Daniel Dziwniel,,obrońca,Polska /Niemcy,https://flagcdn.com/w40/pl.png,19.08.1992,33,13,905,0,2,1,,2,,,,,,,,,,,
 4,Marcin Biernat,,obrońca,Polska,https://flagcdn.com/w40/pl.png,28.05.1992,33,19,1599,5,1,7,,6,,2,,1,4,,,,5,,
@@ -30,6 +30,7 @@ numer,imię i nazwisko,status,pozycja,narodowość,flaga,data urodzenia,wiek,mec
 99,Szymon Brańczyk,(M),bramkarz,Polska,https://flagcdn.com/w40/pl.png,13.08.2006,19,4,360,0,0,,,0,,,,,,,,,,1,
 95,Krzysztof Wiesner,(M),pomocnik,Polska,https://flagcdn.com/w40/pl.png,13.10.2009,16,1,9,0,0,,,0,,,,,,,,,,,
 28,Jarosław Czerwik,(M),pomocnik,Polska,https://flagcdn.com/w40/pl.png,16.06.2008,17,0,0,0,0,,,0,,,,,,,,,,,
+
 
 
 
