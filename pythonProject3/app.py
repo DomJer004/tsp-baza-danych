@@ -1906,65 +1906,66 @@ elif opcja == "Centrum Zawodników":
         df = load_data("pilkarze.csv")
 
         if df is not None:
-            # 1. Automatyczne wykrywanie kolumny z meczami (szukamy małych liter, bo load_data tak formatuje)
-            target_col = None
-            possible_cols = ['suma', 'mecze', 'liczba', 'występy', 'official_matches']
+            # 1. Szukamy kolumny z meczami (priorytet: suma -> mecze -> liczba)
+            # Funkcja load_data zamienia wszystko na małe litery, więc szukamy małych liter.
+            col_s = 'suma'
+            if 'suma' not in df.columns:
+                if 'mecze' in df.columns:
+                    col_s = 'mecze'
+                elif 'liczba' in df.columns:
+                    col_s = 'liczba'
             
-            for c in possible_cols:
-                if c in df.columns:
-                    target_col = c
-                    break
-            
-            if target_col:
-                # 2. Konwersja na liczby (czyszczenie śmieci i pustych wartości)
-                df[target_col] = pd.to_numeric(df[target_col], errors='coerce').fillna(0).astype(int)
+            # 2. Szukamy kolumny z narodowością (żeby jej nie zgubić przy grupowaniu)
+            col_nat = None
+            if 'narodowość' in df.columns:
+                col_nat = 'narodowość'
+            elif 'kraj' in df.columns:
+                col_nat = 'kraj'
 
-                # 3. AGREGACJA (Sumowanie dubli)
-                # Grupowanie po nazwisku, żeby zsumować mecze z różnych wpisów tego samego piłkarza
-                # Jednocześnie zachowujemy kolumnę 'narodowość' (bierzemy pierwszą napotkaną dla danego nazwiska)
-                
-                # Znajdź kolumnę z narodowością
-                nat_col = next((c for c in df.columns if c in ['kraj', 'narodowość', 'narodowosc']), None)
-                
-                agg_dict = {target_col: 'sum'}
-                if nat_col:
-                    agg_dict[nat_col] = 'first' # Zachowaj kraj
-                
-                # Grupujemy
-                df_grouped = df.groupby('imię i nazwisko', as_index=False).agg(agg_dict)
+            # 3. Jeśli mamy kolumnę z meczami, lecimy z tematem
+            if col_s in df.columns:
+                # Konwersja na liczby
+                df[col_s] = pd.to_numeric(df[col_s], errors='coerce').fillna(0).astype(int)
 
-                # 4. Filtracja: Tylko 100 lub więcej meczów
-                k100 = df_grouped[df_grouped[target_col] >= 100].copy()
+                # Przygotowanie zasad grupowania (Sumujemy mecze, zachowujemy pierwszy napotkany kraj)
+                agg_rules = {col_s: 'sum'}
+                if col_nat:
+                    agg_rules[col_nat] = 'first'
 
-                # 5. Sortowanie malejąco
-                k100 = k100.sort_values(target_col, ascending=False)
+                # Agregacja (grupowanie po nazwisku)
+                k100 = df.groupby('imię i nazwisko', as_index=False).agg(agg_rules)
 
-                # 6. Dodanie flag (funkcja prepare_flags sama znajdzie kolumnę kraju)
+                # Filtracja: 100 lub więcej
+                k100 = k100[k100[col_s] >= 100]
+
+                # Sortowanie
+                k100 = k100.sort_values(col_s, ascending=False)
+
+                # Dodanie flag (funkcja prepare_flags poradzi sobie, bo zachowaliśmy kolumnę kraju)
                 k100 = prepare_flags(k100)
 
-                # 7. Wyświetlanie
-                cols_show = ['imię i nazwisko', 'Flaga', 'Narodowość', target_col]
-                # Zabezpieczenie na wypadek braku którejś kolumny
-                cols_show = [c for c in cols_show if c in k100.columns]
+                # Wybór kolumn do wyświetlenia (zabezpieczenie, gdyby którejś nie było)
+                cols_show = ['imię i nazwisko', 'Flaga', 'Narodowość', col_s]
+                cols_final = [c for c in cols_show if c in k100.columns]
 
                 st.dataframe(
-                    k100[cols_show],
+                    k100[cols_final],
                     use_container_width=True,
                     hide_index=True,
-                    height=(len(k100) + 1) * 35 + 3, # Auto-wysokość
+                    height=(len(k100) + 1) * 35 + 3,
                     column_config={
                         "Flaga": st.column_config.ImageColumn("Flaga", width="small"),
-                        target_col: st.column_config.NumberColumn("Liczba Meczów", format="%d 👕"),
+                        col_s: st.column_config.NumberColumn("Liczba Meczów", format="%d 👕"),
                         "imię i nazwisko": st.column_config.TextColumn("Zawodnik", width="medium")
                     }
                 )
                 
                 if k100.empty:
-                    st.info("Brak zawodników z liczbą meczów >= 100 w wczytanym pliku.")
+                    st.info("Brak zawodników z liczbą meczów >= 100.")
             else:
-                st.warning(f"W pliku pilkarze.csv nie znaleziono kolumny z liczbą meczów. Oczekiwane: {possible_cols}")
+                st.warning("W pliku pilkarze.csv brakuje kolumny 'suma', 'mecze' lub 'liczba'.")
         else:
-            st.error("Nie znaleziono pliku pilkarze.csv")
+            st.error("Brak pliku pilkarze.csv")
     with tab4:
         st.subheader("Transfery")
         df = load_data("transfery.csv")
@@ -2826,6 +2827,7 @@ elif opcja == "Trenerzy":
                                 st.warning("Nie znaleziono meczów.")
                         else:
                             st.error("Brak kolumny z datą w mecze.csv")
+
 
 
 
