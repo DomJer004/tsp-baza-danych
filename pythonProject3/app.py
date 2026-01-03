@@ -2427,33 +2427,30 @@ elif opcja == "🏆 Rekordy & TOP":
 
         df_p_uniq = prepare_flags(df_p_uniq)
 
-        tab1, tab2, tab3 = st.tabs(["👶 Najmłodsi / 👴 Najstarsi", "⚽ Najlepsze Występy", "👑 Królowie Sezonów"])
+        tab1, tab2, tab3 = st.tabs(["👶 Wiek (Występy i Gole)", "⚽ Najlepsze Występy", "👑 Królowie Sezonów"])
 
         with tab1:
             if 'Data_Sort' in df_w.columns:
                 
-                # --- POPRAWIONA FUNKCJA OBLICZANIA WIEKU ---
+                # --- FUNKCJA OBLICZANIA WIEKU (POPRAWIONA) ---
                 def calc_age_at_event(row):
                     try:
-                        # [KLUCZOWE] dayfirst=True naprawia błąd 10.05 (maj vs październik)
+                        # dayfirst=True kluczowe dla dat typu 10.05.2006
                         born = pd.to_datetime(row['data urodzenia'], dayfirst=True)
                         event = row['Data_Sort']
 
                         if pd.isna(born) or pd.isna(event):
                             return 99999, ""
                         
-                        # 1. Obliczamy pełne lata
+                        # Dokładne wyliczanie lat
                         years = event.year - born.year - ((event.month, event.day) < (born.month, born.day))
                         
-                        # 2. Obliczamy dni od ostatnich urodzin
-                        # Ustawiamy datę urodzin w roku meczu
+                        # Dokładne wyliczanie dni
                         try:
                             last_birthday = born.replace(year=event.year)
                         except ValueError:
-                            # Obsługa 29 lutego w roku nieprzestępnym -> 1 marca
                             last_birthday = born.replace(year=event.year, month=3, day=1)
 
-                        # Jeśli urodziny w roku meczu jeszcze nie nastąpiły, cofamy się do roku poprzedniego
                         if last_birthday > event:
                             try:
                                 last_birthday = born.replace(year=event.year - 1)
@@ -2461,46 +2458,93 @@ elif opcja == "🏆 Rekordy & TOP":
                                 last_birthday = born.replace(year=event.year - 1, month=3, day=1)
 
                         days = (event - last_birthday).days
-                        
-                        # Całkowita liczba dni do sortowania
                         total_days_alive = (event - born).days
 
                         if total_days_alive < 0: return 99999, ""
 
                         return total_days_alive, f"{years} lat, {days} dni"
-                    except Exception as e:
+                    except:
                         return 99999, ""
 
-                # 1. NAJMŁODSI
+                # --- CZĘŚĆ 1: WYSTĘPY (Debiuty / Ostatnie mecze) ---
+                # 1. NAJMŁODSI DEBIUTANCI
                 debuts = df_w.groupby('Zawodnik_Clean')['Data_Sort'].min().reset_index()
                 debuts = pd.merge(debuts, df_p_uniq, left_on='Zawodnik_Clean', right_on='imię i nazwisko', how='inner')
                 debuts[['Age_Num', 'Wiek_Txt']] = debuts.apply(calc_age_at_event, axis=1, result_type='expand')
-                
                 top_young = debuts.sort_values('Age_Num').head(10)
 
-                # 2. NAJSTARSI
+                # 2. NAJSTARSI ZAWODNICY
                 lasts = df_w.groupby('Zawodnik_Clean')['Data_Sort'].max().reset_index()
                 lasts = pd.merge(lasts, df_p_uniq, left_on='Zawodnik_Clean', right_on='imię i nazwisko', how='inner')
                 lasts[['Age_Num', 'Wiek_Txt']] = lasts.apply(calc_age_at_event, axis=1, result_type='expand')
-                
-                # Filtr błędnych danych (> 60 lat)
-                lasts_clean = lasts[lasts['Age_Num'] < 21900] 
-
+                lasts_clean = lasts[lasts['Age_Num'] < 21900] # Filtr błędów (>60 lat)
                 top_old = lasts_clean.sort_values('Age_Num', ascending=False).head(10)
 
+                st.markdown("### 🏟️ Najmłodsi i Najstarsi na boisku")
                 c_y, c_o = st.columns(2)
                 with c_y:
-                    st.subheader("👶 Najmłodsi Debiutanci")
+                    st.caption("👶 Najmłodsi Debiutanci")
                     st.dataframe(top_young[['Flaga', 'Zawodnik_Clean', 'Wiek_Txt', 'Data_Sort']], hide_index=True,
                                  use_container_width=True,
                                  column_config={"Flaga": st.column_config.ImageColumn("", width="small"),
-                                                "Data_Sort": st.column_config.DateColumn("Data", format="DD.MM.YYYY")})
+                                                "Data_Sort": st.column_config.DateColumn("Debiut", format="DD.MM.YYYY")})
                 with c_o:
-                    st.subheader("👴 Najstarsi Zawodnicy")
+                    st.caption("👴 Najstarsi Zawodnicy")
                     st.dataframe(top_old[['Flaga', 'Zawodnik_Clean', 'Wiek_Txt', 'Data_Sort']], hide_index=True,
                                  use_container_width=True,
                                  column_config={"Flaga": st.column_config.ImageColumn("", width="small"),
-                                                "Data_Sort": st.column_config.DateColumn("Data", format="DD.MM.YYYY")})
+                                                "Data_Sort": st.column_config.DateColumn("Ostatni Mecz", format="DD.MM.YYYY")})
+
+                st.divider()
+
+                # --- CZĘŚĆ 2: STRZELCY (Najmłodsi / Najstarsi) ---
+                if 'Gole' in df_w.columns:
+                    st.markdown("### ⚽ Najmłodsi i Najstarsi Strzelcy")
+                    
+                    # Przygotowanie danych o golach
+                    df_w['Gole_Num'] = pd.to_numeric(df_w['Gole'], errors='coerce').fillna(0).astype(int)
+                    df_scorers = df_w[df_w['Gole_Num'] > 0].copy()
+
+                    # Łączenie z datami urodzenia
+                    df_scorers_merged = pd.merge(df_scorers, df_p_uniq, left_on='Zawodnik_Clean', right_on='imię i nazwisko', how='inner')
+                    
+                    # Obliczanie wieku dla KAŻDEGO gola
+                    df_scorers_merged[['Age_Num', 'Wiek_Txt']] = df_scorers_merged.apply(calc_age_at_event, axis=1, result_type='expand')
+                    
+                    # Filtrowanie błędów (>60 lat)
+                    df_scorers_clean = df_scorers_merged[df_scorers_merged['Age_Num'] < 21900]
+
+                    if not df_scorers_clean.empty:
+                        # 3. NAJMŁODSI STRZELCY (Pierwszy gol zawodnika)
+                        # Grupujemy po zawodniku i bierzemy wiersz z minimalnym wiekiem
+                        youngest_scorers = df_scorers_clean.loc[df_scorers_clean.groupby('Zawodnik_Clean')['Age_Num'].idxmin()]
+                        top_young_scorers = youngest_scorers.sort_values('Age_Num').head(10)
+
+                        # 4. NAJSTARSI STRZELCY (Ostatni gol zawodnika)
+                        # Grupujemy po zawodniku i bierzemy wiersz z maksymalnym wiekiem
+                        oldest_scorers = df_scorers_clean.loc[df_scorers_clean.groupby('Zawodnik_Clean')['Age_Num'].idxmax()]
+                        top_old_scorers = oldest_scorers.sort_values('Age_Num', ascending=False).head(10)
+
+                        c_ys, c_os = st.columns(2)
+                        with c_ys:
+                            st.caption("👶 Najmłodsi Strzelcy")
+                            st.dataframe(top_young_scorers[['Flaga', 'Zawodnik_Clean', 'Wiek_Txt', 'Data_Sort', 'Przeciwnik']], 
+                                         hide_index=True, use_container_width=True,
+                                         column_config={
+                                             "Flaga": st.column_config.ImageColumn("", width="small"),
+                                             "Data_Sort": st.column_config.DateColumn("Data", format="DD.MM.YYYY")
+                                         })
+                        with c_os:
+                            st.caption("👴 Najstarsi Strzelcy")
+                            st.dataframe(top_old_scorers[['Flaga', 'Zawodnik_Clean', 'Wiek_Txt', 'Data_Sort', 'Przeciwnik']], 
+                                         hide_index=True, use_container_width=True,
+                                         column_config={
+                                             "Flaga": st.column_config.ImageColumn("", width="small"),
+                                             "Data_Sort": st.column_config.DateColumn("Data", format="DD.MM.YYYY")
+                                         })
+                    else:
+                        st.info("Brak danych o strzelcach z poprawnymi datami urodzenia.")
+
             else:
                 st.warning("Brak dat w pliku występów.")
 
@@ -2698,4 +2742,5 @@ elif opcja == "Trenerzy":
                                 st.warning("Nie znaleziono meczów.")
                         else:
                             st.error("Brak kolumny z datą w mecze.csv")
+
 
