@@ -1,5 +1,5 @@
 funkcja,imię i nazwisko,narodowość,data urodzenia,data śmierci,wiek,początek,koniec,suma dni,mecze,wygrane,remisy,przegrane,punkty,śr. pkt /mecz
-trener,Zdzisław Brydy,Polska,01.01.1951,,74,09.08.1997,30.08.1997,22,4,1,1,2,4,1.00
+trener,Zdzisław Brydy,Polska,12.02.1951,,74,09.08.1997,30.08.1997,22,4,1,1,2,4,1.00
 trener,Bogdan Warzecha,Polska,,,125,31.08.1997,31.10.1997,62,13,7,3,3,24,1.85
 trener,Zdeněk Dembinný,Czechy,16.12.1955,,70,01.11.1997,14.11.1998,379,32,24,6,2,78,2.44
 trener,Wojciech Borecki,Polska,05.04.1955,,70,15.11.1998,16.06.2001,945,87,68,11,8,215,2.47
@@ -41,3 +41,4 @@ trener,Jarosław Skrobacz,Polska,11.08.1967,,58,01.03.2024,16.06.2024,108,13,1,3
 trener,Krzysztof Brede,Polska,08.02.1981,,44,17.06.2024,05.10.2025,476,46,19,10,17,67,1.46
 trener,Tomasz Pawliczak,Polska,07.10.1988,,37,06.10.2025,05.11.2025,31,4,1,1,2,4,1.00
 trener,Marcin Włodarski,Polska,06.09.1982,,43,05.11.2025,28.12.2025,54,4,2,1,1,7,1.75
+
