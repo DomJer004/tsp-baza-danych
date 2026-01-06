@@ -2804,8 +2804,7 @@ elif opcja == "🏆 Rekordy & TOP":
     if df_p is None or df_w is None:
         st.error("Brak plików danych (pilkarze.csv / wystepy.csv).")
     else:
-        # [POPRAWKA] Najpierw przygotowujemy flagi w głównym DataFrame, 
-        # aby kolumna 'Narodowość' (wielką literą) na pewno istniała.
+        # [POPRAWKA] Najpierw przygotowujemy flagi w głównym DataFrame
         df_p = prepare_flags(df_p)
 
         # Filtrowanie sezonów
@@ -2835,17 +2834,13 @@ elif opcja == "🏆 Rekordy & TOP":
         st.divider()
 
         # --- PRZYGOTOWANIE DANYCH DO WIEKU ---
-        # Wybieramy tylko potrzebne kolumny. Używamy .get(), aby uniknąć błędu, jeśli kolumna nie istnieje.
         cols_needed = ['imię i nazwisko', 'data urodzenia', 'Narodowość', 'Flaga']
-        # Filtrujemy tylko te, które faktycznie są w df_p
         cols_final = [c for c in cols_needed if c in df_p.columns]
         
         df_p_dates = df_p[cols_final].drop_duplicates(subset=['imię i nazwisko']).copy()
         
-        # Funkcja parsująca daty urodzenia (Europejski format priorytetowo)
         def parse_birth_date(val):
             if pd.isna(val) or str(val) in ['-', 'nan', '']: return pd.NaT
-            # Próbujemy formaty: DD.MM.YYYY, YYYY-MM-DD
             for fmt in ['%d.%m.%Y', '%Y-%m-%d', '%Y/%m/%d']:
                 try:
                     return pd.to_datetime(val, format=fmt)
@@ -2858,15 +2853,10 @@ elif opcja == "🏆 Rekordy & TOP":
         else:
             df_p_dates['dt_ur'] = pd.NaT
 
-        # Przygotowanie występów (musi być Data_Sort)
         if 'Data_Sort' in df_w.columns and 'Zawodnik_Clean' in df_w.columns:
-            # Łączymy (left join)
             df_age = pd.merge(df_w, df_p_dates, left_on='Zawodnik_Clean', right_on='imię i nazwisko', how='inner')
-            
-            # Obliczamy wiek w dniach dla każdego występu
             df_age['Age_Days'] = (df_age['Data_Sort'] - df_age['dt_ur']).dt.days
             
-            # Formatowanie wieku do wyświetlania (Lata, Dni)
             def format_age_display(days):
                 if pd.isna(days): return "-"
                 years = int(days // 365.25)
@@ -2877,7 +2867,6 @@ elif opcja == "🏆 Rekordy & TOP":
         else:
             df_age = pd.DataFrame()
 
-        # Funkcja pomocnicza do medali
         def get_medals(df_in):
             df_x = df_in.copy().reset_index(drop=True)
             df_x.index += 1
@@ -2888,12 +2877,11 @@ elif opcja == "🏆 Rekordy & TOP":
         # --- ZAKŁADKI ---
         tab1, tab2, tab3, tab4, tab5 = st.tabs(["👤 Legendy", "👶👴 Wiek", "⚽ Strzelcy", "🏟️ Wyniki", "🟥 Kartki"])
 
-        # --- TAB 1: NAJWIĘCEJ MECZÓW ---
+        # --- TAB 1: MECZE ---
         with tab1:
             st.subheader("👕 Najwięcej Występów w Historii")
             col_match_agg = df_w.groupby('Zawodnik_Clean').size().reset_index(name='Liczba_Meczów')
             
-            # Doczepiamy flagi (jeśli są)
             merge_cols = ['imię i nazwisko']
             if 'Flaga' in df_p_dates.columns: merge_cols.append('Flaga')
             
@@ -2903,12 +2891,10 @@ elif opcja == "🏆 Rekordy & TOP":
             top_matches = col_match_agg.sort_values('Liczba_Meczów', ascending=False).head(15)
             top_matches = get_medals(top_matches)
             
-            # Konfiguracja kolumn (zabezpieczenie jeśli brak flagi)
             cfg = {
                 "Liczba_Meczów": st.column_config.ProgressColumn("Mecze", format="%d", min_value=0, max_value=int(top_matches['Liczba_Meczów'].max()))
             }
-            if 'Flaga' in top_matches.columns:
-                cfg["Flaga"] = st.column_config.ImageColumn("", width="small")
+            if 'Flaga' in top_matches.columns: cfg["Flaga"] = st.column_config.ImageColumn("", width="small")
 
             st.dataframe(
                 top_matches[['Miejsce'] + ([c for c in ['Flaga', 'Zawodnik_Clean', 'Liczba_Meczów'] if c in top_matches.columns])],
@@ -2916,23 +2902,26 @@ elif opcja == "🏆 Rekordy & TOP":
                 column_config=cfg
             )
 
-        # --- TAB 2: WIEK (DEBIUTANCI I NAJSTARSI) ---
+        # --- TAB 2: WIEK (POPRAWKA: CZYSZCZENIE NaN) ---
         with tab2:
-            if not df_age.empty:
+            # [POPRAWKA] Usuwamy wiersze, gdzie Age_Days jest NaN, aby uniknąć KeyError
+            df_age_clean = df_age.dropna(subset=['Age_Days']).copy()
+
+            if not df_age_clean.empty:
                 c_young, c_old = st.columns(2)
                 
                 cfg_age = {
                      "Data_Sort": st.column_config.DateColumn("Data", format="DD.MM.YYYY"),
                      "Wiek_Txt": st.column_config.TextColumn("Wiek")
                 }
-                if 'Flaga' in df_age.columns:
+                if 'Flaga' in df_age_clean.columns:
                     cfg_age["Flaga"] = st.column_config.ImageColumn("", width="small")
 
                 with c_young:
                     st.markdown("#### 👶 Najmłodsi Debiutanci")
-                    # Grupujemy po zawodniku, bierzemy MIN wiek
-                    youngest = df_age.loc[df_age.groupby('Zawodnik_Clean')['Age_Days'].idxmin()]
-                    youngest = youngest[youngest['Age_Days'] > 3650] # Filtr błędów (min 10 lat)
+                    # Używamy wyczyszczonego DataFrame
+                    youngest = df_age_clean.loc[df_age_clean.groupby('Zawodnik_Clean')['Age_Days'].idxmin()]
+                    youngest = youngest[youngest['Age_Days'] > 3650] # min 10 lat
                     youngest = youngest.sort_values('Age_Days').head(10)
                     youngest = get_medals(youngest)
                     
@@ -2941,9 +2930,9 @@ elif opcja == "🏆 Rekordy & TOP":
 
                 with c_old:
                     st.markdown("#### 👴 Najstarsi Zawodnicy")
-                    # Grupujemy po zawodniku, bierzemy MAX wiek
-                    oldest = df_age.loc[df_age.groupby('Zawodnik_Clean')['Age_Days'].idxmax()]
-                    oldest = oldest[oldest['Age_Days'] < 20000] # Filtr błędów (max ~54 lata)
+                    # Używamy wyczyszczonego DataFrame
+                    oldest = df_age_clean.loc[df_age_clean.groupby('Zawodnik_Clean')['Age_Days'].idxmax()]
+                    oldest = oldest[oldest['Age_Days'] < 20000] # max ~54 lata
                     oldest = oldest.sort_values('Age_Days', ascending=False).head(10)
                     oldest = get_medals(oldest)
                     
@@ -2952,11 +2941,10 @@ elif opcja == "🏆 Rekordy & TOP":
             else:
                 st.warning("Brak danych dat urodzenia, aby wyliczyć statystyki wieku.")
 
-        # --- TAB 3: STRZELCY (TOP + WIEK) ---
+        # --- TAB 3: STRZELCY (POPRAWKA: CZYSZCZENIE NaN) ---
         with tab3:
             st.subheader("⚽ Królowie Strzelców")
             
-            # 1. Klasyfikacja ogólna
             df_w['Gole_Num'] = pd.to_numeric(df_w['Gole'], errors='coerce').fillna(0).astype(int)
             scorers = df_w.groupby('Zawodnik_Clean')['Gole_Num'].sum().reset_index()
             scorers = scorers[scorers['Gole_Num'] > 0].sort_values('Gole_Num', ascending=False).head(10)
@@ -2980,29 +2968,31 @@ elif opcja == "🏆 Rekordy & TOP":
             st.divider()
             
             # 2. Najmłodsi i Najstarsi Strzelcy
-            if not df_age.empty:
-                df_goals = df_age[df_age['Gole_Num'] > 0].copy()
-                if not df_goals.empty:
-                    c_ys, c_os = st.columns(2)
-                    
-                    cfg_s_age = {}
-                    if 'Flaga' in df_goals.columns: cfg_s_age["Flaga"] = st.column_config.ImageColumn("", width="small")
+            # Ponownie używamy czyszczenia danych
+            df_goals = df_age.dropna(subset=['Age_Days']).copy()
+            df_goals = df_goals[df_goals['Gole_Num'] > 0] # Tylko ci co strzelili
 
-                    with c_ys:
-                        st.markdown("**👶 Najmłodsi Strzelcy**")
-                        y_sc = df_goals.loc[df_goals.groupby('Zawodnik_Clean')['Age_Days'].idxmin()]
-                        y_sc = y_sc.sort_values('Age_Days').head(5)
-                        y_sc = get_medals(y_sc)
-                        cols_ys = ['Miejsce'] + [c for c in ['Flaga', 'Zawodnik_Clean', 'Wiek_Txt'] if c in y_sc.columns]
-                        st.dataframe(y_sc[cols_ys], hide_index=True, use_container_width=True, column_config=cfg_s_age)
-                        
-                    with c_os:
-                        st.markdown("**👴 Najstarsi Strzelcy**")
-                        o_sc = df_goals.loc[df_goals.groupby('Zawodnik_Clean')['Age_Days'].idxmax()]
-                        o_sc = o_sc.sort_values('Age_Days', ascending=False).head(5)
-                        o_sc = get_medals(o_sc)
-                        cols_os = ['Miejsce'] + [c for c in ['Flaga', 'Zawodnik_Clean', 'Wiek_Txt'] if c in o_sc.columns]
-                        st.dataframe(o_sc[cols_os], hide_index=True, use_container_width=True, column_config=cfg_s_age)
+            if not df_goals.empty:
+                c_ys, c_os = st.columns(2)
+                
+                cfg_s_age = {}
+                if 'Flaga' in df_goals.columns: cfg_s_age["Flaga"] = st.column_config.ImageColumn("", width="small")
+
+                with c_ys:
+                    st.markdown("**👶 Najmłodsi Strzelcy**")
+                    y_sc = df_goals.loc[df_goals.groupby('Zawodnik_Clean')['Age_Days'].idxmin()]
+                    y_sc = y_sc.sort_values('Age_Days').head(5)
+                    y_sc = get_medals(y_sc)
+                    cols_ys = ['Miejsce'] + [c for c in ['Flaga', 'Zawodnik_Clean', 'Wiek_Txt'] if c in y_sc.columns]
+                    st.dataframe(y_sc[cols_ys], hide_index=True, use_container_width=True, column_config=cfg_s_age)
+                    
+                with c_os:
+                    st.markdown("**👴 Najstarsi Strzelcy**")
+                    o_sc = df_goals.loc[df_goals.groupby('Zawodnik_Clean')['Age_Days'].idxmax()]
+                    o_sc = o_sc.sort_values('Age_Days', ascending=False).head(5)
+                    o_sc = get_medals(o_sc)
+                    cols_os = ['Miejsce'] + [c for c in ['Flaga', 'Zawodnik_Clean', 'Wiek_Txt'] if c in o_sc.columns]
+                    st.dataframe(o_sc[cols_os], hide_index=True, use_container_width=True, column_config=cfg_s_age)
 
         # --- TAB 4: WYNIKI I HAT-TRICKI ---
         with tab4:
@@ -3057,6 +3047,174 @@ elif opcja == "🏆 Rekordy & TOP":
                     hide_index=True, use_container_width=True,
                     column_config=cfg_red
                 )
+# =========================================================
+# MODUŁ: TRENERZY (ODDZIELNA SEKCJA)
+# =========================================================
+elif opcja == "Trenerzy":
+    if 'coach_view_mode' not in st.session_state:
+        st.session_state['coach_view_mode'] = 'list'
+    if 'selected_coach' not in st.session_state:
+        st.session_state['selected_coach'] = None
+
+    if st.session_state['coach_view_mode'] == 'profile':
+        if st.button("⬅️ Wróć do listy trenerów"):
+            st.session_state['coach_view_mode'] = 'list'
+            st.session_state['selected_coach'] = None
+            st.rerun()
+
+        st.divider()
+        render_coach_profile(st.session_state['selected_coach'])
+
+    else:
+        st.header("👔 Centrum Trenerów TSP")
+        df = load_data("trenerzy.csv")
+
+        if df is not None:
+            def parse_date_safe(val):
+                s = str(val).strip().lower()
+                if s in ['-', 'nan', '', 'obecnie']: return pd.NaT
+                try:
+                    return pd.to_datetime(s, dayfirst=True)
+                except:
+                    return pd.NaT
+
+            if 'początek' in df.columns:
+                df['początek_dt'] = df['początek'].apply(parse_date_safe)
+            else:
+                df['początek_dt'] = pd.NaT
+
+            if 'koniec' in df.columns:
+                df['koniec_dt'] = df['koniec'].apply(parse_date_safe)
+            else:
+                df['koniec_dt'] = pd.NaT
+
+            for col in ['mecze', 'punkty']:
+                if col in df.columns: df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+
+            df = prepare_flags(df)
+
+            col_search, col_space = st.columns([1, 2])
+            with col_search:
+                all_coaches = sorted(df['imię i nazwisko'].astype(str).unique())
+                selected_from_list = st.selectbox("🔍 Znajdź profil trenera:", [""] + all_coaches)
+                if selected_from_list:
+                    st.session_state['selected_coach'] = selected_from_list
+                    st.session_state['coach_view_mode'] = 'profile'
+                    st.rerun()
+
+            st.divider()
+            t1, t2, t3 = st.tabs(["📜 Lista Trenerów", "🏆 Rankingi Wszechczasów", "⚔️ Porównywarka"])
+
+            with t1:
+                st.subheader("Historia Zatrudnienia")
+                df_view = df.sort_values('początek_dt', ascending=False)
+                cols_possible = ['funkcja', 'imię i nazwisko', 'Narodowość', 'Flaga', 'początek', 'koniec',
+                                 'mecze', 'punkty']
+                cols_final = [c for c in cols_possible if c in df_view.columns]
+
+                st.dataframe(df_view[cols_final], use_container_width=True, hide_index=True,
+                             column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small"),
+                                            "mecze": st.column_config.NumberColumn("Mecze", format="%d"),
+                                            "punkty": st.column_config.NumberColumn("Punkty", format="%.0f")})
+
+            with t2:
+                st.subheader("📊 Tabela Wszechczasów")
+                if 'punkty' in df.columns and 'mecze' in df.columns:
+                    agg = df.groupby(['imię i nazwisko', 'Narodowość', 'Flaga'], as_index=False)[
+                        ['mecze', 'punkty']].sum()
+                    agg['Śr. Pkt'] = (agg['punkty'] / agg['mecze']).fillna(0)
+
+                    sort_mode = st.radio("Sortuj według:", ["Punkty (Suma)", "Mecze (Liczba)",
+                                                            "Średnia Punktów (min. 5 spotkań)"],
+                                         horizontal=True)
+
+                    if "Średnia" in sort_mode:
+                        agg_sorted = agg[agg['mecze'] >= 5].sort_values('Śr. Pkt', ascending=False)
+                        st.caption("⚠️ *Ranking średniej uwzględnia tylko trenerów z min. 5 meczami.*")
+                    elif "Mecze" in sort_mode:
+                        agg_sorted = agg.sort_values('mecze', ascending=False)
+                    else:
+                        agg_sorted = agg.sort_values('punkty', ascending=False)
+
+                    st.dataframe(agg_sorted, use_container_width=True, hide_index=True,
+                                 column_config={"Flaga": st.column_config.ImageColumn("Flaga", width="small"),
+                                                "Śr. Pkt": st.column_config.ProgressColumn("Średnia",
+                                                                                           format="%.2f",
+                                                                                           min_value=0,
+                                                                                           max_value=3),
+                                                "mecze": st.column_config.NumberColumn("Mecze 🏟️"),
+                                                "punkty": st.column_config.NumberColumn("Pkt 📈")})
+                else:
+                    st.warning("Brak kolumn 'mecze' lub 'punkty' w pliku trenerzy.csv")
+
+            with t3:
+                st.markdown("### 🆚 Porównaj bilans trenerów")
+                sel_compare = st.multiselect("Wybierz trenerów (max 3):", all_coaches,
+                                             default=all_coaches[:2] if len(all_coaches) > 1 else None)
+
+                if sel_compare:
+                    comp_data = []
+                    mecze_df = load_data("mecze.csv")
+                    if mecze_df is not None:
+                        col_m_date = next((c for c in mecze_df.columns if 'data' in c and 'sort' not in c), None)
+                        if col_m_date:
+                            mecze_df['dt_temp'] = pd.to_datetime(mecze_df[col_m_date], dayfirst=True, errors='coerce')
+                            for coach in sel_compare:
+                                coach_rows = df[df['imię i nazwisko'] == coach]
+                                mask = pd.Series([False] * len(mecze_df))
+                                for _, c_row in coach_rows.iterrows():
+                                    start = c_row['początek_dt']
+                                    end = c_row['koniec_dt']
+                                    if pd.isna(start): continue
+                                    if pd.isna(end): end = pd.Timestamp.now() + pd.Timedelta(days=365)
+                                    mask |= (mecze_df['dt_temp'] >= start) & (mecze_df['dt_temp'] <= end)
+
+                                cm = mecze_df[mask]
+                                w, d, l, gf, ga, pts_sum = 0, 0, 0, 0, 0, 0
+                                if not cm.empty:
+                                    for _, row_match in cm.iterrows():
+                                        res = parse_result(row_match.get('wynik'))
+                                        if res:
+                                            gf += res[0]; ga += res[1]
+                                            if res[0] > res[1]: w += 1; pts_sum += 3
+                                            elif res[0] == res[1]: d += 1; pts_sum += 1
+                                            else: l += 1
+
+                                total_m = w + d + l
+                                avg_pts = pts_sum / total_m if total_m > 0 else 0
+                                win_pct = (w / total_m * 100) if total_m > 0 else 0
+                                comp_data.append(
+                                    {"Trener": coach, "Mecze": total_m, "Zwycięstwa": w, "Remisy": d,
+                                     "Porażki": l, "Bramki": f"{gf}:{ga}", "Średnia Pkt": avg_pts,
+                                     "% Zwycięstw": win_pct})
+
+                            if comp_data:
+                                res_df = pd.DataFrame(comp_data).set_index("Trener")
+                                # --- TU BYŁ BŁĄD, ZMIENIONO NA COLUMN CONFIG ---
+                                st.dataframe(
+                                    res_df,
+                                    use_container_width=True,
+                                    column_config={
+                                        "Średnia Pkt": st.column_config.ProgressColumn(
+                                            "Średnia Pkt", format="%.2f", min_value=0, max_value=3
+                                        ),
+                                        "% Zwycięstw": st.column_config.ProgressColumn(
+                                            "% Zwycięstw", format="%.1f%%", min_value=0, max_value=100
+                                        )
+                                    }
+                                )
+
+                                if HAS_PLOTLY:
+                                    fig = go.Figure()
+                                    fig.add_trace(go.Bar(x=res_df.index, y=res_df['Średnia Pkt'], name='Średnia Pkt', marker_color='#2ecc71'))
+                                    fig.add_trace(go.Bar(x=res_df.index, y=res_df['% Zwycięstw'] / 33, name='Index Wygranych', marker_color='#3498db', opacity=0.5))
+                                    fig.update_layout(title="Porównanie efektywności", barmode='group')
+                                    st.plotly_chart(fig, use_container_width=True)
+                            else:
+                                st.warning("Nie znaleziono meczów.")
+                        else:
+
+                            st.error("Brak kolumny z datą w mecze.csv")
 
 elif opcja == "🕵️ Ciemne Karty Historii":
     # --- ZABEZPIECZENIE PRZED GOŚĆMI ---
@@ -3223,3 +3381,4 @@ elif opcja == "🕵️ Ciemne Karty Historii":
             }
 
         )
+
