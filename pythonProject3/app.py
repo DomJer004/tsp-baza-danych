@@ -2804,16 +2804,20 @@ elif opcja == "🏆 Rekordy & TOP":
     if df_p is None or df_w is None:
         st.error("Brak plików danych (pilkarze.csv / wystepy.csv).")
     else:
+        # [POPRAWKA] Najpierw przygotowujemy flagi w głównym DataFrame, 
+        # aby kolumna 'Narodowość' (wielką literą) na pewno istniała.
+        df_p = prepare_flags(df_p)
+
         # Filtrowanie sezonów
         if 'filter_seasons' in globals():
             df_w = filter_seasons(df_w, 'Sezon') if 'Sezon' in df_w.columns else df_w
             if df_m is not None: df_m = filter_seasons(df_m, 'sezon')
 
-        # --- LEGENDA ODZNAK (NOWOŚĆ) ---
+        # --- LEGENDA ODZNAK ---
         with st.expander("ℹ️ Legenda Odznak (Co oznaczają ikony?)", expanded=False):
             st.markdown("""
             Odznaki są przyznawane automatycznie na podstawie statystyk zgromadzonych w bazie danych:
-
+            
             | Ikona | Nazwa Odznaki | Warunek otrzymania |
             | :---: | :--- | :--- |
             | 💯 | **Klub 100** | Zawodnik rozegrał co najmniej **100 oficjalnych meczów** w TSP. |
@@ -2831,11 +2835,13 @@ elif opcja == "🏆 Rekordy & TOP":
         st.divider()
 
         # --- PRZYGOTOWANIE DANYCH DO WIEKU ---
-        # Łączymy występy z datami urodzenia
-        df_p_dates = df_p[['imię i nazwisko', 'data urodzenia', 'Narodowość']].drop_duplicates(
-            subset=['imię i nazwisko']).copy()
-
-
+        # Wybieramy tylko potrzebne kolumny. Używamy .get(), aby uniknąć błędu, jeśli kolumna nie istnieje.
+        cols_needed = ['imię i nazwisko', 'data urodzenia', 'Narodowość', 'Flaga']
+        # Filtrujemy tylko te, które faktycznie są w df_p
+        cols_final = [c for c in cols_needed if c in df_p.columns]
+        
+        df_p_dates = df_p[cols_final].drop_duplicates(subset=['imię i nazwisko']).copy()
+        
         # Funkcja parsująca daty urodzenia (Europejski format priorytetowo)
         def parse_birth_date(val):
             if pd.isna(val) or str(val) in ['-', 'nan', '']: return pd.NaT
@@ -2847,31 +2853,29 @@ elif opcja == "🏆 Rekordy & TOP":
                     continue
             return pd.to_datetime(val, dayfirst=True, errors='coerce')
 
-
-        df_p_dates['dt_ur'] = df_p_dates['data urodzenia'].apply(parse_birth_date)
-        df_p_dates = prepare_flags(df_p_dates, 'Narodowość')  # Dodajemy flagi
+        if 'data urodzenia' in df_p_dates.columns:
+            df_p_dates['dt_ur'] = df_p_dates['data urodzenia'].apply(parse_birth_date)
+        else:
+            df_p_dates['dt_ur'] = pd.NaT
 
         # Przygotowanie występów (musi być Data_Sort)
         if 'Data_Sort' in df_w.columns and 'Zawodnik_Clean' in df_w.columns:
             # Łączymy (left join)
             df_age = pd.merge(df_w, df_p_dates, left_on='Zawodnik_Clean', right_on='imię i nazwisko', how='inner')
-
+            
             # Obliczamy wiek w dniach dla każdego występu
             df_age['Age_Days'] = (df_age['Data_Sort'] - df_age['dt_ur']).dt.days
-
-
+            
             # Formatowanie wieku do wyświetlania (Lata, Dni)
             def format_age_display(days):
                 if pd.isna(days): return "-"
                 years = int(days // 365.25)
                 rest_days = int(days % 365.25)
                 return f"{years} lat, {rest_days} dni"
-
-
+            
             df_age['Wiek_Txt'] = df_age['Age_Days'].apply(format_age_display)
         else:
             df_age = pd.DataFrame()
-
 
         # Funkcja pomocnicza do medali
         def get_medals(df_in):
@@ -2881,7 +2885,6 @@ elif opcja == "🏆 Rekordy & TOP":
                 lambda x: f"🥇" if x == 1 else (f"🥈" if x == 2 else (f"🥉" if x == 3 else f"{x}."))))
             return df_x
 
-
         # --- ZAKŁADKI ---
         tab1, tab2, tab3, tab4, tab5 = st.tabs(["👤 Legendy", "👶👴 Wiek", "⚽ Strzelcy", "🏟️ Wyniki", "🟥 Kartki"])
 
@@ -2889,111 +2892,117 @@ elif opcja == "🏆 Rekordy & TOP":
         with tab1:
             st.subheader("👕 Najwięcej Występów w Historii")
             col_match_agg = df_w.groupby('Zawodnik_Clean').size().reset_index(name='Liczba_Meczów')
-            # Doczepiamy flagi
-            col_match_agg = pd.merge(col_match_agg, df_p_dates[['imię i nazwisko', 'Flaga']],
+            
+            # Doczepiamy flagi (jeśli są)
+            merge_cols = ['imię i nazwisko']
+            if 'Flaga' in df_p_dates.columns: merge_cols.append('Flaga')
+            
+            col_match_agg = pd.merge(col_match_agg, df_p_dates[merge_cols], 
                                      left_on='Zawodnik_Clean', right_on='imię i nazwisko', how='left')
-
+            
             top_matches = col_match_agg.sort_values('Liczba_Meczów', ascending=False).head(15)
             top_matches = get_medals(top_matches)
+            
+            # Konfiguracja kolumn (zabezpieczenie jeśli brak flagi)
+            cfg = {
+                "Liczba_Meczów": st.column_config.ProgressColumn("Mecze", format="%d", min_value=0, max_value=int(top_matches['Liczba_Meczów'].max()))
+            }
+            if 'Flaga' in top_matches.columns:
+                cfg["Flaga"] = st.column_config.ImageColumn("", width="small")
 
             st.dataframe(
-                top_matches[['Miejsce', 'Flaga', 'Zawodnik_Clean', 'Liczba_Meczów']],
+                top_matches[['Miejsce'] + ([c for c in ['Flaga', 'Zawodnik_Clean', 'Liczba_Meczów'] if c in top_matches.columns])],
                 hide_index=True, use_container_width=True,
-                column_config={
-                    "Flaga": st.column_config.ImageColumn("", width="small"),
-                    "Liczba_Meczów": st.column_config.ProgressColumn("Mecze", format="%d", min_value=0,
-                                                                     max_value=int(top_matches['Liczba_Meczów'].max()))
-                }
+                column_config=cfg
             )
 
         # --- TAB 2: WIEK (DEBIUTANCI I NAJSTARSI) ---
         with tab2:
             if not df_age.empty:
                 c_young, c_old = st.columns(2)
+                
+                cfg_age = {
+                     "Data_Sort": st.column_config.DateColumn("Data", format="DD.MM.YYYY"),
+                     "Wiek_Txt": st.column_config.TextColumn("Wiek")
+                }
+                if 'Flaga' in df_age.columns:
+                    cfg_age["Flaga"] = st.column_config.ImageColumn("", width="small")
 
                 with c_young:
                     st.markdown("#### 👶 Najmłodsi Debiutanci")
                     # Grupujemy po zawodniku, bierzemy MIN wiek
                     youngest = df_age.loc[df_age.groupby('Zawodnik_Clean')['Age_Days'].idxmin()]
-                    youngest = youngest[youngest['Age_Days'] > 3650]  # Filtr błędów (min 10 lat)
+                    youngest = youngest[youngest['Age_Days'] > 3650] # Filtr błędów (min 10 lat)
                     youngest = youngest.sort_values('Age_Days').head(10)
                     youngest = get_medals(youngest)
-
-                    st.dataframe(
-                        youngest[['Miejsce', 'Flaga', 'Zawodnik_Clean', 'Wiek_Txt', 'Data_Sort']],
-                        hide_index=True, use_container_width=True,
-                        column_config={
-                            "Flaga": st.column_config.ImageColumn("", width="small"),
-                            "Data_Sort": st.column_config.DateColumn("Data Debiutu", format="DD.MM.YYYY"),
-                            "Wiek_Txt": st.column_config.TextColumn("Wiek")
-                        }
-                    )
+                    
+                    cols_y = ['Miejsce'] + [c for c in ['Flaga', 'Zawodnik_Clean', 'Wiek_Txt', 'Data_Sort'] if c in youngest.columns]
+                    st.dataframe(youngest[cols_y], hide_index=True, use_container_width=True, column_config=cfg_age)
 
                 with c_old:
                     st.markdown("#### 👴 Najstarsi Zawodnicy")
                     # Grupujemy po zawodniku, bierzemy MAX wiek
                     oldest = df_age.loc[df_age.groupby('Zawodnik_Clean')['Age_Days'].idxmax()]
-                    oldest = oldest[oldest['Age_Days'] < 20000]  # Filtr błędów (max ~54 lata)
+                    oldest = oldest[oldest['Age_Days'] < 20000] # Filtr błędów (max ~54 lata)
                     oldest = oldest.sort_values('Age_Days', ascending=False).head(10)
                     oldest = get_medals(oldest)
-
-                    st.dataframe(
-                        oldest[['Miejsce', 'Flaga', 'Zawodnik_Clean', 'Wiek_Txt', 'Data_Sort']],
-                        hide_index=True, use_container_width=True,
-                        column_config={
-                            "Flaga": st.column_config.ImageColumn("", width="small"),
-                            "Data_Sort": st.column_config.DateColumn("Data Meczu", format="DD.MM.YYYY"),
-                            "Wiek_Txt": st.column_config.TextColumn("Wiek")
-                        }
-                    )
+                    
+                    cols_o = ['Miejsce'] + [c for c in ['Flaga', 'Zawodnik_Clean', 'Wiek_Txt', 'Data_Sort'] if c in oldest.columns]
+                    st.dataframe(oldest[cols_o], hide_index=True, use_container_width=True, column_config=cfg_age)
             else:
                 st.warning("Brak danych dat urodzenia, aby wyliczyć statystyki wieku.")
 
         # --- TAB 3: STRZELCY (TOP + WIEK) ---
         with tab3:
             st.subheader("⚽ Królowie Strzelców")
-
+            
             # 1. Klasyfikacja ogólna
             df_w['Gole_Num'] = pd.to_numeric(df_w['Gole'], errors='coerce').fillna(0).astype(int)
             scorers = df_w.groupby('Zawodnik_Clean')['Gole_Num'].sum().reset_index()
             scorers = scorers[scorers['Gole_Num'] > 0].sort_values('Gole_Num', ascending=False).head(10)
-            scorers = pd.merge(scorers, df_p_dates[['imię i nazwisko', 'Flaga']],
+            
+            merge_cols = ['imię i nazwisko']
+            if 'Flaga' in df_p_dates.columns: merge_cols.append('Flaga')
+
+            scorers = pd.merge(scorers, df_p_dates[merge_cols], 
                                left_on='Zawodnik_Clean', right_on='imię i nazwisko', how='left')
             scorers = get_medals(scorers)
+            
+            cfg_sc = {"Gole_Num": st.column_config.NumberColumn("Liczba Goli", format="%d ⚽")}
+            if 'Flaga' in scorers.columns: cfg_sc["Flaga"] = st.column_config.ImageColumn("", width="small")
 
             st.dataframe(
-                scorers[['Miejsce', 'Flaga', 'Zawodnik_Clean', 'Gole_Num']],
+                scorers[['Miejsce'] + [c for c in ['Flaga', 'Zawodnik_Clean', 'Gole_Num'] if c in scorers.columns]],
                 hide_index=True, use_container_width=True,
-                column_config={
-                    "Flaga": st.column_config.ImageColumn("", width="small"),
-                    "Gole_Num": st.column_config.NumberColumn("Liczba Goli", format="%d ⚽")
-                }
+                column_config=cfg_sc
             )
-
+            
             st.divider()
-
+            
             # 2. Najmłodsi i Najstarsi Strzelcy
             if not df_age.empty:
                 df_goals = df_age[df_age['Gole_Num'] > 0].copy()
                 if not df_goals.empty:
                     c_ys, c_os = st.columns(2)
+                    
+                    cfg_s_age = {}
+                    if 'Flaga' in df_goals.columns: cfg_s_age["Flaga"] = st.column_config.ImageColumn("", width="small")
+
                     with c_ys:
                         st.markdown("**👶 Najmłodsi Strzelcy**")
                         y_sc = df_goals.loc[df_goals.groupby('Zawodnik_Clean')['Age_Days'].idxmin()]
                         y_sc = y_sc.sort_values('Age_Days').head(5)
                         y_sc = get_medals(y_sc)
-                        st.dataframe(y_sc[['Miejsce', 'Flaga', 'Zawodnik_Clean', 'Wiek_Txt']], hide_index=True,
-                                     use_container_width=True,
-                                     column_config={"Flaga": st.column_config.ImageColumn("", width="small")})
-
+                        cols_ys = ['Miejsce'] + [c for c in ['Flaga', 'Zawodnik_Clean', 'Wiek_Txt'] if c in y_sc.columns]
+                        st.dataframe(y_sc[cols_ys], hide_index=True, use_container_width=True, column_config=cfg_s_age)
+                        
                     with c_os:
                         st.markdown("**👴 Najstarsi Strzelcy**")
                         o_sc = df_goals.loc[df_goals.groupby('Zawodnik_Clean')['Age_Days'].idxmax()]
                         o_sc = o_sc.sort_values('Age_Days', ascending=False).head(5)
                         o_sc = get_medals(o_sc)
-                        st.dataframe(o_sc[['Miejsce', 'Flaga', 'Zawodnik_Clean', 'Wiek_Txt']], hide_index=True,
-                                     use_container_width=True,
-                                     column_config={"Flaga": st.column_config.ImageColumn("", width="small")})
+                        cols_os = ['Miejsce'] + [c for c in ['Flaga', 'Zawodnik_Clean', 'Wiek_Txt'] if c in o_sc.columns]
+                        st.dataframe(o_sc[cols_os], hide_index=True, use_container_width=True, column_config=cfg_s_age)
 
         # --- TAB 4: WYNIKI I HAT-TRICKI ---
         with tab4:
@@ -3002,7 +3011,7 @@ elif opcja == "🏆 Rekordy & TOP":
                 st.markdown("#### 🎩 Hat-tricki")
                 hats = df_w[df_w['Gole_Num'] >= 3].copy()
                 if not hats.empty:
-                    hats = hats.sort_values('Data_Sort', ascending=False)  # Najnowsze na górze
+                    hats = hats.sort_values('Data_Sort', ascending=False)
                     st.dataframe(
                         hats[['Sezon', 'Data_Sort', 'Zawodnik_Clean', 'Gole_Num', 'Przeciwnik']],
                         hide_index=True, use_container_width=True,
@@ -3020,13 +3029,11 @@ elif opcja == "🏆 Rekordy & TOP":
                     def get_diff(x):
                         p = parse_result(x)
                         return (p[0] - p[1]) if p else -99
-
-
+                    
                     df_m['Diff'] = df_m['wynik'].apply(get_diff)
                     wins = df_m[df_m['Diff'] > 0].sort_values('Diff', ascending=False).head(10)
                     wins = get_medals(wins)
-                    st.dataframe(wins[['Miejsce', 'sezon', 'rywal', 'wynik']], hide_index=True,
-                                 use_container_width=True)
+                    st.dataframe(wins[['Miejsce', 'sezon', 'rywal', 'wynik']], hide_index=True, use_container_width=True)
 
         # --- TAB 5: KARTKI ---
         with tab5:
@@ -3035,19 +3042,20 @@ elif opcja == "🏆 Rekordy & TOP":
                 df_w['R_Card'] = pd.to_numeric(df_w['Czerwone'], errors='coerce').fillna(0).astype(int)
                 reds = df_w.groupby('Zawodnik_Clean')['R_Card'].sum().reset_index()
                 reds = reds[reds['R_Card'] > 0].sort_values('R_Card', ascending=False).head(10)
+                
+                merge_cols = ['imię i nazwisko']
+                if 'Flaga' in df_p_dates.columns: merge_cols.append('Flaga')
 
-                # Dodanie flag
-                reds = pd.merge(reds, df_p_dates[['imię i nazwisko', 'Flaga']], left_on='Zawodnik_Clean',
-                                right_on='imię i nazwisko', how='left')
+                reds = pd.merge(reds, df_p_dates[merge_cols], left_on='Zawodnik_Clean', right_on='imię i nazwisko', how='left')
                 reds = get_medals(reds)
+                
+                cfg_red = {"R_Card": st.column_config.NumberColumn("Czerwone", format="%d 🟥")}
+                if 'Flaga' in reds.columns: cfg_red["Flaga"] = st.column_config.ImageColumn("", width="small")
 
                 st.dataframe(
-                    reds[['Miejsce', 'Flaga', 'Zawodnik_Clean', 'R_Card']],
+                    reds[['Miejsce'] + [c for c in ['Flaga', 'Zawodnik_Clean', 'R_Card'] if c in reds.columns]],
                     hide_index=True, use_container_width=True,
-                    column_config={
-                        "Flaga": st.column_config.ImageColumn("", width="small"),
-                        "R_Card": st.column_config.NumberColumn("Czerwone", format="%d 🟥")
-                    }
+                    column_config=cfg_red
                 )
 
 elif opcja == "🕵️ Ciemne Karty Historii":
@@ -3213,4 +3221,5 @@ elif opcja == "🕵️ Ciemne Karty Historii":
                 "Zawodnicy (TSP)": st.column_config.TextColumn("Zaangażowani Zawodnicy TSP", width="large"),
                 "Opis": st.column_config.TextColumn("Szczegóły zdarzenia", width="large"),
             }
+
         )
