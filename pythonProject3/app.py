@@ -1255,7 +1255,7 @@ def get_player_record_badges(player_name, df_w=None, df_p=None):
         # ŻELAZNE PŁUCA
         mins = pd.to_numeric(p_data['Minuty'], errors='coerce').fillna(0).sum()
         if mins > 5000:
-            badges.append({"icon": "🫁", "text": "Żelazne Płuca (>5k min)", "color": "#34495e"})
+            badges.append({"icon": "⏱️", "text": "Żelazne Płuca (>5k min)", "color": "#34495e"})
 
     except Exception as e:
         return []
@@ -3348,7 +3348,7 @@ elif opcja == "🕵️ Ciemne Karty Historii":
         st.info("Ta sekcja jest ukryta dla konta gościnnego. Wymagane uprawnienia administratora.")
     else:
         st.header("🕵️ Ciemne Karty Historii (2003-2006)")
-
+        
         st.error("""
         **⚠️ OSTRZEŻENIE HISTORYCZNE**
         Poniższe dane dotyczą udowodnionego procederu korupcyjnego (tzw. "afera fryzjera"), w którym brał udział klub Podbeskidzie Bielsko-Biała. 
@@ -3356,138 +3356,137 @@ elif opcja == "🕵️ Ciemne Karty Historii":
         """)
 
         col_text, col_facts = st.columns([2, 1])
-
+        
         with col_text:
             st.markdown("""
             ### 📉 Konsekwencje prawne i sportowe
             W wyniku śledztwa dotyczącego ustawiania meczów w dawnej II lidze, klub został ukarany przez Wydział Dyscypliny PZPN:
-
+            
             * **Kara punktowa:** Odjęcie **6 punktów** na starcie sezonu 2007/2008.
             * **Kara finansowa:** 50 tysięcy złotych.
             * **Wyroki:** Zarzuty i wyroki usłyszeli ówcześni działacze (m.in. prezes Stanisław P., kierownik Jerzy W.) oraz sędziowie i obserwatorzy.
             """)
-
+            
         with col_facts:
             st.info("""
-            **Status meczów:**
-            * 🔴 **Kupiony:** Wręczono łapówkę sędziemu, obserwatorowi lub rywalom.
-            * 🟠 **Próba kupna:** Złożono propozycję korupcyjną, ale z różnych przyczyn (np. wynik, aresztowania) pieniądze nie zostały przekazane.
+            **Legenda Statusu:**
+            * 🔴 **Kupiony:** Wręczono łapówkę.
+            * 🟠 **Próba kupna:** Złożono propozycję, ale pieniądze nie zostały przekazane (np. przez wynik).
             """)
 
         st.divider()
         st.subheader("📋 Kalendarium Korupcji")
 
-        # DANE Z TWOJEJ TABELI
+        # DANE Z TWOJEJ TABELI (DODANO EMOTKI DO STATUSU)
         corruption_data = [
             {
-                "Sezon": "2003/04", "Data": "30.08.2003", "Rywal": "Ruch Chorzów", "Wynik": "2:1",
-                "Status": "Kupiony", "Zawodnicy (TSP)": "—",
+                "Sezon": "2003/04", "Data": "30.08.2003", "Rywal": "Ruch Chorzów", "Wynik": "2:1", 
+                "Status": "🔴 Kupiony", "Zawodnicy (TSP)": "—", 
                 "Opis": "Prezes Stanisław P. wręczył 15 tys. zł łapówki sędziemu Piotrowi K."
             },
             {
-                "Sezon": "2003/04", "Data": "12.10.2003", "Rywal": "KSZO Ostrowiec Św.", "Wynik": "0:1",
-                "Status": "Próba kupna", "Zawodnicy (TSP)": "—",
+                "Sezon": "2003/04", "Data": "12.10.2003", "Rywal": "KSZO Ostrowiec Św.", "Wynik": "0:1", 
+                "Status": "🟠 Próba kupna", "Zawodnicy (TSP)": "—", 
                 "Opis": "Sędzia przyjął propozycję 7 tys. zł, ale ich nie dostał, bo Podbeskidzie przegrało."
             },
             {
-                "Sezon": "2003/04", "Data": "18.10.2003", "Rywal": "Zagłębie Lubin", "Wynik": "4:2",
-                "Status": "Kupiony", "Zawodnicy (TSP)": "—",
+                "Sezon": "2003/04", "Data": "18.10.2003", "Rywal": "Zagłębie Lubin", "Wynik": "4:2", 
+                "Status": "🔴 Kupiony", "Zawodnicy (TSP)": "—", 
                 "Opis": "Prezes przekazał sędziemu Marcinowi P. 10 tys. zł po meczu."
             },
             {
-                "Sezon": "2003/04", "Data": "25.10.2003", "Rywal": "GKS Bełchatów", "Wynik": "2:1",
-                "Status": "Kupiony", "Zawodnicy (TSP)": "—",
+                "Sezon": "2003/04", "Data": "25.10.2003", "Rywal": "GKS Bełchatów", "Wynik": "2:1", 
+                "Status": "🔴 Kupiony", "Zawodnicy (TSP)": "—", 
                 "Opis": "Sędzia Marcin N. otrzymał 10-15 tys. zł przekazem po meczu."
             },
             {
-                "Sezon": "2003/04", "Data": "27.03.2004", "Rywal": "Polar Wrocław", "Wynik": "2:0",
-                "Status": "Kupiony", "Zawodnicy (TSP)": "—",
+                "Sezon": "2003/04", "Data": "27.03.2004", "Rywal": "Polar Wrocław", "Wynik": "2:0", 
+                "Status": "🔴 Kupiony", "Zawodnicy (TSP)": "—", 
                 "Opis": "Prezes wręczył 10 tys. zł sędziemu, którego Ryszard F. nazwał 'swoim synkiem'."
             },
             {
-                "Sezon": "2003/04", "Data": "29.04.2004", "Rywal": "Jagiellonia Białystok", "Wynik": "2:0",
-                "Status": "Kupiony", "Zawodnicy (TSP)": "—",
+                "Sezon": "2003/04", "Data": "29.04.2004", "Rywal": "Jagiellonia Białystok", "Wynik": "2:0", 
+                "Status": "🔴 Kupiony", "Zawodnicy (TSP)": "—", 
                 "Opis": "Sędzia otrzymał 5 tys. zł, opłacony został także obserwator PZPN."
             },
             {
-                "Sezon": "2003/04", "Data": "06.06.2004", "Rywal": "Aluminium Konin", "Wynik": "1:0",
-                "Status": "Kupiony", "Zawodnicy (TSP)": "—",
+                "Sezon": "2003/04", "Data": "06.06.2004", "Rywal": "Aluminium Konin", "Wynik": "1:0", 
+                "Status": "🔴 Kupiony", "Zawodnicy (TSP)": "—", 
                 "Opis": "Sędzia Łukasz B. otrzymał 10 tys. zł dwa tygodnie po meczu."
             },
             {
-                "Sezon": "2004/05", "Data": "31.07.2004", "Rywal": "ŁKS Łódź", "Wynik": "0:0",
-                "Status": "Kupiony", "Zawodnicy (TSP)": "—",
+                "Sezon": "2004/05", "Data": "31.07.2004", "Rywal": "ŁKS Łódź", "Wynik": "0:0", 
+                "Status": "🔴 Kupiony", "Zawodnicy (TSP)": "—", 
                 "Opis": "Wręczono 15 tys. zł przed meczem, sędzia musiał zwrócić 5 tys. zł z powodu remisu."
             },
             {
-                "Sezon": "2004/05", "Data": "05.09.2004", "Rywal": "Radomiak Radom", "Wynik": "1:0",
-                "Status": "Kupiony", "Zawodnicy (TSP)": "—",
+                "Sezon": "2004/05", "Data": "05.09.2004", "Rywal": "Radomiak Radom", "Wynik": "1:0", 
+                "Status": "🔴 Kupiony", "Zawodnicy (TSP)": "—", 
                 "Opis": "Sędzia Mariusz S. i obserwatorzy opłaceni (łącznie ok. 15 tys. zł)."
             },
             {
-                "Sezon": "2004/05", "Data": "02.10.2004", "Rywal": "Świt Nowy Dwór Maz.", "Wynik": "1:1",
-                "Status": "Kupiony", "Zawodnicy (TSP)": "—",
+                "Sezon": "2004/05", "Data": "02.10.2004", "Rywal": "Świt Nowy Dwór Maz.", "Wynik": "1:1", 
+                "Status": "🔴 Kupiony", "Zawodnicy (TSP)": "—", 
                 "Opis": "Obiecane 10 tys. zł, wypłacone 5 tys. zł z powodu remisu."
             },
             {
-                "Sezon": "2004/05", "Data": "16.10.2004", "Rywal": "KSZO Ostrowiec Św.", "Wynik": "2:1",
-                "Status": "Kupiony", "Zawodnicy (TSP)": "—",
+                "Sezon": "2004/05", "Data": "16.10.2004", "Rywal": "KSZO Ostrowiec Św.", "Wynik": "2:1", 
+                "Status": "🔴 Kupiony", "Zawodnicy (TSP)": "—", 
                 "Opis": "Sędzia Piotr K. otrzymał 10 tys. zł po meczu."
             },
             {
-                "Sezon": "2004/05", "Data": "30.10.2004", "Rywal": "Piast Gliwice", "Wynik": "1:0",
-                "Status": "Kupiony", "Zawodnicy (TSP)": "—",
+                "Sezon": "2004/05", "Data": "30.10.2004", "Rywal": "Piast Gliwice", "Wynik": "1:0", 
+                "Status": "🔴 Kupiony", "Zawodnicy (TSP)": "—", 
                 "Opis": "Sędzia Adam K. otrzymał 10 tys. zł po meczu."
             },
             {
-                "Sezon": "2004/05", "Data": "07.11.2004", "Rywal": "Zagłębie Sosnowiec", "Wynik": "3:1",
-                "Status": "Kupiony", "Zawodnicy (TSP)": "—",
+                "Sezon": "2004/05", "Data": "07.11.2004", "Rywal": "Zagłębie Sosnowiec", "Wynik": "3:1", 
+                "Status": "🔴 Kupiony", "Zawodnicy (TSP)": "—", 
                 "Opis": "Sędzia Paweł S. otrzymał 10 tys. zł po meczu."
             },
             {
-                "Sezon": "2004/05", "Data": "14.11.2004", "Rywal": "MKS Mława", "Wynik": "2:0",
-                "Status": "Kupiony", "Zawodnicy (TSP)": "—",
+                "Sezon": "2004/05", "Data": "14.11.2004", "Rywal": "MKS Mława", "Wynik": "2:0", 
+                "Status": "🔴 Kupiony", "Zawodnicy (TSP)": "—", 
                 "Opis": "Sędzia Sławomir P. otrzymał 10 tys. zł od działacza."
             },
             {
-                "Sezon": "2004/05", "Data": "16.04.2005", "Rywal": "Szczakowianka Jaworzno", "Wynik": "2:1",
-                "Status": "Próba kupna", "Zawodnicy (TSP)": "—",
+                "Sezon": "2004/05", "Data": "16.04.2005", "Rywal": "Szczakowianka Jaworzno", "Wynik": "2:1", 
+                "Status": "🟠 Próba kupna", "Zawodnicy (TSP)": "—", 
                 "Opis": "Sędzia zgodził się na 15 tys. zł, ale nie dostał pieniędzy przez aresztowania działaczy."
             },
             {
-                "Sezon": "2004/05", "Data": "23.04.2005", "Rywal": "Ruch Chorzów", "Wynik": "0:0",
-                "Status": "Kupiony", "Zawodnicy (TSP)": "—",
+                "Sezon": "2004/05", "Data": "23.04.2005", "Rywal": "Ruch Chorzów", "Wynik": "0:0", 
+                "Status": "🔴 Kupiony", "Zawodnicy (TSP)": "—", 
                 "Opis": "Sędzia dostał min. 3 tys. zł za remis (obiecane 10 tys. zł za wygraną)."
             },
             {
-                "Sezon": "2004/05", "Data": "04.06.2005", "Rywal": "Piast Gliwice", "Wynik": "0:2",
-                "Status": "Próba kupna", "Zawodnicy (TSP)": "—",
+                "Sezon": "2004/05", "Data": "04.06.2005", "Rywal": "Piast Gliwice", "Wynik": "0:2", 
+                "Status": "🟠 Próba kupna", "Zawodnicy (TSP)": "—", 
                 "Opis": "Sędzia przyjął propozycję 'dużej premii', ale jej nie dostał z powodu porażki Podbeskidzia."
             },
             {
-                "Sezon": "2005/06", "Data": "15.04.2006", "Rywal": "Radomiak Radom", "Wynik": "2:1",
-                "Status": "Kupiony", "Zawodnicy (TSP)": "Paweł S., Dariusz K., Mariusz S., Tomasz G.",
+                "Sezon": "2005/06", "Data": "15.04.2006", "Rywal": "Radomiak Radom", "Wynik": "2:1", 
+                "Status": "🔴 Kupiony", "Zawodnicy (TSP)": "Paweł S., Dariusz K., Mariusz S., Tomasz G.", 
                 "Opis": "Łapówka (5 tys. zł) dla gracza rywali (Piotra D.) za odpuszczenie meczu."
             },
             {
-                "Sezon": "2005/06", "Data": "05.05.2006", "Rywal": "ŁKS Łódź", "Wynik": "1:0",
-                "Status": "Kupiony",
-                "Zawodnicy (TSP)": "Grzegorz P., Łukasz G., Łukasz M., Piotr K., Mariusz S., Dariusz K., Marcin H.",
+                "Sezon": "2005/06", "Data": "05.05.2006", "Rywal": "ŁKS Łódź", "Wynik": "1:0", 
+                "Status": "🔴 Kupiony", "Zawodnicy (TSP)": "Grzegorz P., Łukasz G., Łukasz M., Piotr K., Mariusz S., Dariusz K., Marcin H.", 
                 "Opis": "Zawodnicy zrzucili się ze swojej premii meczowej na 10 tys. zł łapówki dla sędziego Piotra W."
             }
         ]
 
         df_corr = pd.DataFrame(corruption_data)
 
-
-        # Funkcja stylizująca wiersze (kolory statusu)
+        # Funkcja stylizująca wiersze (kolory tła + emotki w treści)
         def highlight_status(val):
-            if "Kupiony" in str(val):
-                return 'background-color: rgba(220, 53, 69, 0.15)'  # Czerwony
-            if "Próba" in str(val):
-                return 'background-color: rgba(255, 193, 7, 0.15)'  # Żółty/Pomarańczowy
+            # Tutaj sprawdzamy czy tekst zawiera słowa kluczowe (nawet z emotką)
+            val_str = str(val)
+            if "Kupiony" in val_str and "Próba" not in val_str:
+                return 'background-color: rgba(220, 53, 69, 0.15)' # Czerwony dla Kupiony
+            if "Próba" in val_str:
+                return 'background-color: rgba(255, 193, 7, 0.15)' # Żółty/Pomarańczowy dla Próby
             return ''
-
 
         # Wyświetlanie tabeli
         st.dataframe(
@@ -3504,9 +3503,4 @@ elif opcja == "🕵️ Ciemne Karty Historii":
                 "Zawodnicy (TSP)": st.column_config.TextColumn("Zaangażowani Zawodnicy TSP", width="large"),
                 "Opis": st.column_config.TextColumn("Szczegóły zdarzenia", width="large"),
             }
-
         )
-
-
-
-
