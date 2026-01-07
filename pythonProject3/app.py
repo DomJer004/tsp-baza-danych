@@ -2800,7 +2800,11 @@ elif opcja == "🏆 Rekordy & TOP":
             df_w['join_key'] = df_w['Zawodnik_Clean'].astype(str).str.lower().str.strip()
 
             # Normalizacja pilkarze.csv
-            col_map = {'kraj': 'Narodowość', 'Kraj': 'Narodowość', 'Pozycja': 'pozycja', 'imię i nazwisko': 'nazwisko'}
+            col_map = {
+                'kraj': 'Narodowość', 'Kraj': 'Narodowość', 
+                'narodowość': 'Narodowość', 'narodowosc': 'Narodowość',
+                'Pozycja': 'pozycja', 'imię i nazwisko': 'nazwisko'
+            }
             df_p.rename(columns={k: v for k, v in col_map.items() if k in df_p.columns}, inplace=True)
             if 'nazwisko' in df_p.columns: df_p.rename(columns={'nazwisko': 'imię i nazwisko'}, inplace=True)
 
@@ -2876,15 +2880,37 @@ elif opcja == "🏆 Rekordy & TOP":
             agg = pd.merge(agg, m_counts, on='join_key')
 
             # Łączenie z profilem (Left Join)
-            full_agg = pd.merge(agg, df_p_dates[['join_key', 'Narodowość', 'pozycja', 'Lata gry']], on='join_key',
-                                how='left')
+            # 1. Najpierw przygotujemy kolumnę z manualną liczbą meczów w df_p_dates
+            def get_manual_matches(row):
+                for c in ['suma', 'mecze', 'liczba']:
+                    if c in row.index:
+                        try:
+                            val = int(row[c])
+                            if val > 0: return val
+                        except:
+                            pass
+                return 0
+
+            df_p_dates['Manual_Matches'] = df_p_dates.apply(get_manual_matches, axis=1)
+
+            # [ZMIANA] Używamy OUTER JOIN, aby nie gubić piłkarzy, którzy są tylko w pilkarze.csv (np. przez błędy w nazwisku)
+            full_agg = pd.merge(agg, df_p_dates[['join_key', 'Narodowość', 'pozycja', 'Lata gry', 'Manual_Matches']],
+                                on='join_key', how='outer')
+
+            # Wypełniamy braki zerami, żeby max() działał poprawnie
+            full_agg['Mecze_Liczba'] = full_agg['Mecze_Liczba'].fillna(0)
+            full_agg['Manual_Matches'] = full_agg['Manual_Matches'].fillna(0)
+            
+            # 2. Obliczamy ostateczną liczbę meczów (MAX z wyliczonych i manualnych)
+            full_agg['Total_Matches'] = full_agg[['Mecze_Liczba', 'Manual_Matches']].max(axis=1).astype(int)
 
             # --- E. LISTY ODZNAK ---
-            list_club100 = full_agg[full_agg['Mecze_Liczba'] >= 100]['Zawodnik_Clean'].tolist()
+            # Używamy teraz 'Total_Matches' zamiast 'Mecze_Liczba'
+            list_club100 = full_agg[full_agg['Total_Matches'] >= 100]['Zawodnik_Clean'].tolist()
             list_veteran = full_agg[full_agg['Sezony_Liczba'] >= 5]['Zawodnik_Clean'].tolist()
             list_lungs = full_agg[full_agg['Min_Num'] > 5000]['Zawodnik_Clean'].tolist()
             list_badboy = full_agg[full_agg['R_Num'] >= 2]['Zawodnik_Clean'].tolist()
-            list_gentleman = full_agg[(full_agg['Mecze_Liczba'] >= 30) & (full_agg['R_Num'] == 0)][
+            list_gentleman = full_agg[(full_agg['Total_Matches'] >= 30) & (full_agg['R_Num'] == 0)][
                 'Zawodnik_Clean'].tolist()
 
             # [POPRAWIONE] ZAGRANICZNY FILAR - PROSTE FILTROWANIE
@@ -2893,12 +2919,13 @@ elif opcja == "🏆 Rekordy & TOP":
 
             # 2. Definicja maski (filtru)
             mask_foreign = (
-                    (full_agg['Mecze_Liczba'] >= 50) &  # Minimum 50 meczów
+                    (full_agg['Total_Matches'] >= 50) &  # Minimum 50 meczów (z uwzględnieniem manualnych)
                     (full_agg['Narodowość_Str'] != '') &  # Musi mieć narodowość
                     (full_agg['Narodowość_Str'] != '-') &  # Nie może być "-"
                     (full_agg['Narodowość_Str'] != 'nan') &
                     (~full_agg['Narodowość_Str'].str.contains('pol'))  # Nie może zawierać "pol" (Polska, Poland)
             )
+
 
             list_foreign = full_agg[mask_foreign]['Zawodnik_Clean'].tolist()
 
