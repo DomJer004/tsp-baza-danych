@@ -3620,7 +3620,7 @@ elif opcja == "Trenerzy":
                             st.error("Brak kolumny z datą w mecze.csv")
 
 elif opcja == "🕵️ Ciemne Karty Historii":
-    # --- ZABEZPIECZENIE PRZED GOŚĆMI ---
+    # --- ZABEZPIECZENIE PRZED GOŚĆMI (Dostęp do całego modułu) ---
     if st.session_state.get('username') == 'guest' or not st.session_state.get('logged_in'):
         st.error("⛔ Odmowa dostępu.")
         st.info("Ta sekcja jest ukryta dla konta gościnnego. Wymagane uprawnienia administratora.")
@@ -3655,7 +3655,7 @@ elif opcja == "🕵️ Ciemne Karty Historii":
         st.divider()
         st.subheader("📋 Kalendarium Korupcji")
 
-        # DANE Z TWOJEJ TABELI (DODANO EMOTKI DO STATUSU)
+        # DANE O KORUPCJI
         corruption_data = [
             {
                 "Sezon": "2003/04", "Data": "30.08.2003", "Rywal": "Ruch Chorzów", "Wynik": "2:1",
@@ -3757,24 +3757,12 @@ elif opcja == "🕵️ Ciemne Karty Historii":
 
         df_corr = pd.DataFrame(corruption_data)
 
-
-        # Funkcja stylizująca wiersze (kolory tła + emotki w treści)
-        def highlight_status(val):
-            # Tutaj sprawdzamy czy tekst zawiera słowa kluczowe (nawet z emotką)
-            val_str = str(val)
-            if "Kupiony" in val_str and "Próba" not in val_str:
-                return 'background-color: rgba(220, 53, 69, 0.15)'  # Czerwony dla Kupiony
-            if "Próba" in val_str:
-                return 'background-color: rgba(255, 193, 7, 0.15)'  # Żółty/Pomarańczowy dla Próby
-            return ''
-
-
         # Wyświetlanie tabeli
         st.dataframe(
             df_corr,
             hide_index=True,
             use_container_width=True,
-            height=800,
+            height=400,
             column_config={
                 "Sezon": st.column_config.TextColumn("Sezon", width="small"),
                 "Data": st.column_config.TextColumn("Data", width="small"),
@@ -3784,5 +3772,66 @@ elif opcja == "🕵️ Ciemne Karty Historii":
                 "Zawodnicy (TSP)": st.column_config.TextColumn("Zaangażowani Zawodnicy TSP", width="large"),
                 "Opis": st.column_config.TextColumn("Szczegóły zdarzenia", width="large"),
             }
-
         )
+
+        # =========================================================
+        # ZWERYFIKOWANI INWESTORZY (TYLKO DLA WYBRANYCH)
+        # =========================================================
+        authorized_users = ['Djero', 'KKowalski', 'JFilip']
+        current_user = st.session_state.get('username')
+
+        if current_user in authorized_users:
+            st.markdown("---")
+            st.subheader("🕵️ Zweryfikowani 'Kreatywni Inwestorzy'")
+            st.info(
+                "Na podstawie akt sądowych oraz dostępnych danych historycznych, poniżej znajduje się lista zidentyfikowanych zawodników biorących udział w zrzutkach (tzw. 'inwestycjach').")
+
+            # Mapowanie skrótów na pełne nazwiska
+            verified_map = {
+                "Paweł S.": "Paweł Sibik",
+                "Dariusz K.": "Dariusz Kołodziej",
+                "Mariusz S.": "Mariusz Sacha",
+                "Tomasz G.": "Tomasz Górkiewicz",
+                "Grzegorz P.": "Grzegorz Pater",
+                "Łukasz G.": "Łukasz Gorszkow",
+                "Łukasz M.": "Łukasz Merda",
+                "Piotr K.": "Piotr Koman",
+                "Marcin H.": "Marcin Hirsz"
+            }
+
+            # Pobranie danych o sezonach z wystepy.csv
+            df_w_hist = load_details("wystepy.csv")
+
+            if df_w_hist is not None:
+                def get_player_seasons(p_name):
+                    p_rows = df_w_hist[df_w_hist['Zawodnik_Clean'] == p_name]
+                    if p_rows.empty: return "Brak w bazie"
+                    if 'Sezon' not in p_rows.columns: return "Brak danych"
+                    seasons = sorted(p_rows['Sezon'].unique().tolist())
+                    return ", ".join(seasons)
+            else:
+                def get_player_seasons(p_name):
+                    return "Brak pliku wystepy.csv"
+
+            # Generowanie kart (KAFELKÓW)
+            cols_inv = st.columns(4)
+            idx = 0
+
+            for abbr, full_name in verified_map.items():
+                seasons_txt = get_player_seasons(full_name)
+
+                # UWAGA: Kod HTML jest "spłaszczony" (bez wcięć), aby Streamlit
+                # nie interpretował go jako bloku kodu (co powoduje wyświetlanie tekstu zamiast grafiki).
+                card_html = f"""<div style="border: 1px solid #d63031; border-radius: 10px; padding: 15px; text-align: center; background-color: rgba(214, 48, 49, 0.08); margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); color: inherit;">
+                    <div style="font-size: 28px; margin-bottom: 5px;">💸</div>
+                    <div style="font-weight: bold; font-size: 1.1em; margin-bottom: 5px;">{full_name}</div>
+                    <div style="font-size: 0.85em; opacity: 0.7; margin-bottom: 8px;">({abbr})</div>
+                    <div style="background-color: #d63031; color: white; padding: 4px 8px; border-radius: 15px; font-size: 0.75em; font-weight: bold; display: inline-block; margin-bottom: 8px;">KREATYWNY INWESTOR</div>
+                    <div style="font-size: 0.8em; border-top: 1px dashed #d63031; padding-top: 5px;">
+                        <strong>Sezony:</strong><br>{seasons_txt}
+                    </div>
+                </div>"""
+
+                with cols_inv[idx % 4]:
+                    st.markdown(card_html, unsafe_allow_html=True)
+                idx += 1
