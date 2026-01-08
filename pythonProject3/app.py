@@ -114,6 +114,8 @@ USERS = {
     "SJaszczurowski": "TSP2025",
     "guest": "123456789",
     "JFilip": "KochamPodbeskidzie",
+    "DJakubiec": "GodziszkaToMy",
+    "DStanclik": "TSP2026",
     "Gabrielba": "TSP2026"
 }
 
@@ -3782,4 +3784,5 @@ elif opcja == "🕵️ Ciemne Karty Historii":
                 "Zawodnicy (TSP)": st.column_config.TextColumn("Zaangażowani Zawodnicy TSP", width="large"),
                 "Opis": st.column_config.TextColumn("Szczegóły zdarzenia", width="large"),
             }
+
         )
