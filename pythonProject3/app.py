@@ -116,7 +116,8 @@ USERS = {
     "JFilip": "KochamPodbeskidzie",
     "DJakubiec": "GodziszkaToMy",
     "DStanclik": "TSP2026",
-    "Gabrielba": "TSP2026"
+    "Gabrielba": "TSP2026",
+    "MSeredyniecki": "TSP2026"
 }
 
 # --- KONFIGURACJA GLOBALNA ---
