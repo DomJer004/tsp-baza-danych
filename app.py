@@ -106,7 +106,8 @@ USERS = {
     "MCzerniak": "TSP2025",
     "SJaszczurowski": "TSP2025",
     "guest": "123456789",
-    "Gabrielba": "TSP2026"
+    "Gabrielba": "TSP2026",
+    "MSeredyniecki": "TSP2026"
 }
 
 
