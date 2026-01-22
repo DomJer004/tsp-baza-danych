@@ -5,6 +5,7 @@ import re
 import os
 import time
 import calendar
+from streamlit_autorefresh import st_autorefresh
 
 # --- 1. KONFIGURACJA STRONY ---
 st.set_page_config(
@@ -13,7 +14,8 @@ st.set_page_config(
     page_icon="⚽"
 )
 
-
+# Odświeżanie co 5 minut (300 000 ms), aby nie rozłączało
+st_autorefresh(interval=300000, key="data_refresh_key")
 # ==========================================
 # [NOWOŚĆ] GLOBALNE STYLE CSS (DARK MODE FIX)
 # ==========================================
@@ -3836,3 +3838,4 @@ elif opcja == "🕵️ Ciemne Karty Historii":
                 with cols_inv[idx % 4]:
                     st.markdown(card_html, unsafe_allow_html=True)
                 idx += 1
+
